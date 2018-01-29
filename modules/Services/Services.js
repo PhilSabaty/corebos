@@ -6,8 +6,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-document.write("<script type='text/javascript' src='modules/Products/multifile.js'></"+"script>");
-document.write("<script type='text/javascript' src='include/js/Merge.js'></"+"script>");
+
 function updateListPrice(unitprice,fieldname, oSelect)
 {
 	if(oSelect.checked == true)
@@ -18,22 +17,6 @@ function updateListPrice(unitprice,fieldname, oSelect)
 	{
 		document.getElementById(fieldname).style.visibility = 'hidden';
 	}
-}
-
-function check4null(form) {
-  var isError = false;
-  var errorMessage = "";
-  if (trim(form.productname.value) =='') {
-	isError = true;
-	errorMessage += "\n Product Name";
-	form.productname.focus();
-  }
-
-  if (isError == true) {
-	alert(alert_arr.MISSING_REQUIRED_FIELDS + errorMessage);
-	return false;
-  }
-  return true;
 }
 
 function set_return(product_id, product_name) {

@@ -1,27 +1,16 @@
 <?php
-/*********************************************************************************
- * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
- * Software distributed under the License is distributed on an  "AS IS"  basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
- * the specific language governing rights and limitations under the License.
- * The Original Code is:  SugarCRM Open Source
- * The Initial Developer of the Original Code is SugarCRM, Inc.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.;
- * All Rights Reserved.
- * Contributor(s): ______________________________________.
- ********************************************************************************/
-/*********************************************************************************
- * $Header:
- * Description:   Defines the English language pack for the Reports module.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.
+/*+********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * Contributor(s): Valmir Carlos Trindade/Translate to Brazilian Portuguese| 03/03/2012 |Curitiba/Paraná/Brasil.|www.ttcasolucoes.com.br
- * Contributor(s): Ranieri/Translate terms | 21/03/2017 |Sao Paulo/SP/Brasil.|www.ecrmweb.com.br
+ * Contributor(s): Ranieri/Translate terms | 19/01/2018 |Sao Paulo/SP/Brasil.|www.ecrmweb.com.br
  ********************************************************************************/
 
-$mod_strings = Array(
+$mod_strings = array(
 'LBL_MODULE_NAME'=>'Relatórios',
 'LBL_MODULE_TITLE'=>'Relatórios: Principal',
 'LBL_CREATE_REPORT'=>'Criar Relatório',
@@ -75,10 +64,8 @@ $mod_strings = Array(
 'LBL_GENERATED_REPORT'=>'Relatório Gerado',
 'LBL_GRAND_TOTAL'=>'Total Geral',
 
-//Added for 4.2 Patch I
 'LBL_EXPORTXL_BUTTON'=>'Exportar para Excel',
 'LBL_EXPORTCSV'=>'Exportar para CSV',
-//Added for 5 Beta
 'LBL_NO_PERMISSION'=>'Seu perfil não permite visualizar os relatórios deste(s) modulo(s)',
 'LBL_SELECT_COLUMNS_TO_GENERATE_REPORTS'=>'Selecione as colunas para gerar relatórios',
 'LBL_AVAILABLE_FIELDS'=>'Campos Disponíveis',
@@ -101,7 +88,7 @@ $mod_strings = Array(
 'LBL_REPORT_DETAILS'=>'Detalhes Relatório',
 'LBL_TYPE_THE_NAME'=>'Tipo Nome',
 'LBL_DESCRIPTION_FOR_REPORT'=>'Descrição Relatório',
-'LBL_REPORT_NAME'=>'Nome Relatório',
+'LBL_REPORT_NAME'=>'Nome do Relatório',
 'LBL_DESCRIPTION'=>'Descrição',
 'LBL_TOOLS'=>'Ferramentas',
 'LBL_AND'=>'e',
@@ -159,6 +146,14 @@ $mod_strings = Array(
 'This Month Activities'=>'Atividades deste Mês',
 'Campaign Expectations and Actuals'=>'Campanha - Previsto/Realizado', //Added for Campaigns
 'SalesOrder Detailed Report'=>'Relatório Detalhado Pedido de Vendas', //Added for SO
+'Emails sent to Contacts' => 'Emails enviados p/Contatos',
+'Emails sent to Organizations' => 'Emails enviados p/Contas',
+'Emails sent to Leads' => 'Emails enviados p/Leads',
+'Emails sent to Vendors' => 'Emails enviados p/ Fornecedores',
+'Contacts Email Report' => 'Relatório Email p/Contatos',
+'Accounts Email Report' => 'Relatório Email p/Contas',
+'Leads Email Report' => 'Relatório Email p/Leads',
+'Vendors Email Report' => 'Relatório Emails p/Fornecedores',
 
 'LBL_DELETE'=>'Apagar',
 'Create_Reports'=>'Criar Relatórios',
@@ -183,6 +178,7 @@ $mod_strings = Array(
 'Current Month'=>'Mês Atual',
 'Next Month'=>'Próximo Mês',
 'Last 7 Days'=>'Últimos 7 Dias',
+'Last 14 Days' => 'Últimos 14 Dias',
 'Last 30 Days'=>'Últimos 30 Dias',
 'Last 60 Days'=>'Últimos 60 Dias',
 'Last 90 Days'=>'Últimos 90 Dias',
@@ -249,6 +245,7 @@ $mod_strings = Array(
 'LBL_SCHEDULE_EMAIL_DESCRIPTION'=>'Agendar Relatório para ser enviado aos Destinatários selecionados em intervalos regulares através de email',
 'LBL_USERS_AVAILABEL'=> 'Destinatários',
 'LBL_REPORT_FORMAT_PDF'=> 'PDF',
+'LBL_REPORT_FORMAT_URL'=> 'URL',
 'LBL_REPORT_FORMAT_EXCEL'=> 'EXCEL',
 'LBL_REPORT_FORMAT_BOTH'=> 'Ambos',
 'LBL_REPORT_FORMAT'=> 'Formato Relatório',
@@ -280,7 +277,7 @@ $mod_strings = Array(
 //Report Charts
 'LBL_VIEW_CHARTS' => 'Visualizar Gráficos',
 'LBL_ADD_CHARTS' => 'Adicionar Gráfico na Página Principal',
-'LBL_HOME_REPORT_NAME' => 'Nome Relatório',
+'LBL_HOME_REPORT_NAME' => 'Nome do Relatório',
 'LBL_HOME_HORIZONTAL_BARCHART' => 'Gráfico de Barras Horizontal',
 'LBL_HOME_VERTICAL_BARCHART' => 'Gráfico de Barras Vertical',
 'LBL_HOME_PIE_CHART' => 'Gráfico Pizza',
@@ -307,8 +304,7 @@ $mod_strings = Array(
 'LBL_COLUMNS_COUNT'=>'Contagem',
 'LBL_ERROR_WHILE_DELETING_FOLDER' => 'Erro enquanto a Pasta era apagada.',
 'LBL_ERROR_WHILE_DELETING_REPORTS_IN_FOLDER' => 'Erro ao excluir os relatórios da pasta',
-'LBL_AUTO_GENERATED_REPORT_EMAIL' => 'Este é um E-mail gerado automaticamente, enviado por um agendamento de relatório.',
-'LBL_REPORT_NAME' => 'Nome do Relatório',
+'LBL_AUTO_GENERATED_REPORT_EMAIL' => 'Este é um email gerado automaticamente em nome de um relatório agendado.',
 'LBL_DESCRIPTION'=>'Descrição',
 )
 

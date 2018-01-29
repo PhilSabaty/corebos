@@ -133,7 +133,7 @@ function GetRelatedListBase($module,$relatedmodule,$focus,$query,$button,$return
 
 	$url_qry ="&order_by=".$order_by."&sorder=".$sorder;
 	$computeCount = isset($_REQUEST['withCount']) ? $_REQUEST['withCount'] : '';
-	if(PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false) === true || (boolean) $computeCount == true){
+	if (GlobalVariable::getVariable('Application_ListView_Compute_Page_Count', 0, $module) || (boolean) $computeCount == true){
 		// Retreiving the no of rows
 		list($specialPermissionWithDuplicateRows,$cached) = VTCacheUtils::lookupCachedInformation('SpecialPermissionWithDuplicateRows');
 		if (FALSE and ($specialPermissionWithDuplicateRows or $relatedmodule == 'Calendar')) {
@@ -288,7 +288,7 @@ function getHistory($parentmodule,$query,$id)
 			$typeofactivity = getTranslatedString($typeofactivity, 'Calendar');
 			$entries[] = $typeofactivity;
 
-			$activity = '<a href="index.php?module=Calendar4You&action=EventDetailView&return_module='.$parentmodule.'&return_action=DetailView&record='.$row["activityid"] .'&activity_mode='.$activitymode.'&return_id='.vtlib_purify($_REQUEST['record']).'&parenttab='.vtlib_purify($_REQUEST['parenttab']).'">'.$row['subject'].'</a></td>';
+			$activity = '<a href="index.php?module=cbCalendar&action=DetailView&return_module='.$parentmodule.'&return_action=DetailView&record='.$row["activityid"] .'&activity_mode='.$activitymode.'&return_id='.vtlib_purify($_REQUEST['record']).'&parenttab='.vtlib_purify($_REQUEST['parenttab']).'">'.$row['subject'].'</a></td>';
 			$entries[] = $activity;
 
 			$parentname = getRelatedTo('Calendar',$result,$i-1);
@@ -339,7 +339,7 @@ function getPriceBookRelatedProducts($query,$focus,$returnset='')
 	$image_path=$theme_path."images/";
 
 	$computeCount = (isset($_REQUEST['withCount']) ? $_REQUEST['withCount'] : false);
-	if (PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false) === true || ((boolean) $computeCount) == true) {
+	if (GlobalVariable::getVariable('Application_ListView_Compute_Page_Count', 0, 'PriceBooks') || ((boolean) $computeCount) == true) {
 		$rs = $adb->query(mkCountQuery($query));
 		$noofrows = $adb->query_result($rs,0,'count');
 	} else {

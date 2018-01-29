@@ -42,7 +42,17 @@ if(isset($query_string) && $query_string != ''){
 	coreBOS_Session::set('__UnifiedSearch_SelectedModules__', $search_onlyin);
 
 	$object_array = getSearchModules($search_onlyin);
-
+	uasort($object_array, function($a,$b) {return (strtolower(getTranslatedString($a,$a)) < strtolower(getTranslatedString($b,$b))) ? -1 : 1;});
+	$topmodules = GlobalVariable::getVariable('Application_Global_Search_TopModules', '');
+	if ($topmodules != '') {
+		$userorderedmodules = array();
+		$usertopmodules = explode(',', $topmodules);
+		foreach ($usertopmodules as $mod) {
+			$userorderedmodules[$mod] = $mod;
+			unset($object_array[$mod]);
+		}
+		$object_array = array_merge($userorderedmodules,$object_array);
+	}
 	global $adb, $current_user, $theme;
 	$image_path="themes/".$theme."/"."images/";
 
@@ -283,28 +293,34 @@ function getSearchModulesComboList($search_module){
 }
 
 /**
- * To get the modules allowed for global search this function returns all the 
- * modules which supports global search as an array in the following structure 
- * array($module_name1=>$object_name1,$module_name2=>$object_name2,$module_name3=>$object_name3,$module_name4=>$object_name4,-----);
+ * To get the modules allowed for global search this function returns all the
+ * modules which supports global search as an array in the following structure
+ * array($module_name1=>$object_name1,$module_name2=>$object_name2,$module_name3=>$object_name3,$module_name4=>$object_name4,-----)
  */
 function getSearchModules($filter = array()){
 	global $adb;
-	// vtlib customization: Ignore disabled modules.
-	//$sql = 'select distinct vtiger_field.tabid,name from vtiger_field inner join vtiger_tab on vtiger_tab.tabid=vtiger_field.tabid where vtiger_tab.tabid not in (16,29)';
-	$sql = 'select distinct vtiger_field.tabid,name from vtiger_field inner join vtiger_tab on vtiger_tab.tabid=vtiger_field.tabid where vtiger_tab.tabid not in (16,29) and vtiger_tab.presence != 1 and vtiger_field.presence in (0,2)';
-	// END
-	$result = $adb->pquery($sql, array());
-	while($module_result = $adb->fetch_array($result)){
+	// Ignore disabled administrative modules
+	$doNotSearchThese = array('Dashboard','Home','Calendar','Events','Rss','Reports','Portal','Webmails','Users','ConfigEditor','Import','MailManager','Mobile','ModTracker',
+		'PBXManager','VtigerBackup','WSAPP','cbupdater','CronTasks','RecycleBin','Tooltip','Webforms','Calendar4You','GlobalVariable','cbMap','evvtMenu','cbAuditTrail',
+		'cbLoginHistory','cbtranslation');
+	$doNotSearchTheseTabids = array();
+	foreach ($doNotSearchThese as $mname) {
+		$tabid = getTabid($mname);
+		if (!empty($tabid)) {
+			$doNotSearchTheseTabids[] = $tabid;
+		}
+	}
+	$sql = 'select distinct vtiger_field.tabid,name from vtiger_field inner join vtiger_tab on vtiger_tab.tabid=vtiger_field.tabid
+		where vtiger_tab.tabid not in ('.generateQuestionMarks($doNotSearchTheseTabids).') and vtiger_tab.presence != 1 and vtiger_field.presence in (0,2)';
+	$result = $adb->pquery($sql, array($doNotSearchTheseTabids));
+	$return_arr = array();
+	while ($module_result = $adb->fetch_array($result)) {
 		$modulename = $module_result['name'];
 		// Do we need to filter the module selection?
-		if(!empty($filter) && is_array($filter) && !in_array($modulename, $filter)) {
+		if (!empty($filter) && is_array($filter) && !in_array($modulename, $filter)) {
 			continue;
 		}
-		if($modulename != 'Calendar'){
-			$return_arr[$modulename] = $modulename;
-		}else{
-			$return_arr[$modulename] = 'Activity';
-		}
+		$return_arr[$modulename] = $modulename;
 	}
 	return $return_arr;
 }

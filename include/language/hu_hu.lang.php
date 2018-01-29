@@ -1,19 +1,15 @@
 <?php
-/*********************************************************************************
- * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
- * Software distributed under the License is distributed on an  "AS IS"  basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
- * the specific language governing rights and limitations under the License.
- * The Original Code is:  SugarCRM Open Source
- * The Initial Developer of the Original Code is SugarCRM, Inc.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.;
+/*+********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * Contributor(s): Istvan Holbok,  e-mail: holbok@gmail.com , mobil: +3670-3420900 , Skype: holboki
  ********************************************************************************/
 $app_strings = array(
-	'LBL_BROWSER_TITLE' => 'vtiger CRM 5 - Open Source Ügyfélkapcsolati Rendszer',
+	'LBL_BROWSER_TITLE' => 'coreBOS',
 	'LBL_MY_ACCOUNT' => 'Saját Adataim',
 	'LBL_MY_PREFERENCES' => 'Beállításaim',
 	'LBL_ADMIN' => 'Admin',
@@ -25,9 +21,10 @@ $app_strings = array(
 	'LBL_SHOW' => 'Mutat :',
 	'today' => 'Ma',
 	'all' => 'Minden',
+	'Generate Document'=>'Merge Document',
 	'LBL_UPCOMING_EVENTS' => 'Esedékes teendők',
 	'LBL_PENDING_EVENTS' => 'Függő teendők',
-	'NTC_WELCOME_MESSAGE' => 'Üdvözlünk a VTiger CRM-ben!',
+	'NTC_WELCOME_MESSAGE' => 'Üdvözlünk a coreBOS-ben!',
 	'NTC_DESCRIPTION' => 'Adj meg helyes felhasználó nevet és jelszót a belépéshez!',
 	'NTC_WELCOME' => 'Üdvözlet',
 	'NTC_NO_ITEMS_DISPLAY' => 'semmi',
@@ -39,6 +36,7 @@ $app_strings = array(
 	'LBL_SEND_MAIL_BUTTON' => 'Email küldés',
 	'LBL_SAVE_BUTTON_TITLE' => 'Mentés [Alt+S]',
 	'LBL_EDIT_BUTTON_TITLE' => 'Szerkesztés [Alt+E]',
+	'LBL_RECALCULATE_BUTTON_TITLE' => 'Újraszámolja [Alt+R]',
 	'LBL_CONVERTSO_BUTTON_TITLE' => 'Új Rendelés',
 	'LBL_CONVERTINVOICE_BUTTON_TITLE' => 'Új Díjbekérő',
 	'LBL_EDIT_BUTTON' => 'Szerkesztés',
@@ -75,6 +73,7 @@ $app_strings = array(
 	'LBL_CONVERTSO_BUTTON_KEY' => 'S',
 	'LBL_CONVERTINVOICE_BUTTON_KEY' => 'I',
 	'LBL_DUPLICATE_BUTTON_KEY' => 'U',
+	'LBL_RECALCULATE_BUTTON_KEY' => 'R',
 	'LBL_DELETE_BUTTON_KEY' => 'D',
 	'LBL_NEW_BUTTON_KEY' => 'N',
 	'LBL_CHANGE_BUTTON_KEY' => 'G',
@@ -87,6 +86,7 @@ $app_strings = array(
 	'LBL_CONVERTSO_BUTTON_LABEL' => 'Új Rendelés',
 	'LBL_CONVERTINVOICE_BUTTON_LABEL' => 'Új Díjbekérő',
 	'LBL_DUPLICATE_BUTTON_LABEL' => 'Másol',
+	'LBL_RECALCULATE_BUTTON' => 'Újraszámolja',
 	'LBL_DELETE_BUTTON_LABEL' => 'Töröl',
 	'LBL_NEW_BUTTON_LABEL' => 'Új',
 	'LBL_CHANGE_BUTTON_LABEL' => 'Módosít',
@@ -204,10 +204,13 @@ $app_strings = array(
 	'Photo2Document' => 'Photo to Document',
 	'Snap Photo' => 'Snap Photo',
 	'Clear Photo' => 'Clear Photo',
+	'DocumentCreatedRelated' => 'Document added and related',
 	'Export' => 'Exportál',
 	'Import' => 'Importál',
 	'Merge' => 'Összefűz',
 	'ConvertLead' => 'Jelöltet átalakít Kapcsolattá',
+	'Is Converted From Lead'  => 'Vevőjelöltből konvertált?',
+	'Converted From Lead'  => 'Vevőjelöltből konvertált',
 	'LBL_SHOW_RESULTS' => 'Mutassa az eredményeket:',
 	'LBL_TOTAL_RECORDS_FOUND' => 'Darab rekordot találtam :',
 	'LBL_SEARCH_RESULTS_FOR' => ' -- Keresés eredménye ',
@@ -450,7 +453,7 @@ $app_strings = array(
 	'LNK_NEW_FAQ' => 'Új TudásTár',
 	'Vendor Name' => 'Beszállító neve',
 	'LNK_WEARE' => 'Rólunk',
-	'LBL_DISCUSS' => 'Oszd meg más Vtiger felhasználókkal',
+	'LBL_DISCUSS' => 'Oszd meg más coreBOS felhasználókkal',
 	'Quote Stage' => 'Ajánlat fázis',
 	'Potential Name' => 'Lehetőség megnevezése',
 	'Total' => 'Teljes összeg',
@@ -467,10 +470,10 @@ $app_strings = array(
 	'Quote No' => 'Ajánlat No.',
 	'Sales Order' => 'Megrendelések',
 	'COMBO_QUOTES' => 'Ajánlatok',
-	'End Date' => 'Befejezés dátuma',
-	'End Date & Time' => 'Befejezés dátuma és ideje',
+	'End Date' => 'Befejezés dátuma (System Date)',
+	'End Date & Time' => 'Befejezés dátuma és ideje (System Date)',
 	'Start Date' => 'Kezdés dátuma',
-	'Start Date & Time' => 'Kezdés dátuma és ideje',
+	'Start Date & Time' => 'Kezdés dátuma és ideje (System Date)',
 	'Recurring Type' => 'Ismétlődés típusa',
 	'SalesOrders' => 'Megrendelések',
 	'LBL_QUOTE_NAME' => 'Ajánlat Neve',
@@ -508,6 +511,7 @@ $app_strings = array(
 	'LBL_SALES_ORDER_ID' => 'Megrendelés No.',
 	'LBL_PURCHASE_ORDER_ID' => 'Beszerzés No.',
 	'LBL_EXPORT_TO_PDF' => 'Exportálás PDF-be',
+	'DeletedProducts' => 'This record has deleted product/service lines. Please edit and fix accordingly.',
 	'LBL_HOME_KEY_METRICS' => 'Alap Mérőszámok',
 	'LBL_HOME_METRICS' => 'Mérőszámok',
 	'LBL_HOME_COUNT' => 'Darab',
@@ -630,9 +634,9 @@ $app_strings = array(
 	'LBL_RENAME_PROFILE' => 'Profil átnevezése',
 	'LBL_PROFILE_NAME' => 'Profil név',
 	'LBL_START_DATE' => 'Kezdő dátum',
-	'LBL_START_DATE_TIME' => 'Kezdő dátum és idő',
-	'LBL_END_DATE' => 'Befejező dátum',
-	'LBL_END_DATE_TIME' => 'Befejező dátum és idő',
+	'LBL_START_DATE_TIME' => 'Kezdő dátum és idő (System Date)',
+	'LBL_END_DATE' => 'Befejező dátum (System Date)',
+	'LBL_END_DATE_TIME' => 'Befejező dátum és idő (System Date)',
 	'LBL_CREATE_MERGE_TEMPLATE' => 'Új dokumentum-összefűzés sablon ',
 	'LBL_IMG_FORMATS' => '(Csak jpg, gif, bmp és png képek)',
 	'group' => 'csoportos',
@@ -807,7 +811,7 @@ $app_strings = array(
 	'MSG_THANK_YOU' => 'Köszönjük',
 	'MSG_HAS_BEEN_CREATED_FOR' => 'létrehoztuk',
 	'MSG_THANKS' => 'Kösz,',
-	'MSG_VTIGERTEAM' => ' vTiger Team',
+	'MSG_VTIGERTEAM' => ' coreBOS Team',
 	'MSG_IS_NOT_UPLOADED' => 'nem került feltöltésre. Megengedett fájl típusok - jpeg, png, jpg, pjpeg, x-png vagy gif',
 	'MSG_IMAGE_ERROR' => 'A kép nem található',
 	'Information' => 'Információ',
@@ -830,6 +834,8 @@ $app_strings = array(
 	'FOLDER_NAME_ALLOW_20CHARS' => 'A mappa név maximum 20 karakter hosszú lehet',
 	'SPECIAL_CHARS_NOT_ALLOWED' => 'Különleges karakterek nem megengedettek, próbáld újra...',
 	'LBL_SIGN_IN' => 'Belépés',
+	'StartSession' => 'Start Session',
+	'CapsLockActive' => 'CapsLock is active',
 	'LBL_ROOT' => 'Gyökér',
 	'LBL_FIRST' => 'Első',
 	'LBL_LAST' => 'Utolsó',
@@ -846,7 +852,6 @@ $app_strings = array(
 	'Lead Status' => 'Jelölt állapot',
 	'Lead Source' => 'Jelölt forrás',
 	'Yahoo Id' => 'Yahoo azonosító',
-	'LBL_CHARSET' => 'UTF-8',
 	'Lost Lead' => 'Elvesztett Jelölt',
 	'LBL_SEND_EMAIL_PDF' => 'Email küldés PDF melléklettel',
 	'ERR_INVALID_PAGE_COUNT' => 'Érvénytelen oldal szám',
@@ -1068,7 +1073,7 @@ $app_strings = array(
 	'LBL_FIELDLISTS' => 'Mezők listája',
 	'LBL_RECORD' => 'Rekord #',
 	'LBL_DUP_PERMISSION' => 'Nincs jogosultságod törölni ',
-	'recordid' => 'Rekord ID',
+	'recordid' => 'Rekord',
 	'Entity Type' => 'Entitás típus',
 	'LBL_GMAIL' => 'Gmail',
 	'LBL_BOOKMARKLET' => 'Könyvjelző',
@@ -1177,7 +1182,6 @@ $app_strings = array(
 	'LBL_EMPTY_RECYCLEBIN' => 'Szemetes',
 	'LNK_RESTORE' => 'Helyreállítás',
 	'LBL_NO_PERMITTED_MODULES' => 'Nem engedélyezett modulok',
-	'FieldFormulas' => 'Mezőképletek',
 	'LBL_SEARCH_CRITRIA_RECORDS' => 'Rekordok keresési feltételei',
 	'ERROR_GETTING_FILTER' => 'ERROR Retrieving information from filter. Please delete the filter and try again.',
 	'Upload Images' => 'Upload Images',

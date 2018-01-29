@@ -211,27 +211,6 @@ class Project extends CRMEntity {
 	// function save_related_module($module, $crmid, $with_module, $with_crmid) { }
 
 	/**
-	 * Handle deleting related module information.
-	 * NOTE: This function has been added to CRMEntity (base class).
-	 * You can override the behavior by re-defining it here.
-	 */
-	function delete_related_module($module, $crmid, $with_module, $with_crmid) {
-		if (!in_array($with_module, array('ProjectMilestone', 'ProjectTask'))) {
-			parent::delete_related_module($module, $crmid, $with_module, $with_crmid);
-			return;
-		}
-		$destinationModule = vtlib_purify($_REQUEST['destination_module']);
-		if (!is_array($with_crmid)) $with_crmid = Array($with_crmid);
-		foreach($with_crmid as $relcrmid) {
-			$child = CRMEntity::getInstance($destinationModule);
-			$child->retrieve_entity_info($relcrmid, $destinationModule);
-			$child->mode='edit';
-			$child->column_fields['projectid']='';
-			$child->save($destinationModule,$relcrmid);
-		}
-	}
-
-	/**
 	 * Handle getting related list information.
 	 * NOTE: This function has been added to CRMEntity (base class).
 	 * You can override the behavior by re-defining it here.
@@ -318,7 +297,7 @@ class Project extends CRMEntity {
 		$thumbGanttChartImageUrl = $image;
 		$entries[0] = array("<a href='$fullGanttChartImageUrl' border='0' target='_blank'><img src='$thumbGanttChartImageUrl' border='0'></a>");
 
-		return array('header'=> $headers, 'entries'=> $entries);
+		return array('header'=> $headers, 'entries'=> $entries,'navigation'=>array('',''));
 	}
 }
 ?>

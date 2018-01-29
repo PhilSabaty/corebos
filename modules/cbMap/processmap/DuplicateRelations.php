@@ -1,4 +1,4 @@
-<?php 
+<?php
  /*************************************************************************************************
  * Copyright 2016 JPL TSolucio, S.L. -- This file is a part of TSOLUCIO coreBOS Customizations.
  * Licensed under the vtiger CRM Public License Version 1.1 (the "License"); you may not use this
@@ -17,11 +17,10 @@
  *  Version      : 5.4.0
  *  Author       : JPL TSolucio, S. L.
  *************************************************************************************************
- * The accepted format is:
- <map>
- 	<originmodule>
-	    <originid>4</originid>
-	    <originname>Contacts</originname> {optional}
+The accepted format is:
+<map>
+	<originmodule>
+		<originname>Contacts</originname> {optional}
 	</originmodule>
 	<relatedmodules>
 		<relatedmodule>
@@ -35,8 +34,8 @@
 		</relatedmodule>
 	</relatedmodules>
 	<DuplicateDirectRelations>false</DuplicateDirectRelations> Allowed values: true, false
- </map>
- *************************************************************************************************/
+</map>
+*************************************************************************************************/
 
 require_once('modules/cbMap/cbMap.php');
 require_once('modules/cbMap/processmap/processMap.php');
@@ -46,7 +45,7 @@ class DuplicateRelations extends processcbMap {
 	private $modulename = '';
 	private $moduleid = 0;
 
-	function processMap($arguments) {
+	public function processMap($arguments) {
 		$this->convertMap2Array();
 		return $this;
 	}
@@ -55,21 +54,22 @@ class DuplicateRelations extends processcbMap {
 		return $this->mapping;
 	}
 
-	public function getRelatedModules(){
-		if(isset($this->mapping["relatedmodules"]))
+	public function getRelatedModules() {
+		if (isset($this->mapping["relatedmodules"])) {
 			return $this->mapping["relatedmodules"];
+		}
 		return array();
 	}
 
-	public function DuplicateDirectRelations(){
+	public function DuplicateDirectRelations() {
 		return filter_var($this->mapping['DuplicateDirectRelations'], FILTER_VALIDATE_BOOLEAN);
 	}
 
-	public function getOriginModuleName(){
+	public function getOriginModuleName() {
 		return $this->mapping['originname'];
 	}
 
-	public function getOriginModuleId(){
+	public function getOriginModuleId() {
 		return $this->mapping['originid'];
 	}
 
@@ -81,13 +81,12 @@ class DuplicateRelations extends processcbMap {
 		$mapping['DuplicateDirectRelations'] = (String)$xml->DuplicateDirectRelations;
 
 		$relativemodules = array();
-		foreach ($xml->relatedmodules->relatedmodule as $r)
+		foreach ($xml->relatedmodules->relatedmodule as $r) {
 			$relativemodules[ (string)$r->module ] = (string)$r->relation;
+		}
 		$mapping["relatedmodules"] = $relativemodules;
-		
+
 		$this->mapping = $mapping;
 	}
-
 }
-
 ?>

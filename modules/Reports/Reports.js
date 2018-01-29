@@ -8,61 +8,13 @@
  ********************************************************************************/
 
 var gcurrepfolderid=0;
-
-// Setting cookies
-function set_cookie ( name, value, exp_y, exp_m, exp_d, path, domain, secure )
-{
-	var cookie_string = name + "=" + escape ( value );
-
-	if ( exp_y ) {
-		var expires = new Date ( exp_y, exp_m, exp_d );
-		cookie_string += "; expires=" + expires.toGMTString();
-	}
-
-	if ( path )
-		cookie_string += "; path=" + escape ( path );
-
-	if ( domain )
-		cookie_string += "; domain=" + escape ( domain );
-
-	if ( secure )
-		cookie_string += "; secure";
-
-	document.cookie = cookie_string;
-}
-
-// Retrieving cookies
-function get_cookie ( cookie_name )
-{
-	var results = document.cookie.match ( cookie_name + '=(.*?)(;|$)' );
-	if ( results )
-		return ( unescape ( results[1] ) );
-	else
-		return null;
-}
-
-// Delete cookies
-function delete_cookie ( cookie_name )
-{
-	var cookie_date = new Date ( );  // current date & time
-	cookie_date.setTime ( cookie_date.getTime() - 1 );
-	document.cookie = cookie_name += "=; expires=" + cookie_date.toGMTString();
-}
-
-function verify_data(form) {
-	var isError = false;
-	var errorMessage = "";
-	if (trim(form.folderName.value) == "") {
-		isError = true;
-		errorMessage += "\nFolder Name";
-	}
-	// Here we decide whether to submit the form.
-	if (isError == true) {
-		alert(alert_arr.MISSING_FIELDS + errorMessage);
-		return false;
-	}
-	return true;
-}
+var Report_MaxRelated_Modules = 2;
+GlobalVariable_getVariable('Report_MaxRelated_Modules', 2, 'Reports', gVTUserID).then(function(response) {
+	var obj = JSON.parse(response);
+	Report_MaxRelated_Modules = obj.Report_MaxRelated_Modules;
+}, function(error) {
+	Report_MaxRelated_Modules = 2;
+});
 
 function setObjects()
 {
@@ -285,12 +237,6 @@ function hideTabs()
 	}
 }
 
-function showSaveDialog()
-{
-	url = "index.php?module=Reports&action=SaveReport";
-	window.open(url,"Save_Report","width=550,height=350,top=20,left=20;toolbar=no,status=no,menubar=no,directories=no,resizable=yes,scrollbar=no");
-}
-
 function saveAndRunReport()
 {
 	var cbreporttype = document.getElementById('cbreporttype').value;
@@ -484,10 +430,10 @@ function changeSteps() {
 				modsselected++;
 			}
 		}
-		if (modsselected<=2) {
+		if (modsselected<=Report_MaxRelated_Modules) {
 			document.NewRep.submit();
 		} else {
-			alert(alert_arr.MAXIMUM_OF_TWO_MODULES_PERMITTED);
+			alert(alert_arr.MAXIMUM_OF_MODULES_PERMITTED);
 		}
 	}
 }
@@ -798,9 +744,7 @@ function fillReportColumnsTotal(block) {
 				td.append(b);
 				tr.append(td);
 				for(k=0;k<checkboxes.length;k++) {
-					var checkbox = $("<input>",{"type":"checkbox","name":checkboxes[k].name});
-					if(checkboxes[k].hasOwnProperty('checked'))
-						checkbox.attr("checked",true);
+					var checkbox = $("<input>",{"type": "checkbox", "name": checkboxes[k].name, checked: checkboxes[k].hasOwnProperty('checked')});
 					var td = $("<td>");
 					td.append(checkbox);
 					tr.append(td);
@@ -835,11 +779,11 @@ function returnList(block) {
 		for(i=0;i<list_length;i++) {
 			var option = $("<option>",{"value":list[i].value});
 			if(list[i].hasOwnProperty('selected') && list[i].selected == true)
-				option.attr("selected",true);
+				option.prop("selected",true);
 			if(list[i].hasOwnProperty('permission'))
-				option.attr("permission","yes");
+				option.prop("permission","yes");
 			if(list[i].hasOwnProperty('disabled'))
-				option.attr("disabled",true);
+				option.prop("disabled",true);
 
 			option.append(list[i].label);
 			$html.append(option);
@@ -882,9 +826,9 @@ function returnFullList(block) {
 				var option_el = $("<option>",{"value":option.value});
 				option_el.append(option.label);
 				if(option.hasOwnProperty('disabled'))
-					option_el.attr("disabled",true);
+					option_el.prop("disabled",true);
 				if(option.hasOwnProperty('selected'))
-					option_el.attr("selected",true);
+					option_el.prop("selected",true);
 				optgroup.append(option_el);
 			}
 			$html.append(optgroup);
@@ -918,7 +862,7 @@ function setStepData(step){
 	data['primarymodule'] = document.NewReport.primarymodule.value;
 	$(".secondarymodule:checkbox:checked").each(function(){
 		var $this = $(this);
-		data[$this.attr("name")] = $this.val();
+		data[$this.prop("name")] = $this.val();
 	});
 	return data;
 }
@@ -1007,9 +951,9 @@ function setReportType(response) {
 		document.NewReport.secondarymodule.value = response.secondarymodule;
 		var selected_report_type = response.selectedreporttype;
 		if(selected_report_type == "tabular")
-			$("#tabular").attr("checked",true);
+			$("#tabular").prop("checked",true);
 		else
-			$("#summary").attr("checked",true);
+			$("#summary").prop("checked",true);
 		return true;
 	}
 	else {

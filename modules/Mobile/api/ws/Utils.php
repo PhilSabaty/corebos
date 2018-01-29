@@ -12,8 +12,8 @@ class crmtogo_WS_Utils {
 
 	static function initModuleGlobals($module) {
 		global $mod_strings, $current_language;
-		if ($module == 'Events') {
-			$module = 'Calendar';
+		if ($module == 'Events' || $module == 'Calendar') {
+			$module = 'cbCalendar';
 		}
 	}
 
@@ -117,7 +117,7 @@ class crmtogo_WS_Utils {
 		if(isset(self::$detectFieldnamesToResolveCache[$module])) {
 			return self::$detectFieldnamesToResolveCache[$module];
 		}
-		$resolveUITypes = array(10, 101, 116, 117, 26, 357, 50, 51, 52, 53, 57, 59, 66, 68, 73, 75, 76, 77, 78, 80, 81);
+		$resolveUITypes = array(10, 101, 116, 117, 26, 357, 51, 52, 53, 57, 66, 68, 73, 75, 76, 77, 78, 80, 81);
 		$result = $db->pquery(
 			"SELECT fieldname FROM vtiger_field WHERE uitype IN(".generateQuestionMarks($resolveUITypes) .") AND tabid=?", array($resolveUITypes, getTabid($module))
 		);
@@ -278,8 +278,8 @@ class crmtogo_WS_Utils {
 				return 16;
 			}
 		}
-		else if ($module == 'Calendar' || $module == 'Events' || $module == 'Timecontrol') {
-			if ($fieldname == 'time_start' || $fieldname == 'time_end') {
+		else if ($module == 'Timecontrol' || $module == 'cbCalendar') {
+			if ($fieldname == 'time_start' || $fieldname == 'time_end' || $fieldname == 'followupdt') {
 				// Special type for mandatory time type (not defined in product)
 				return 252;
 			}
@@ -318,9 +318,11 @@ class crmtogo_WS_Utils {
 				}
 			}
 		}
-		else if($module == 'Calendar' || $module == 'Events') {
+		else if($module == 'cbCalendar') {
 			foreach($describeInfo['fields'] as $index => $fieldInfo) {
-				$fieldInfo['uitype'] = self::fixUIType($module, $fieldInfo['name'], $fieldInfo['uitype']);
+				if (isset($fieldInfo['uitype'])) {
+					$fieldInfo['uitype'] = self::fixUIType($module, $fieldInfo['name'], $fieldInfo['uitype']);
+				}
 				if ($fieldInfo['name'] == 'visibility') {
 					if (empty($fieldInfo['type']['picklistValues'])) {
 						$fieldInfo['type']['picklistValues'] = self::visibilityValues();
@@ -369,7 +371,7 @@ class crmtogo_WS_Utils {
 						(";
 
 					// Build the query based on the group association of current user.
-			if(sizeof($current_user_groups) > 0) {
+			if (count($current_user_groups) > 0) {
 				$querySuffix .= " vtiger_groups.groupid IN (". implode(",", $current_user_groups) .") OR ";
 			}
 			$querySuffix .= " vtiger_groups.groupid IN
@@ -404,18 +406,28 @@ class crmtogo_WS_Utils {
 		$sql = "select * from vtiger_ticketcomments where ticketid=?";
 		$recordid = vtws_getIdComponents($ticket['id']);
 		$recordid = $recordid[1];
+		$recordprefix= self::getEntityModuleWSId('Users');
+		$sqluser = 'SELECT 1 FROM vtiger_users WHERE id=?';
 		$result = $db->pquery($sql, array($recordid));
-		$recordprefix= self::getEntityModuleWSId('Users') ;
 		for($i=0;$i<$db->num_rows($result);$i++) {
 			$comment = $db->query_result($result,$i,'comments');
 			if($comment != '') {
+				$crmid = $db->query_result($result,$i,'ownerid');
+				$rsusr = $db->pquery($sqluser, array($crmid));
+				if ($rsusr && $db->num_rows($rsusr)) {
+					$wsid = $recordprefix;
+				} else {
+					$setype = getSalesEntityType($crmid);
+					$wsid = self::getEntityModuleWSId($setype);
+				}
 				$commentlist[$i]['commentcontent'] = $comment;
-				$commentlist[$i]['assigned_user_id'] = $recordprefix.'x'.$db->query_result($result,$i,'ownerid');
+				$commentlist[$i]['assigned_user_id'] = $wsid.'x'.$crmid;
 				$commentlist[$i]['createdtime'] = $db->query_result($result,$i,'createdtime');
 			}
 		}
 		return $commentlist;
 	}
+
 	/**     Function to create a comment for a troubleticket
 	  *     @param int $ticketid -- troubleticket id, comments array
 	  *     returns the comment as a array
@@ -697,7 +709,7 @@ class crmtogo_WS_Utils {
 				$comments_module[] =vtlib_getModuleNameById($tabid);
 			}
 		}
-		array_push($comments_module,'HelpDesk');
+		$comments_module[] = 'HelpDesk';
 		return $comments_module;
 	}
 

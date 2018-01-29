@@ -32,14 +32,16 @@ if(!empty($_REQUEST['mail_error'])) {
 	require_once("modules/Emails/mail.php");
 	$error_msg = strip_tags(parseEmailErrorString($_REQUEST['mail_error']));
 	$error_msg = $app_strings['LBL_MAIL_NOT_SENT_TO_USER']. ' ' . vtlib_purify($_REQUEST['user']). '. ' .$app_strings['LBL_PLS_CHECK_EMAIL_N_SERVER'];
-	$smarty->assign("ERROR_MSG",$mod_strings['LBL_MAIL_SEND_STATUS'].' <b><font class="warning">'.$error_msg.'</font></b>');
+	$smarty->assign('ERROR_MSG',$app_strings['LBL_MAIL_SEND_STATUS'].' <b><font class="warning">'.$error_msg.'</font></b>');
 }
 
 $list_query = getListQuery("Users");
 
 $userid = array();
-$userid_Query = "SELECT id,user_name FROM vtiger_users WHERE user_name IN ('admin')";
-$users = $adb->pquery($userid_Query,array());
+$blockedusers = $cbodBlockedUsers;
+$blockedusers[] = 'admin';
+$userid_Query = 'SELECT id,user_name FROM vtiger_users WHERE user_name IN ('.generateQuestionMarks($blockedusers).')';
+$users = $adb->pquery($userid_Query, array($blockedusers));
 $norows = $adb->num_rows($users);
 if($norows  > 0){
 	for($i=0;$i<$norows ;$i++){
@@ -48,6 +50,20 @@ if($norows  > 0){
 	}
 }
 $smarty->assign("USERNODELETE",$userid);
+
+$userid_noedit = array();
+$userid_noedit_Query = 'SELECT id,user_name FROM vtiger_users WHERE user_name IN ('.generateQuestionMarks($cbodBlockedUsers).')';
+$users_noedit = $adb->pquery($userid_noedit_Query, array($cbodBlockedUsers));
+$norows_noedit = $adb->num_rows($users_noedit);
+if ($norows_noedit  > 0) {
+	for ($i=0; $i<$norows_noedit; $i++){
+		$id = $adb->query_result($users_noedit, $i, 'id');
+		if ($current_user->id != $id) {
+			$userid_noedit[$id] = $adb->query_result($users_noedit, $i, 'user_name');
+		}
+	}
+}
+$smarty->assign('USERNOEDIT', $userid_noedit);
 
 if(!empty($_REQUEST['sorder']))
 	$sorder = $adb->sql_escape_string($_REQUEST['sorder']);
@@ -73,7 +89,7 @@ if(!empty($order_by)){
 	$list_query .= ' ORDER BY '.$order_by.' '.$sorder;
 }
 
-if(PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false) === true){
+if (GlobalVariable::getVariable('Application_ListView_Compute_Page_Count', 0)) {
 	$count_result = $adb->query( mkCountQuery($list_query));
 	$noofrows = $adb->query_result($count_result,0,"count");
 }else{

@@ -173,6 +173,7 @@ if($isduplicate == 'true') {
 	$currencyid = $inventory_cur_info['currency_id'];
 	$focus->id = '';
 	$focus->mode = '';
+	$smarty->assign('__cbisduplicatedfromrecordid', $record);
 }
 $focus->preEditCheck($_REQUEST,$smarty);
 if (!empty($_REQUEST['save_error']) and $_REQUEST['save_error'] == "true") {
@@ -227,6 +228,17 @@ if (isset ($_REQUEST['opportunity_id']) && $_REQUEST['opportunity_id'] != '') {
 	$smarty->assign("AVAILABLE_PRODUCTS", count($associated_prod)>0 ? 'true' : 'false');
 	$smarty->assign("MODE", $focus->mode);
 }
+if (isset($_REQUEST['convertfromid']) && $_REQUEST['convertfromid'] != '') {
+	$cfromid = vtlib_purify($_REQUEST['convertfromid']);
+	$cfrom = getSalesEntityType($cfromid);
+	$cffocus = CRMEntity::getInstance($cfrom);
+	$associated_prod = getAssociatedProducts($cfrom, $cffocus, $cfromid);
+	$smarty->assign('ASSOCIATEDPRODUCTS', $associated_prod);
+	$smarty->assign('AVAILABLE_PRODUCTS', count($associated_prod)>0 ? 'true' : 'false');
+	$smarty->assign('MODE', $focus->mode);
+	$_REQUEST['account_id'] = getRelatedAccountContact($cfromid, 'Accounts');
+	$_REQUEST['contact_id'] = getRelatedAccountContact($cfromid, 'Contacts');
+}
 if (isset ($_REQUEST['product_id']) && $_REQUEST['product_id'] != '') {
 	$focus->column_fields['product_id'] = $_REQUEST['product_id'];
 	$log->debug("Invoice EditView: Product Id from the request is " . $_REQUEST['product_id']);
@@ -255,7 +267,7 @@ if (!empty ($_REQUEST['parent_id']) && !empty ($_REQUEST['return_module'])) {
 	}
 }
 
-if (isset ($_REQUEST['account_id']) && $_REQUEST['account_id'] != '' && ($record == '' || $_REQUEST['convertmode'] == "potentoinvoice") && ($_REQUEST['convertmode'] != 'update_so_val')) {
+if (!empty($_REQUEST['account_id']) && (is_null($record) || (isset($_REQUEST['convertmode']) && $_REQUEST['convertmode'] == "potentoinvoice")) && (empty($_REQUEST['convertmode']) || $_REQUEST['convertmode'] != 'update_so_val')) {
 	require_once ('modules/Accounts/Accounts.php');
 	$acct_focus = new Accounts();
 	$acct_focus->retrieve_entity_info($_REQUEST['account_id'], "Accounts");
@@ -272,7 +284,7 @@ if (isset ($_REQUEST['account_id']) && $_REQUEST['account_id'] != '' && ($record
 	$focus->column_fields['bill_pobox'] = $acct_focus->column_fields['bill_pobox'];
 	$focus->column_fields['ship_pobox'] = $acct_focus->column_fields['ship_pobox'];
 }
-if (isset ($_REQUEST['contact_id']) && $_REQUEST['contact_id'] != '' && ($_REQUEST['record'] == '' || $_REQUEST['convertmode'] == "potentoinvoice")) {
+if (!empty($_REQUEST['contact_id']) && (is_null('record') || (isset($_REQUEST['convertmode']) && $_REQUEST['convertmode'] == "potentoinvoice"))) {
 	require_once ('modules/Contacts/Contacts.php');
 	$cto_focus = new Contacts();
 	$cto_focus->retrieve_entity_info($_REQUEST['contact_id'], "Contacts");
@@ -282,8 +294,8 @@ if (isset ($_REQUEST['contact_id']) && $_REQUEST['contact_id'] != '' && ($_REQUE
 	$focus->column_fields['ship_street'] = $cto_focus->column_fields['otherstreet'];
 	$focus->column_fields['bill_state'] = $cto_focus->column_fields['mailingstate'];
 	$focus->column_fields['ship_state'] = $cto_focus->column_fields['otherstate'];
-	$focus->column_fields['bill_code'] = $cto_focus->column_fields['mailingcode'];
-	$focus->column_fields['ship_code'] = $cto_focus->column_fields['othercode'];
+	$focus->column_fields['bill_code'] = $cto_focus->column_fields['mailingzip'];
+	$focus->column_fields['ship_code'] = $cto_focus->column_fields['otherzip'];
 	$focus->column_fields['bill_country'] = $cto_focus->column_fields['mailingcountry'];
 	$focus->column_fields['ship_country'] = $cto_focus->column_fields['othercountry'];
 	$focus->column_fields['bill_pobox'] = $cto_focus->column_fields['mailingpobox'];

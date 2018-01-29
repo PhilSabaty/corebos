@@ -111,7 +111,7 @@ function __FQNExtendedQueryGetQuery($q, $user) {
 			$queryGenerator->startGroup();
 			$qc = substr($qc,1);
 		}
-		$inopRegex = "/\s+in\s+\(/";
+		$inopRegex = "/\s+(in|IN)\s+\(/";
 		$posand = stripos($qc, ' and ');
 		$posor = stripos($qc, ' or ');
 		$glue = '';
@@ -223,21 +223,26 @@ function __FQNExtendedQueryAddCondition($queryGenerator,$condition,$glue,$mainMo
 			$op = 'isnull';
 		}
 	} else {
-		$val = substr($condition,strpos($condition,$op)+strlen($op));
+		if ($op=='like') {
+			$val = substr($condition,stripos($condition,' '.$op)+strlen(' '.$op));
+		} else {
+			$val = substr($condition,stripos($condition,$op)+strlen($op));
+		}
 	}
 	$val = trim($val);
 	$val = trim($val,"'");
+	$val = str_replace("''", "'", $val);
 	// TODO  add query generator operators for 'bw' = BETWEEN value1 and value2  (between two dates)
 	switch ($op) {
 		case '<':
-			if (is_date_type) {
+			if (strtotime($val)) { // is date type
 				$op = 'b';
 			} else {
 				$op = 'l';
 			}
 			break;
 		case '>':
-			if (is_date_type) {
+			if (strtotime($val)) { // is date type
 				$op = 'a';
 			} else {
 				$op = 'g';
@@ -415,6 +420,7 @@ function __FQNExtendedQueryProcessCondition($condition) {
 }
 
 function __FQNExtendedQueryIsFQNQuery($q) {
+	$q = strtolower($q);
 	$notinopRegex = "/\s+not\s+in\s+\(/";
 	preg_match($notinopRegex, $q, $qop);
 	if (count($qop)>0) return true;  // "not in" operator is supported by QG
@@ -422,15 +428,19 @@ function __FQNExtendedQueryIsFQNQuery($q) {
 	$isnotnullopRegex = "/\s+is\s+(not\s+)?null/";
 	preg_match($isnotnullopRegex, $cq, $qop);
 	if (count($qop)>0) return true;  // "is not null" operator is supported by QG
-	return (stripos($cq,'.')>0 or stripos($cq,'(')>0);
+	return (strpos($cq,'.')>0 || strpos($cq,'(')>0);
 }
 
 function __FQNExtendedQueryIsRelatedQuery($q) {
+	$q = strtolower($q);
 	$cq = __FQNExtendedQueryCleanQuery($q);
 	$cq = substr($cq,stripos($cq,' where '));
 	return (stripos($cq,'related.')>0);
 }
 
+/*
+ * param $q SQL command to analyze. MUST be in lower case
+ */
 function __FQNExtendedQueryCleanQuery($q) {
 	$moduleRegex = "/ in \(.+\)/Us";  // eliminate IN operator
 	$r = preg_replace($moduleRegex, '', $q);

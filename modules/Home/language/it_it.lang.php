@@ -66,7 +66,7 @@ $mod_strings = array (
 'LBL_HOME_STUFFTITLE' => 'Titolo Finestra',
 'LBL_HOME_SHOW' => 'Mostra',
 'LBL_HOME_FILTERBY' => 'Filtra per',
-'LBL_HOME_Fields' => 'Campi da visualizzare<br>(selezionarne due)',
+'LBL_HOME_Fields' => 'Campi da visualizzare',
 'LBL_HOME_PRESSCTRL' => '(Premere "Ctrl" per selezioni multiple)',
 'LBL_HOME_RSSURL' => 'RSS URL',
 'LBL_HOME_DASHBOARD_NAME' => 'Nome Cruscotto',
@@ -121,6 +121,9 @@ $mod_strings = array (
 'LBL_HOME_ADDWINDOW' => 'Aggiungi Finestra',
 'LBL_GETTING_STARTED' => 'Iniziare',
 'ExpirePasswordAfterDays' => 'Far scadere password dopo giorni',
+'FieldsNotFoundInFilter' => 'Fields not found in Selected Filter',
+'FilterNotFound' => 'Filter You have Selected is Not Found',
+'Permission Denied' => 'Permission Denied',
 );
 
 ?>

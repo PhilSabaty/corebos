@@ -1,24 +1,16 @@
 <?php
-/*********************************************************************************
- * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
- * Software distributed under the License is distributed on an  "AS IS"  basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
- * the specific language governing rights and limitations under the License.
- * The Original Code is:  SugarCRM Open Source
- * The Initial Developer of the Original Code is SugarCRM, Inc.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.;
+/*+********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  * Contributor(s): Valmir Carlos Trindade/Translate to Brazilian Portuguese| 03/03/2012 |Curitiba/Paraná/Brasil.|www.ttcasolucoes.com.br
- * Contributor: Ranieri Slemer, translate missing terms to brazilian portuguese | Ago 2016 | www.ecrmweb.com.br
- ********************************************************************************/
-/*********************************************************************************
- * $Header: /advent/projects/wesat/vtiger_crm/sugarcrm/modules/Users/language/en_us.lang.php,v 1.18 2005/04/19 14:45:38 ray Exp $
- * Description:  Defines the English language pack for the Users module.
+ * Contributor: Ranieri Slemer, translate missing terms to brazilian portuguese | 22-Jan-2018 | www.ecrmweb.com.br
  ********************************************************************************/
 
-$mod_strings = Array(
+$mod_strings = array(
 'LBL_MODULE_NAME'=>'Usuários',
 'LBL_MODULE_TITLE'=>'Usuários: Principal',
 'LBL_SEARCH_FORM_TITLE'=>'Pesquisa Usuário',
@@ -47,19 +39,24 @@ $mod_strings = Array(
 'Name'=>'Nome',
 'Tools'=>'Ferramentas',
 
-
-//added for patch2
 'LBL_GROUP'=>'Grupo',
 'LBL_CURRENCY_NAME'=>'Moeda',
 
 'LBL_NEW_USER_BUTTON_TITLE'=>'Novo Usuário [Alt+N]',
 'LBL_NEW_USER_BUTTON_LABEL'=>'Novo Usuário',
 'LBL_NEW_USER_BUTTON_KEY'=>'N',
+'LBL_EXPORT_USER_BUTTON_TITLE' => 'Exportar usuários [Alt+E]',
+'LBL_EXPORT_USER_BUTTON_LABEL' => 'Exportar usuários',
+'LBL_EXPORT_USER_BUTTON_KEY' => 'E',
 'LBL_DATE_FORMAT'=>'Formato data',
 
 'LBL_ERROR'=>'Erro:',
 'LBL_PASSWORD'=>'Senha',
 'LBL_USER_NAME'=>'Usuário',
+'LBL_2FACODE' => 'Code',
+'LBL_2FAGETCODE' => 'Get another code',
+'2FA_NEWCODESENT' => 'New code has been sent.',
+'2FA_ACCESSCODE' => 'Your access code is %s',
 'LBL_CRM_ID'=>'ID CRM',
 'LBL_FIRST_NAME'=>'Nome',
 'LBL_LAST_NAME'=>'Sobrenome',
@@ -114,6 +111,8 @@ $mod_strings = Array(
 'ERR_ENTER_CONFIRMATION_PASSWORD'=>'Por favor entre com a confirmação de senha.',
 'ERR_REENTER_PASSWORDS'=>'Por favor entre novamente com sua senha.  Os valores \"nova senha\" e \"confirme senha\" não combinam.',
 'ERR_INVALID_PASSWORD'=>'Você deve especificar um nome de usuário e senha válidos',
+'ERR_INVALID_2FACODE' => 'You have introduced an invalid code, please try again.',
+'ERR_INVALIDUSERID' => 'Invalid user ID given.',
 'ERR_INVALID_ADMINIPLOGIN' => 'O usuário Administrador deve fazer login a partir de dispositivos autorizados.',
 'ERR_INVALID_USERIPLOGIN' => 'Restricted access to authorized personnel only<br> You are connecting from an invalid IP',
 'ERR_PASSWORD_CHANGE_FAILED_1'=>'Mudança na senha do usuário falhou ',
@@ -645,6 +644,14 @@ $mod_strings = Array(
 'LBL_3_MIN'=>'3 minutos',
 'LBL_4_MIN'=>'4 minutos',
 'LBL_5_MIN'=>'5 minutos',
+'None' => 'None',
+'1 Minute' => '1 Minuto',
+'5 Minutes' => '5 Minutos',
+'15 Minutes' => '15 Minutos',
+'30 Minutes' => '30 Minutos',
+'45 Minutes' => '45 Minutos',
+'1 Hour' => '1 Hora',
+'1 Day' => '1 Dia',
 'LBL_EMAILS_PER_PAGE'=>'Email por Página',
 
 'LBL_ENTER_PROFILE'=>'Digite o Nome do Perfil',
@@ -677,12 +684,8 @@ $mod_strings = Array(
 'Asterisk Extension' => 'Extensão Asterisk',
 'Receive Incoming Calls' => 'Receber Chamadas',
 
-// Added for Create Custom Fields 
-'LBL_USER_CUSTOMFIELDS_DESCRIPTION' => 'Criar Campos Customizados para Usuários',
-'LBL_USER_CUSTOMFIELDS' => 'Campos Customizados Usuários',
 'LBL_CURRENCY_CONFIGURATION'=> 'Configuração Moeda',
 
-//vtiger CRM 5.3.0 RC fields translated by Valmir Carlos Trindade | valmir@ttcasolucoes.com.br
 'Digit Grouping Pattern'=>'Padrão Agrupamento Dígitos',
 'Decimal Separator'=>'Separador Decimal',
 'Symbol Placement'=>'Localização Símbolo',
@@ -802,19 +805,23 @@ $mod_strings = Array(
 'hcylinder'=>'Cilindro Horizontal',
 'vcylinder'=>'Cilindro Vertical',
 'LBL_SEND_EMAIL_TO_SENDER' => 'Enviar uma cópia do eMail',
-'PASSWORD REQUIREMENTS' => 'EXIGÊNCIAS PARA A SENHA',
-'REQUIRED' => 'EXIGIDO',
+'PASSWORD REQUIREMENTS' => 'Exigências para a Senha',
+'REQUIRED' => 'Exigido',
 'Min. 8 characters' => 'Min. 8 caracteres',
-'Contains3of4' => 'SENHA CONTÉM AO MENOS TRES DOS SEGUINTES QUATRO GRUPOS DE CARACTERES',
+'Contains3of4' => 'Senha deve conter ao menos três dos seguintes grupos de caracteres',
 'Min. 1 uppercase' => 'Min. 1 letra maiúscula',
 'Min. 1 lowercase' => 'Min. 1 letra minúscula',
 'Min. 1 number' => 'Min. 1 número',
 'Min. 1 special character' => 'Min. 1 caracter especial , ! ? , ; - @ #',
 'Generate password' => 'Gerar senha',
+'ERR_USER_LOGGED_IN' => 'O nome de usuário está atualmente em uso em outro computador. Terminar a sessão em uso ou inserir um nome de usuário diferente.',
+'ERR_USER_CAN_UNBLOCK' => 'Uma sessão inativa pelo mesmo nome de usuário está bloqueando sua (s) tentativa (s) de login.',
+'LBL_USERLOGGEDOUTOK' => 'O usuário foi desconectado corretamente.',
+'LBL_USERLOGGEDOUTNOK' => 'O usuário não pode ser desconectado.',
+'LBL_UNBLOCK_USR' => 'Desbloquear a sessão para iniciar nova sessão?',
 // LDAP
-'LBL_QUERY' => 'Query',
-'LBL_FORE_LASTNAME' => 'First or Last name',
-'LBL_NO_LDAP_MATCHES' => 'No matches found on the LDAP server!',
+'LBL_QUERY' => 'Pergunta',
+'LBL_FORE_LASTNAME' => 'Nome ou Sobrenome',
+'LBL_NO_LDAP_MATCHES' => 'Nenhuma correspondência encontrada no servidor LDAP!',
 );
-
 ?>

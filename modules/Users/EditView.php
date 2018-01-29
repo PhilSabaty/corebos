@@ -17,6 +17,11 @@ require_once('modules/Leads/ListViewTop.php');
 
 global $app_strings, $mod_strings, $currentModule, $default_charset;
 
+function showLicense() {
+	include 'modules/Users/showLicense.php';
+	die();
+}
+
 $smarty=new vtigerCRM_Smarty;
 $focus = new Users();
 
@@ -29,12 +34,20 @@ if(isset($_REQUEST['record']) && isset($_REQUEST['record'])) {
 }else
 {
 	$mode='create';
+	// ODController user creation acceptance
+	if ($coreBOSOnDemandActive && $cbodShowLicenseOnUserCreation && empty($_REQUEST['creation_accepted'])) {
+		showLicense();
+	}
 }
 
 if(isset($_REQUEST['isDuplicate']) && $_REQUEST['isDuplicate'] == 'true') {
 	$focus->id = "";
 	$focus->user_name = "";
 	$mode='create';
+	// ODController user creation acceptance
+	if ($coreBOSOnDemandActive && $cbodShowLicenseOnUserCreation && empty($_REQUEST['creation_accepted'])) {
+		showLicense();
+	}
 
 	//When duplicating the user the password fields should be empty
 	$focus->column_fields['user_password']='';
@@ -89,8 +102,8 @@ $blocks = getBlocks($currentModule, $disp_view, $focus->mode, $focus->column_fie
 $smarty->assign('BLOCKS', $blocks);
 $smarty->assign("MODULE", 'Settings');
 $smarty->assign("MODE",$focus->mode);
-$smarty->assign('HOUR_FORMAT',isset($focus->imagename) ? $focus->hour_format : '');
-$smarty->assign('START_HOUR',isset($focus->imagename) ? $focus->start_hour : '');
+$smarty->assign('HOUR_FORMAT',isset($focus->hour_format) ? $focus->hour_format : '');
+$smarty->assign('START_HOUR',isset($focus->start_hour) ? $focus->start_hour : '');
 if (isset($_REQUEST['Edit']) && $_REQUEST['Edit'] == ' Edit ')
 {
 	$smarty->assign("READONLY", "readonly");
@@ -103,8 +116,7 @@ if ((empty($_REQUEST['isDuplicate']) || $_REQUEST['isDuplicate'] != 'true') && i
 $HomeValues = $focus->getHomeStuffOrder($focus->id);
 $smarty->assign("TAGCLOUDVIEW",$HomeValues['Tag Cloud']);
 $smarty->assign("SHOWTAGAS",$HomeValues['showtagas']);
-unset($HomeValues['Tag Cloud']);
-unset($HomeValues['showtagas']);
+unset($HomeValues['Tag Cloud'],$HomeValues['showtagas']);
 $smarty->assign("HOMEORDER",$HomeValues);
 
 $smarty->assign("tagshow_options", array(

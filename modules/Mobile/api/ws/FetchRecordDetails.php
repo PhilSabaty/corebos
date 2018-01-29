@@ -10,8 +10,8 @@
  ************************************************************************************/
 include_once 'include/Webservices/Retrieve.php';
 include_once 'include/Webservices/DescribeObject.php';
-include_once dirname(__FILE__) . '/FetchRecord.php';
-include_once dirname(__FILE__) . '/Describe.php';
+include_once __DIR__ . '/FetchRecord.php';
+include_once __DIR__ . '/Describe.php';
 
 class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 	
@@ -60,17 +60,15 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 		$operation = $request->getOperation();
 		$resultRecord = $result['record'];
 		$relatedlistcontent = isset($result['relatedlistcontent']) ? $result['relatedlistcontent'] : '';
-		$comments = $result['comments'];
 		$module = $this->detectModuleName($resultRecord['id']);
 		//set download pathinfo
-		
 		$modifiedRecord = $this->transformRecordWithGrouping($resultRecord, $module,$operation);
 		$ret_arr = array('record' => $modifiedRecord);
 		if (is_array ($relatedlistcontent)) {
 			$ret_arr['relatedlistcontent'] = $relatedlistcontent;
 		}
-		if (isset($comments)) {
-			$ret_arr['comments'] = $comments;
+		if (isset($result['comments'])) {
+			$ret_arr['comments'] = $result['comments'];
 		}
 		if (isset($resultRecord['attachmentinfo']) and $resultRecord['attachmentinfo']!='') {
 			$ret_arr['attachmentinfo'] = $resultRecord['attachmentinfo'];
@@ -86,7 +84,7 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 		$blocks = array(); 
 		$labelFields = false;
 
-		if($module == 'Events' || $module == 'Calendar' || $module == 'Timecontrol') {
+		if($module == 'Timecontrol' || $module == 'cbCalendar') {
 			// sets times & dates to local time zone and format
 			$date = new DateTimeField($resultRecord['date_start'].' '.$resultRecord['time_start']);
 			$startDateTime = $date->getDisplayDateTimeValue();	
@@ -143,11 +141,12 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 			$fields = array();
 			
 			foreach($fieldgroups as $fieldname => $fieldinfo) {
-				$value = $resultRecord[$fieldname];
+				$value = '';
 				$fieldlabel = $fieldinfo['label'];
 
 				// get field information
-				if(isset($resultRecord[$fieldname])) {
+				if (isset($resultRecord[$fieldname])) {
+					$value = $resultRecord[$fieldname];
 					//get standard content & perform special settings
 					if($fieldinfo['uitype'] == 17 && strlen($resultRecord[$fieldname]) ) {
 						//www fields
@@ -161,12 +160,7 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 					}
 					if($fieldinfo['uitype'] == 13 && strlen($resultRecord[$fieldname]) ) {
 						// email fields
-						if ($operation =='edit') {
-							$resultRecord[$fieldname]= $resultRecord[$fieldname];
-						}
-						else {
-							$resultRecord[$fieldname]= "<A HREF=\"#\" onclick=\"window.location.href ='mailto:" . $resultRecord[$fieldname] . "';\">"  . $resultRecord[$fieldname] . "</A>";
-						}
+						$resultRecord[$fieldname]= $resultRecord[$fieldname];
 					}
 					if($fieldinfo['uitype'] == 72 && strlen($resultRecord[$fieldname]) ) {
 						//currency fields
@@ -240,9 +234,6 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 								}
 								$options[] = array('label'=>getTranslatedString($pickListValue, $module),'value'=>$pickListValue,'selected'=>$chk_val);
 							}
-							if($pickcount == 0 && !empty($value)){
-								$options[] =  array('label'=>$app_strings['LBL_NOT_ACCESSIBLE'],'value'=>$value,'selected');
-							}
 						}
 						$editview_label[]=getTranslatedString($fieldlabel, $module);
 						foreach ($valueArr as $key => $value) {
@@ -258,24 +249,24 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 						$field['type']['value'] =array('value' =>$options,'name' =>$fieldname);
 						//end picklists	 
 					}
-					else if($field['uitype'] == '51' || $field['uitype'] == '59' || $field['uitype'] == '10'){
+					else if($field['uitype'] == '51' || $field['uitype'] == '10'){
 						$field['relatedmodule'] = crmtogo_WS_Utils::getEntityName($field['name'], $module);
 					}
 					$fields[] = $field;
-										
-				} 
+				}
 			}
 			// build address for "open address in maps" button
 			// array with all different address fieldnames for each module
 			$fieldnamesByModule = array(
-				"Accounts" 		=> array("bill_street", "ship_street", "bill_city", "ship_city", "bill_state", "ship_state", "bill_code", "ship_code", "bill_country", "ship_country", "ship_address", "bill_address"),
-				"SalesOrder" 	=> array("bill_street", "ship_street", "bill_city", "ship_city", "bill_state", "ship_state", "bill_code", "ship_code", "bill_country", "ship_country", "ship_address", "bill_address"),
-				"Contacts" 		=> array("mailingstreet", "otherstreet", "mailingcity", "othercity", "mailingstate", "otherstate", "mailingzip", "otherzip", "mailingcountry", "othercountry", "mailingaddress", "otheraddress"),
-				"Leads" 			=> array("lane", "", "city", "", "state", "", "code", "", "country", "", "mailingaddress", ""),
+				"Accounts"		=> array("bill_street", "ship_street", "bill_city", "ship_city", "bill_state", "ship_state", "bill_code", "ship_code", "bill_country", "ship_country", "ship_address", "bill_address"),
+				"SalesOrder"	=> array("bill_street", "ship_street", "bill_city", "ship_city", "bill_state", "ship_state", "bill_code", "ship_code", "bill_country", "ship_country", "ship_address", "bill_address"),
+				"Contacts"		=> array("mailingstreet", "otherstreet", "mailingcity", "othercity", "mailingstate", "otherstate", "mailingzip", "otherzip", "mailingcountry", "othercountry", "mailingaddress", "otheraddress"),
+				"Leads"			=> array("lane", "", "city", "", "state", "", "code", "", "country", "", "mailingaddress", ""),
 			);
-			
+
 			// get the right array depending on current module
-			$fieldnames = $fieldnamesByModule[$module];
+			$fieldnames = (isset($fieldnamesByModule[$module]) ? $fieldnamesByModule[$module] : null);
+
 			/*
 			0 = appears if fieldgroup is not address information
 			1 = address values are set, show button
@@ -286,8 +277,9 @@ class crmtogo_WS_FetchRecordDetails extends crmtogo_WS_FetchRecord {
 			$mailingAddress = "";
 			$otherAddress = "";
 			// go through all fields
+			if (!empty($fieldnames))
 			foreach($fieldgroups as $fieldname => $fieldinfo) {
-				if(!is_array($resultRecord[$fieldname]) AND !is_object($resultRecord[$fieldname])) {
+				if (!is_array($resultRecord[$fieldname]) AND !is_object($resultRecord[$fieldname])) {
 					$value = trim($resultRecord[$fieldname]);
 					// check street and city for first address
 					if($mailingAddressOK != -1 AND ($fieldname == $fieldnames[0] OR $fieldname == $fieldnames[2])) {

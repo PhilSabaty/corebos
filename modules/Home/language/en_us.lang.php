@@ -61,7 +61,7 @@ $mod_strings = Array(
 'LBL_HOME_STUFFTITLE'=>'Window Title',
 'LBL_HOME_SHOW'=>'Show',
 'LBL_HOME_FILTERBY'=>'Filter By',
-'LBL_HOME_Fields'=>'Fields To Show <br>(select any two)',
+'LBL_HOME_Fields'=>'Fields To Show',
 'LBL_HOME_PRESSCTRL'=>'(Press "Ctrl" <br> for multiple selection)',
 'LBL_HOME_RSSURL'=>'RSS URL',
 'LBL_HOME_DASHBOARD_NAME'=>'DashBoard Name',
@@ -94,7 +94,7 @@ $mod_strings = Array(
 'Top Accounts'=>'Top Organizations',
 'Top Potentials'=>'Top Opportunities',
 'Top Quotes'=>'Top Quotes',
-'Top Trouble Tickets'=>'Top Trouble Tickets',
+'Top Trouble Tickets'=>'Top Support Tickets',
 'Top Invoices'=>'Top Invoices',
 'Top Sales Orders'=>'Top Sales Orders',
 'Top Purchase Orders'=>'Top Purchase Orders',
@@ -121,6 +121,9 @@ $mod_strings = Array(
 'LBL_HOME_ADDWINDOW' => 'Add Window',
 'LBL_GETTING_STARTED' => 'Getting Started',
 'ExpirePasswordAfterDays' => 'Expire Password After Days',
+'FieldsNotFoundInFilter' => 'Fields not found in Selected Filter',
+'FilterNotFound' => 'Filter You have Selected is Not Found',
+'Permission Denied' => 'Permission Denied',
 );
 
 ?>

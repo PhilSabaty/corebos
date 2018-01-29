@@ -9,6 +9,7 @@
 var globaldtlviewspanid = "";
 var globaleditareaspanid = ""; 
 var globaltxtboxid = "";
+var globalfldtimeformat = "";
 var itsonview=false;
 // to retain the old value if we cancel the ajax edit
 var globaltempvalue = '';
@@ -27,8 +28,13 @@ function hndCancel(valuespanid,textareapanid,fieldlabel)
 			getObj(globaltxtboxid).checked = true;
 		else
 			getObj(globaltxtboxid).checked = false;
-	} else if(globaluitype != '53' && globaluitype != '33' && globaluitype != '3313' && globaluitype != '3314')
+	} else if (globaluitype == '50') {
 		getObj(globaltxtboxid).value = globaltempvalue;
+		getObj('timefmt_' + fieldlabel).innerHTML = (globalfldtimeformat != '24' ? globalfldtimeformat : '');
+		getObj('inputtimefmt_' + fieldlabel).value = globalfldtimeformat;
+	} else if (globaluitype != '53' && globaluitype != '33' && globaluitype != '3313' && globaluitype != '3314') {
+		getObj(globaltxtboxid).value = globaltempvalue;
+	}
 	globaltempvalue = '';
 	itsonview=false;
 	return false;
@@ -53,7 +59,7 @@ function hndMouseOver(uitype,fieldLabel)
 	globaldtlviewspanid= "dtlview_"+ fieldLabel;//valuespanid;
 	globaleditareaspanid="editarea_"+ fieldLabel;//textareapanid;
 	globalfieldlabel = fieldLabel;
-	if(globaluitype == 53) {
+	if (globaluitype == 53) {
 		var assigntype = document.getElementsByName('assigntype');
 		if(assigntype.length > 0) {
 			var assign_type_U = assigntype[0].checked;
@@ -69,6 +75,8 @@ function hndMouseOver(uitype,fieldLabel)
 			} else {
 				globaltxtboxid= 'txtbox_U'+fieldLabel;
 			}
+	} else if (globaluitype == 50) {
+		globalfldtimeformat = getObj('inputtimefmt_' + fieldLabel).value;
 	} else {
 		globaltxtboxid="txtbox_"+ fieldLabel;//textboxpanid;
 	}
@@ -88,8 +96,8 @@ function handleEdit(event)
 {
 	show(globaleditareaspanid);
 	fnhide(globaldtlviewspanid);
-	if( ((globaluitype == 15 || globaluitype == 16 || globaluitype == 1613 || globaluitype == 1614) && globaltempvalue == '') ||
-		 (globaluitype != 53 && globaluitype != 15 && globaluitype != 16 && globaluitype != 1613 && globaluitype != 1614) ) {
+	if( ((globaluitype == 15 || globaluitype == 16 || globaluitype == 1613 || globaluitype == 1614 || globaluitype == 1615) && globaltempvalue == '') ||
+		 (globaluitype != 53 && globaluitype != 15 && globaluitype != 16 && globaluitype != 1613 && globaluitype != 1614 && globaluitype != 1615) ) {
 		globaltempvalue = getObj(globaltxtboxid).value;
 		if(getObj(globaltxtboxid).type != 'hidden')
 			getObj(globaltxtboxid).focus();
@@ -182,7 +190,7 @@ function dtlViewAjaxFinishSave(fieldLabel,module,uitype,tableName,fieldName,crmI
 			var groupurl = "&assigned_group_id="+group_id+"&assigntype=T";
 		}
 	}
-	else if(uitype == 15 || uitype == 16 || uitype == 1613 || uitype == 1614)
+	else if(uitype == 15 || uitype == 16 || uitype == 1613 || uitype == 1614 || uitype == 1615)
 	{
 		var txtBox= "txtbox_"+ fieldLabel;
 		var not_access =document.getElementById(txtBox);
@@ -255,6 +263,8 @@ function dtlViewAjaxFinishSave(fieldLabel,module,uitype,tableName,fieldName,crmI
 	}else if(uitype == '24' || uitype == '21')
 	{
 		tagValue = document.getElementById(txtBox).value.replace(/<br\s*\/>/g, " ");
+	} else if (uitype == '50') {
+		tagValue = document.getElementById(txtBox).value + getObj('inputtimefmt_' + fieldLabel).value;
 	}else
 	{
 		tagValue = trim(document.getElementById(txtBox).value);
@@ -273,6 +283,7 @@ function dtlViewAjaxFinishSave(fieldLabel,module,uitype,tableName,fieldName,crmI
 		"fldName" : fieldName,
 		"fieldValue" : encodeURIComponent(tagValue)
 	};
+	data = corebosjshook_dtlViewAjaxFinishSave_moredata(data);
 	var url = "file=DetailViewAjax&module=" + module + "&action=" + module + "Ajax&record=" + crmId + "&recordid=" + crmId + "&ajxaction=DETAILVIEW" + groupurl;
 	if(module == 'Users') {
 		url += "&form_token=" + (document.getElementsByName('form_token')[0].value);
@@ -303,8 +314,7 @@ function dtlViewAjaxFinishSave(fieldLabel,module,uitype,tableName,fieldName,crmI
 		}
 	);
 	tagValue = get_converted_html(tagValue);
-	if(uitype == '13' || uitype == '104')
-	{
+	if (uitype == '13') {
 		var temp_fieldname = 'internal_mailer_'+fieldName;
 		if(document.getElementById(temp_fieldname))
 		{
@@ -403,10 +413,6 @@ function dtlViewAjaxFinishSave(fieldLabel,module,uitype,tableName,fieldName,crmI
 		{
 			getObj(dtlView).innerHTML = "<a href=\"index.php?module=Contacts&action=DetailView&record="+tagValue+"\">"+popObj.value+"&nbsp;</a>";
 		}
-		else if(uitype == '59')
-		{
-			getObj(dtlView).innerHTML = "<a href=\"index.php?module=Products&action=DetailView&record="+tagValue+"\" onclick='event.stopPropagation();'>"+popObj.value+"&nbsp;</a>";
-		}
 		else if(uitype == '75' || uitype == '81' )
 		{
 			getObj(dtlView).innerHTML = "<a href=\"index.php?module=Vendors&action=DetailView&record="+tagValue+"\">"+popObj.value+"&nbsp;</a>";
@@ -485,6 +491,10 @@ function dtlViewAjaxFinishSave(fieldLabel,module,uitype,tableName,fieldName,crmI
 		desc = desc.replace(/,\"|\.\"|\)\"|\)\.\"|\.\)\"/, "\"");
 		//desc = desc.replace(/[\n\r]/g, "<br>&nbsp;");
 		getObj(dtlView).textContent = desc;
+	} else if (uitype == '50') {
+		let timefmt = tagValue.substring(tagValue.length-2);
+		if (timefmt == '24') timefmt = '';
+		getObj(dtlView).innerHTML = tagValue.substring(0,tagValue.length-2)+"&nbsp;<font size=1><em>&nbsp;<span id='timefmt_"+fieldName+"'>"+timefmt+"</span></em></font>";
 	}
 	else
 	{
@@ -539,6 +549,11 @@ function dtlviewModuleValidation(fieldLabel,module,uitype,tableName,fieldName,cr
 							} else {
 								sentForm[fieldName] = 0;
 							}
+							break;
+						case '50':
+						case 50:
+							sentForm[fieldName] = document.getElementById("txtbox_" + fieldName).value;
+							sentForm["timefmt_" + fieldName] = document.getElementById("inputtimefmt_" + fieldName).value;
 							break;
 						case '53':
 						case 53:

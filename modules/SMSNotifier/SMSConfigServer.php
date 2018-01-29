@@ -8,7 +8,7 @@
  * All Rights Reserved.
  *************************************************************************************/
 require_once('Smarty_setup.php');
-include_once dirname(__FILE__) . '/SMSNotifier.php';
+include_once __DIR__ . '/SMSNotifier.php';
 
 global $theme, $currentModule, $mod_strings, $app_strings, $current_user;
 $theme_path="themes/".$theme."/";
@@ -70,7 +70,7 @@ if(!is_admin($current_user)) {
 		$smarty->assign('SMSHELPINFO', json_encode($smshelpinfo));
 		$smarty->display(vtlib_getModuleTemplate($currentModule, 'SMSConfigServerEdit.tpl'));
 	} else if($mode == 'Save') {
-		SMSNotifierManager::updateConfiguredServer($_REQUEST['smsserver_id'], $_REQUEST);
+		SMSNotifierManager::updateConfiguredServer((isset($_REQUEST['smsserver_id']) ? $_REQUEST['smsserver_id'] : 0), $_REQUEST);
 		$smarty->assign('SMSSERVERS', SMSNotifierManager::listConfiguredServers());
 		$smarty->display(vtlib_getModuleTemplate($currentModule, 'SMSConfigServerListContents.tpl'));
 	} else if($mode == 'Delete') {

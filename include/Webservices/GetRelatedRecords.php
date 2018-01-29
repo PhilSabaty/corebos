@@ -132,6 +132,20 @@ function __getRLQuery($id, $module, $relatedModule, $queryParameters, $user) {
 	$moduleId = getTabid($module);
 
 	// check permission on module
+	list($wsid,$crmid) = explode('x', $id);
+	if ((vtws_getEntityId('Calendar')==$wsid or vtws_getEntityId('Events')==$wsid) and getSalesEntityType($crmid)=='cbCalendar') {
+		$id = vtws_getEntityId('cbCalendar') . 'x' . $crmid;
+	}
+	if (vtws_getEntityId('cbCalendar')==$wsid and getSalesEntityType($crmid)=='Calendar') {
+		$rs = $adb->pquery('select activitytype from vtiger_activity where activityid=?', array($crmid));
+		if ($rs and $adb->num_rows($rs)==1) {
+			if ($adb->query_result($rs,0,0)=='Task') {
+				$id = vtws_getEntityId('Calendar') . 'x' . $crmid;
+			} else {
+				$id = vtws_getEntityId('Events') . 'x' . $crmid;
+			}
+		}
+	}
 	$webserviceObject = VtigerWebserviceObject::fromId($adb,$id);
 	$handlerPath = $webserviceObject->getHandlerPath();
 	$handlerClass = $webserviceObject->getHandlerClass();
@@ -228,7 +242,7 @@ function __getRLQuery($id, $module, $relatedModule, $queryParameters, $user) {
 						case 'Last5': $queryCriteria = sprintf(" ORDER BY %s.%s DESC LIMIT 5", $entityInstance->table_name, $entityInstance->table_index); break;
 						case 'Mine': $queryCriteria = ' AND vtiger_crmentity.smcreatorid=' . $current_user->id; break;
 					}
-					$query = $entityInstance->getListQuery($moduleName, sprintf(" AND %s.related_to=$crmid", $entityInstance->table_name));
+					$query = $entityInstance->getListQuery('ModComments', sprintf(" AND %s.related_to=$crmid", $entityInstance->table_name));
 					$query .= $queryCriteria;
 					$qfields = __getRLQueryFields($meta,$queryParameters['columns']);
 					// Remove all the \n, \r and white spaces to keep the space between the words consistent.
@@ -257,7 +271,12 @@ function __getRLQuery($id, $module, $relatedModule, $queryParameters, $user) {
 			}
 			// special product relation with Q/SO/I/PO
 			if ($relatedModule == 'Products' and in_array($module,array('Invoice','Quotes','SalesOrder','PurchaseOrder'))) {
-				$query = 'select productid as id,sequence_no,quantity,listprice,discount_percent,discount_amount,comment,description,tax1,tax2,tax3 FROM vtiger_inventoryproductrel where id='.$crmid;
+				$qparams = ' ' . $queryParameters['columns'] . ' ';
+				$qparams = str_replace(' id ', ' productid as id ', $qparams);
+				$qparams = str_replace(',id ', ',productid as id ', $qparams);
+				$qparams = str_replace(' id,', ' productid as id,', $qparams);
+				$qparams = str_replace(',id,', ',productid as id,', $qparams);
+				$query = 'select ' . $qparams . ' FROM vtiger_inventoryproductrel where id=' . $crmid;
 			} else {
 			$relationResult = $adb->pquery(
 				"SELECT * FROM vtiger_relatedlists WHERE tabid=? AND related_tabid=? $relation_criteria",

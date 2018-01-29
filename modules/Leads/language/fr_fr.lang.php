@@ -107,7 +107,6 @@ $mod_strings = Array(
 	'LBL_HOT' => 'Chaud',
 	'LBL_COLD' => 'Froid',
 	'LBL_TOOL_FORM_TITLE' => 'Outils',
-	'LBL_SELECT_TEMPLATE_TO_MAIL_MERGE' => 'Sélectionnez un modèle de document pour publipostage :',
 	'Salutation' => 'Civilité',
 	'First Name' => 'Prénom',
 	'Phone' => 'Téléphone',
@@ -213,7 +212,5 @@ $mod_strings = Array(
 	'LBL_FIELD_SETTINGS' => 'Réglages des champs',
 	'Leads ID' => 'Prospect ID',
 	'LeadAlreadyConverted' => 'Le propect ne peut être converti. Il a soit déjà été converti, soit vous n\'avez pas les autorisations nécessaires sur un ou plusieurs modules destinataires.',
-	'Is Converted From Lead' => 'Est converti de prospect',
-	'Converted From Lead' => 'Converti de prospect',
 );
 ?>

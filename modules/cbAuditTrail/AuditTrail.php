@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-include_once('config.php');
+include_once('config.inc.php');
 require_once('include/logging.php');
 require_once('include/logging.php');
 require_once('include/ListView/ListView.php');
@@ -83,7 +83,7 @@ class AuditTrail{
 		$log->debug("Entering getAuditTrailEntries(".$userid.") method ...");
 
 		if($sorder != '' && $order_by != '')
-			$list_query = "Select * from vtiger_audit_trial where userid =? order by ".$order_by." ".$sorder;
+			$list_query = 'Select * from vtiger_audit_trial where userid =? order by '.$adb->sql_escape_string($order_by).' '.$adb->sql_escape_string($sorder);
 		else
 			$list_query = "Select * from vtiger_audit_trial where userid =? order by ".$this->default_order_by." ".$this->default_sort_order;
 

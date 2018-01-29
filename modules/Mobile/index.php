@@ -16,26 +16,24 @@ die();
 }
 define('COREBOS_INSIDE_MOBILE',1);
 header('Content-Type: text/html;charset=utf-8');
-chdir (dirname(__FILE__) . '/../../');
+chdir(__DIR__ . '/../../');
 
 /**
  * URL Verfication - Required to overcome Apache mis-configuration and leading to shared setup mode.
  */
-require_once 'config.php';
-if (file_exists('config_override.php')) {
-	include_once 'config_override.php';
-}
+require_once 'config.inc.php';
+
 //Relations sets the GetRelatedList function to local
-//require_once dirname(__FILE__) . '/api/Relation.php';
-include_once dirname(__FILE__) . '/api/Request.php';
-include_once dirname(__FILE__) . '/api/Response.php';
+//require_once __DIR__ . '/api/Relation.php';
+include_once __DIR__ . '/api/Request.php';
+include_once __DIR__ . '/api/Response.php';
 
 
-include_once dirname(__FILE__) . '/api/ws/Controller.php';
+include_once __DIR__ . '/api/ws/Controller.php';
 
-include_once dirname(__FILE__) . '/Mobile.php';
-include_once dirname(__FILE__) . '/views/Viewer.php';
-include_once dirname(__FILE__) . '/views/models/Module.php'; // Required for auto de-serializatio of session data
+include_once __DIR__ . '/Mobile.php';
+include_once __DIR__ . '/views/Viewer.php';
+include_once __DIR__ . '/views/models/Module.php'; // Required for auto de-serializatio of session data
 
 class crmtogo_Index_Controller {
 
@@ -47,7 +45,6 @@ class crmtogo_Index_Controller {
 		'fetchRecord' 			  => array('file' => '/views/DetailView.php', 'class' => 'crmtogo_UI_DetailView'),
 		'edit'                    => array('file' => '/views/EditView.php', 'class' => 'crmtogo_UI_EditView' ),
 		'create'                  => array('file' => '/views/EditView.php', 'class' => 'crmtogo_UI_EditView' ), 
-		'createActivity'          => array('file' => '/views/createActivity.php', 'class' => 'crmtogo_UI_DecideActivityType' ), 
 		'globalsearch'            => array('file' => '/views/ListGlobalSearchResults.php', 'class' => 'crmtogo_UI_GlobalSearch' ),
 		'deleteConfirmation'  	  => array('file' => '/views/deleteConfirmation.php', 'class' => 'crmtogo_UI_Delete' ),
 		'deleteRecords'  		  => array('file' => '/views/ListModuleRecords.php', 'class' => 'crmtogo_UI_ListModuleRecords' ),
@@ -71,7 +68,7 @@ class crmtogo_Index_Controller {
 			$operationFile = self::$opControllers[$operation]['file'];
 			$operationClass= self::$opControllers[$operation]['class'];
 
-			include_once dirname(__FILE__) . $operationFile;
+			include_once __DIR__ . $operationFile;
 			$operationController = new $operationClass;
 
 			$operationSession = false;
@@ -103,7 +100,7 @@ class crmtogo_Index_Controller {
 
 		if($response !== false) {
 			if ($response->hasError()) {
-				include_once dirname(__FILE__) . '/views/Error.php';
+				include_once __DIR__ . '/views/Error.php';
 				$errorController = new crmtogo_UI_Error();
 				$errorController->setError($response->getError());
 				echo $errorController->process($request)->emitHTML();
@@ -119,17 +116,6 @@ class crmtogo_Index_Controller {
 			}
 		}
 	}
-}
-
-/** Take care of stripping the slashes */
-function stripslashes_recursive($value) {
-	$value = is_array($value) ? array_map('stripslashes_recursive', $value) : stripslashes($value);
-	return $value;
-}
-if (get_magic_quotes_gpc()) {
-	//$_GET     = stripslashes_recursive($_GET   );
-	//$_POST    = stripslashes_recursive($_POST  );
-	$_REQUEST = stripslashes_recursive($_REQUEST);
 }
 
 if(!defined('CRMTOGO_INDEX_CONTROLLER_AVOID_TRIGGER')) {

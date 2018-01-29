@@ -55,24 +55,26 @@ $focus = new cbMap();
 $focus->id = $mapid;
 $focus->mode = '';
 $focus->retrieve_entity_info($mapid, $currentModule);
-
-$contentok = processcbMap::isXML(htmlspecialchars_decode($focus->column_fields['content']));
-
-if ($contentok !== true) {
-	$smarty->assign('ERROR_MESSAGE', '<b>Incorrect Content</b><br>'.$contentok);
-	$smarty->display('modules/cbMap/testMap.tpl');
-	die();
-}
-
 $smarty->assign('ID', $focus->id);
 $smarty->assign('MODE', $focus->mode);
 
 $recordName = array_values(getEntityName($currentModule, $focus->id));
 $recordName = $recordName[0];
 $smarty->assign('NAME', $recordName);
-$smarty->assign('UPDATEINFO',updateInfo($focus->id));
+$smarty->assign('UPDATEINFO', updateInfo($focus->id));
 $smarty->assign('MAPTYPE', $focus->column_fields['maptype']);
+
 $mapinfo = array();
+
+$contentok = processcbMap::isXML(html_entity_decode($focus->column_fields['content'], ENT_QUOTES, 'UTF-8'));
+
+if ($contentok !== true) {
+	$smarty->assign('MAPINFO', $mapinfo);
+	$smarty->assign('ERROR_MESSAGE', '<b>Incorrect Content</b><br>'.$contentok);
+	$smarty->display('modules/cbMap/testMap.tpl');
+	die();
+}
+
 switch ($focus->column_fields['maptype']) {
 	case 'Condition Query':
 		$mapinfo = $focus->ConditionQuery(74);
@@ -83,7 +85,7 @@ switch ($focus->column_fields['maptype']) {
 	case 'Mapping':
 		$sofocus = CRMEntity::getInstance('SalesOrder');
 		$sofocus->retrieve_entity_info(10569, 'SalesOrder');
-		$mapinfo = $focus->Mapping($sofocus->column_fields,array('sentin'=>'notmodified'));
+		$mapinfo = $focus->Mapping($sofocus->column_fields, array('sentin'=>'notmodified'));
 		break;
 	case 'Record Access Control':
 		$rac = $focus->RecordAccessControl();
@@ -93,27 +95,27 @@ switch ($focus->column_fields['maptype']) {
 			echo 'DetailView '.$op.' = '.$rac->hasDetailViewPermissionTo($op)."<br>";
 		}
 		foreach (array('create','retrieve','update','delete','select') as $op) {
-			echo 'RelatedList Invoice '.$op.' = '.$rac->hasRelatedListPermissionTo($op,'Invoice')."<br>";
-			echo 'RelatedList Potentials '.$op.' = '.$rac->hasRelatedListPermissionTo($op,'Potentials')."<br>";
-			echo 'RelatedList ProjectMilestone '.$op.' = '.$rac->hasRelatedListPermissionTo($op,'ProjectMilestone')."<br>";
-			echo 'RelatedList ProjectTask '.$op.' = '.$rac->hasRelatedListPermissionTo($op,'ProjectTask')."<br>";
+			echo 'RelatedList Invoice '.$op.' = '.$rac->hasRelatedListPermissionTo($op, 'Invoice')."<br>";
+			echo 'RelatedList Potentials '.$op.' = '.$rac->hasRelatedListPermissionTo($op, 'Potentials')."<br>";
+			echo 'RelatedList ProjectMilestone '.$op.' = '.$rac->hasRelatedListPermissionTo($op, 'ProjectMilestone')."<br>";
+			echo 'RelatedList ProjectTask '.$op.' = '.$rac->hasRelatedListPermissionTo($op, 'ProjectTask')."<br>";
 		}
 		break;
 	case 'Record Set Mapping':
 			$rsm = $focus->RecordSetMapping();
 			$mapinfo = $rsm->getFullRecordSet();
-			break;
+		break;
 	case 'ListColumns':
 			$rsm = $focus->ListColumns();
 			$mapinfo = $rsm->getCompleteMapping();
-			break;
+		break;
 	case 'DuplicateRelations':
 			$rsm = $focus->DuplicateRelations();
 			$mapinfo = $rsm->getCompleteMapping();
-			break;
+		break;
 	case 'RelatedPanes':
 			$mapinfo = $focus->RelatedPanes();
-			break;
+		break;
 	case 'Import':
 		$mapinfo = $focus->Import()->getCompleteMapping();
 		$mapinfo['TargetModule'] = $focus->Import()->getMapTargetModule();
@@ -134,8 +136,8 @@ switch ($focus->column_fields['maptype']) {
 		$mapinfo['OriginModule'] = $focus->getMapOriginModule();
 		break;
 	case 'IOMap':
-	        $mapinfo['InputFields'] = $focus->IOMap()->readInputFields();
-               $mapinfo['OutputFields'] = $focus->IOMap()->readOutputFields();
+		$mapinfo['InputFields'] = $focus->IOMap()->readInputFields();
+		$mapinfo['OutputFields'] = $focus->IOMap()->readOutputFields();
 		break;
 	case 'Search and Update':
 		$mapinfo = $focus->read_map();
@@ -143,13 +145,25 @@ switch ($focus->column_fields['maptype']) {
 	case 'FieldInfo':
 		$mapinfo = $focus->FieldInfo();
 		break;
+	case 'GlobalSearchAutocomplete':
+		$mapinfo = $focus->GlobalSearchAutocomplete();
+		break;
 	case 'FieldDependency':
 		$mapinfo = $focus->FieldDependency()->getCompleteMapping();
 		$mapinfo['TargetModule'] = $focus->FieldDependency()->getMapTargetModule();
 		$mapinfo['OriginModule'] = $focus->FieldDependency()->getMapOriginModule();
 		break;
+	case 'Validations':
+		$mapinfo = $focus->Validations(
+			array(
+				'accountname' => 'Chemex',
+				'industry' => 'Banking',
+				'email1' => 'sdsdsd',
+			),
+			74
+		);
+		break;
 	default:
-
 		break;
 }
 $smarty->assign('MAPINFO', $mapinfo);

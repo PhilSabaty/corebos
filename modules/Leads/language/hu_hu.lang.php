@@ -115,7 +115,6 @@ $mod_strings = Array(
 	'LBL_HOT' => 'Forró',
 	'LBL_COLD' => 'Hideg',
 	'LBL_TOOL_FORM_TITLE' => 'Jelölt Eszközök',
-	'LBL_SELECT_TEMPLATE_TO_MAIL_MERGE' => 'Válassz egy sablont a csoportos email küldéshez:',
 	'Salutation' => 'Megszólítás',
 	'First Name' => 'Keresztnév',
 	'Phone' => 'Telefon',
@@ -221,7 +220,5 @@ $mod_strings = Array(
 	'Leads ID' => 'Jelöltek AZ',
 	'Send SMS' => 'SMS küldés',
 	'LeadAlreadyConverted' => 'Lead cannot be converted. Either it has already been converted or you lack permission on one or more of the destination modules.',
-	'Is Converted From Lead'  => 'Vevőjelöltből konvertált?',
-	'Converted From Lead'  => 'Vevőjelöltből konvertált',
 );
 ?>

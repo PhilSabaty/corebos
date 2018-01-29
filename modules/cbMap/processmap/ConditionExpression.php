@@ -27,11 +27,11 @@
  </map>
 
  <map>
-  <expression>employee + 10</expression>
+  <expression>employees + 10</expression>
  </map>
 
  <map>
-  <expression>if employee > 10 then true else false</expression>
+  <expression>if employees > 10 then 'true' else 'false' end</expression>
  </map>
 
  <map>
@@ -58,13 +58,16 @@ require_once 'include/Webservices/Retrieve.php';
 
 class ConditionExpression extends processcbMap {
 
-	function processMap($arguments) {
+	public function processMap($arguments) {
 		global $adb, $current_user;
 		$xml = $this->getXMLContent();
 		$entityId = $arguments[0];
 		$holduser = $current_user;
 		$current_user = Users::getActiveAdminUser(); // evaluate condition as admin user
-		$entity = new VTWorkflowEntity($current_user, $entityId);
+		$entity = new VTWorkflowEntity($current_user, $entityId, true);
+		if (is_null($entity->data)) { // invalid context
+			return false;
+		}
 		$current_user = $holduser;
 		if (isset($xml->expression)) {
 			$testexpression = (String)$xml->expression;
@@ -77,14 +80,14 @@ class ConditionExpression extends processcbMap {
 			$entity->data['record_module'] = $entity->getModuleName();
 			$function = (String)$xml->function->name;
 			$testexpression = '$exprEvaluation = ' . $function . '(';
-			foreach($xml->function->parameters->parameter as $k=>$v) {
+			foreach ($xml->function->parameters->parameter as $k => $v) {
 				if (isset($entity->data[(String)$v])) {
 					$testexpression.= "'" . $entity->data[(String)$v] . "',";
 				} else {
 					$testexpression.= "'" . (String)$v . "',";
 				}
 			}
-			$testexpression = trim($testexpression,',') . ');';
+			$testexpression = trim($testexpression, ',') . ');';
 			eval($testexpression);
 		}
 		return $exprEvaluation;

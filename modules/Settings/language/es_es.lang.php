@@ -31,33 +31,6 @@ $mod_strings = array (
       'LBL_CURRENCY_TOOL' => 'Herramientas',
       'LBL_CURRENCY_LIST' => 'Lista de Monedas',
       'NTC_DELETE_CONFIRMATION' => '¿Desea Borrar este registro?',
-      'LEADCUSTOMFIELDS' => 'Campos Personalizados de Pre-Contactos',
-      'ACCOUNTCUSTOMFIELDS' => 'Campos Personalizados de Cuentas',
-      'CONTACTCUSTOMFIELDS' => 'Campos Personalizados de Contactos',
-      'OPPORTUNITYCUSTOMFIELDS' => 'Campos Personalizados de Oportunidades',
-      'HELPDESKCUSTOMFIELDS' => 'Campos Personalizados de Incidencias',
-      'PRODUCTCUSTOMFIELDS' => 'Campos Personalizados de Productos',
-      'VENDORCUSTOMFIELDS' => 'Campos Personalizados de Proveedores',
-      'PRICEBOOKCUSTOMFIELDS' => 'Campos Personalizados de Tarifas',
-      'POCUSTOMFIELDS' => 'Campos Personalizados de Ordenes de Compra',
-      'SOCUSTOMFIELDS' => 'Campos Personalizados de Ordenes de Venta',
-      'QUOTESCUSTOMFIELDS' => 'Campos Personalizados de Presupuestos',
-      'INVOICECUSTOMFIELDS' => 'Campos Personalizados de Facturas',
-      'EDITLEADPICKLISTVALUES' => 'Editar listas de Pre-Contactos',
-      'EDITACCOUNTPICKLISTVALUES' => 'Editar listas de Cuentas',
-      'EDITCONTACTPICKLISTVALUES' => 'Editar listas de Contactos',
-      'EDITOPPORTUNITYPICKLISTVALUES' => 'Editar listas de Oportunidades',
-      'EDITHELPDESKPICKLISTVALUES' => 'Editar listas de Incidencias ',
-      'EDITPRODUCTPICKLISTVALUES' => 'Editar listas de Productos',
-      'EDITEVENTPICKLISTVALUES' => 'Editar listas de Eventos',
-      'EDITTASKPICKLISTVALUES' => 'Editar listas de Tareas',
-      'EDITRSSPICKLISTVALUES' => 'Editar listas de Rss',
-      'EDITVENDORPICKLISTVALUES' => 'Editar listas de Proveedores',
-      'EDITPBPICKLISTVALUES' => 'Editar listas de Tarifas',
-      'EDITPOPICKLISTVALUES' => 'Editar listas de Ordenes de Compra',
-      'EDITSOPICKLISTVALUES' => 'Editar listas de Ordenes de Venta',
-      'EDITQUOTEPICKLISTVALUES' => 'Editar listas de Presupuestos',
-      'EDITINVOICEPICKLISTVALUES' => 'Editar listas de Facturas',
       'LBL_PICKLIST_FIELD_SETTINGS' => 'Configurar listados:',
       'Leads' => 'Pre-Contactos',
       'Accounts' => 'Cuentas',
@@ -326,7 +299,6 @@ $mod_strings = array (
       'LBL_FIELD_MAPPING' => 'Correspondencia de campos',
       'LBL_LEAD_FIELD' => 'Campo Personalizado de Pre-Contactos',
       'LBL_TEXT_AREA' => 'Area de Texto',
-      'NOTESCUSTOMFIELDS' => 'Campo Personalizado de Documentos',
       'LBL_ASSIGN_MODULE_OWNERS' => 'Asignar Propietarios de Módulos',
       'LBL_MODULE_OWNERS' => 'Propietarios de Módulos',
       'LBL_ASSIGN_MODULE_OWNERS_INFO' => ' - Asignar Propietarios para cada Módulo',
@@ -594,7 +566,9 @@ $mod_strings = array (
       'ERR_CUSTOM_FIELD_WITH_NAME' => 'Un campo personalizado de nombre ',
       'ERR_ALREADY_EXISTS' => 'ya existe.',
       'ERR_SPECIFY_DIFFERENT_LABEL' => 'Por favor introduzca una etiqueta distinta',
-      'LBL_TOOLS_TO_BE_SHOWN'=>'Herramientas a mostrar',
+	'ROWSIZEERROR' => 'Fila demasiado grande. Se ha alcanzado el tamaño máximo para una tabla en la base de datos.',
+	'ADDFIELDERROR' => 'No se ha podido añadir el campo personalizado debido a un error en la base de datos.',
+	'LBL_TOOLS_TO_BE_SHOWN'=>'Herramientas a mostrar',
       'LBL_PICKLIST_TRANSFER'=>'Transfiriendo los valores de ',
       'LBL_REPLACE_VALUE_WITH'=>'Sustituir valor con ',
       'LBL_EDIT_CUSTOM_RULE'=>'Editar Regla de Privilegio Personalizada',
@@ -704,7 +678,7 @@ $mod_strings = array (
     
       'LBL_NOT'=>'No',
 
-      'LBL_ALL' => 'Toda',
+      'LBL_ALL' => 'Todos',
       'LBL_ANY'=>'Cualquier',
       'LBL_CONDITION'=>'Condición',
       'LBL_ACTION'=>'Acción',
@@ -720,9 +694,10 @@ $mod_strings = array (
       'LBL_SCANNING'=>'Scaneando',
       'LBL_LOOKFOR'=>'Buscar',
       'LBL_UNREAD'=>'No leídos',
+      'LBL_ALLUNREAD'=>'TODOS los no leídos',
       'LBL_READ'=>'Leídos',
       'LBL_AFTER_SCAN'=>'Post-scan',
-      'LBL_MESSAGES_FROM_LASTSCAN'=>'Mensajes último scan',
+      'LBL_MESSAGES_FROM_LASTSCAN'=>'desde última lectura',
       'LBL_MARK_MESSAGE_AS'=>'Marcar mensaje como',
       'LBL_ASSIGN' => 'Asignar a',
 
@@ -844,11 +819,8 @@ $mod_strings = array (
       'LBL_MAPPED_FIELDS' => 'Campos Vinculados',
       'LEADS_CUSTOM_FIELD_MAPPING_DESCRIPTION' => 'Vincula campos de Precontactos con Cuentas, Contactos y Oportunidades',
       'LEADS_CUSTOM_FIELD_MAPPING'=> 'Vinculación Campos de Precontactos',
-      'LBL_CALENDER_CUSTOMFIELDS' => 'Campos Personalizados Calendario',
-      'LBL_CALENDER_CUSTOMFIELDS_DESCRIPTION' => 'Crear Campos Personalizados para el Calendario',
       'LBL_GO_BACK'=>'Atrás',
 
-      //Added fix for: 5418
       'LBL_USE_PREFIX' => 'Utilizar Prefijo',
       'LBL_START_SEQ' => 'Iniciar Secuencia',
       'LBL_MODULE_NUMBERING' => 'Numeración Módulo',
@@ -857,7 +829,6 @@ $mod_strings = array (
       'LBL_IN_USE' => 'EN USO',
       'LBL_MODULE_NUMBERING_FIX_MISSING' => 'Actualizar secuencia errónea ahora',
 
-      //Added for: 5473
       'LBL_SHARING_ACCESS_HELPNOTE' => 'Trás las modificaciones, pulsa el botón de Recalcular para aplicar los cambios.',
 
       'LBL_ADD_CUSTOMFIELD' => 'Añadir Campo Personalizado',
@@ -896,10 +867,7 @@ $mod_strings = array (
       'ModTracker' => 'Control de Cambios',
       'LBL_MODTRACKER_DESCRIPTION' => 'Selecciona módulos para seguimiento',
 
-      'LBL_MENUS_TO_SHOW'=>'Selecciona módulos a mostrar en menú principal',
-      'LBL_MENU_DESC'=>'Personalizar Secuencia de Menú',
       'LBL_MENU_EDITOR'=>'Editor de Menú',
-      'LBL_MENUS_TO_SHOW_DESCRIPTION' => 'Utiliza las flechas para ordenar los elementos del menú. Los primeros 10 elementos aparecen en el menú, los demás se muestran en el desplegable <b><i>Más</i></b>',
       'LBL_ALL_MODULES' => 'Todos los Módulos',
       'LBL_SELECTED_MODULES' => 'Módulos Seleccionados',
 
@@ -925,5 +893,8 @@ $mod_strings = array (
 		// language translation strings
 		'SendEmailFrom' => 'Remitente',
 		'LeaveEmptyForUserEmail' => 'Deja vacío para utilizar el email de tu usuario',
+	'LBL_OPENSSL_SUPPORT' => 'Soporte OpenSSL',
+	'LBL_IMAP_SUPPORT' => 'Soporte IMAP',
+	'StorageSpaceUsage' => 'Consumo Espacio Almacenamiento',
 );
 ?>

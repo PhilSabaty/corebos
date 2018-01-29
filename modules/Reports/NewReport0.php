@@ -13,7 +13,7 @@ require_once('include/logging.php');
 require_once('include/utils/utils.php');
 require_once('modules/Reports/Reports.php');
 
-global $app_strings, $mod_strings, $current_language;
+global $app_strings, $mod_strings, $current_language, $default_charset;
 $current_module_strings = return_module_language($current_language, 'Reports');
 $log = LoggerManager::getLogger('report_list');
 global $currentModule, $image_path, $theme;
@@ -27,7 +27,9 @@ $list_report_form = new vtigerCRM_Smarty;
 $list_report_form->assign('LANGUAGE', $current_language);
 $list_report_form->assign("MOD", $mod_strings);
 $list_report_form->assign("APP", $app_strings);
-$list_report_form->assign('REPORTTYPE',isset($_REQUEST['cbreporttype']) ? vtlib_purify($_REQUEST['cbreporttype']) : '');
+$list_report_form->assign('LBL_CHARSET', $default_charset);
+$list_report_form->assign('REPORTTYPE',isset($_REQUEST['reporttype']) ? vtlib_purify($_REQUEST['reporttype']) : '');
+$list_report_form->assign('REPORTTYPE2',isset($_REQUEST['cbreporttype']) ? vtlib_purify($_REQUEST['cbreporttype']) : '');
 $repObj = new Reports ();
 $folderid = 0;
 if($recordid!=''){
@@ -66,9 +68,13 @@ if($recordid!=''){
 	$list_report_form->assign("RECORDID",$recordid);
 	$list_report_form->assign("REPORTNAME",$oRep->reportname);
 	$list_report_form->assign('REPORTTYPE',$oRep->reporttype);
-	$list_report_form->assign("REPORTDESC",$oRep->reportdescription);
+	$list_report_form->assign('REPORTTYPE2',$oRep->cbreporttype);
+
+
+
+  $list_report_form->assign("REPORTDESC",$oRep->reportdescription);
 	$list_report_form->assign("REP_MODULE",$oRep->primodule);
-	if ($oRep->reporttype=='external') {
+	if ($oRep->cbreporttype=='external') {
 		$rptrs = $adb->pquery('select moreinfo from vtiger_report where reportid=?',array($recordid));
 		if ($rptrs and $adb->num_rows($rptrs)>0) {
 			$minfo = $adb->query_result($rptrs, 0, 0);
@@ -77,7 +83,7 @@ if($recordid!=''){
 			$list_report_form->assign('REPORTADDUSERINFO',($minfo['adduserinfo']==1 ? 'checked' : ''));
 		}
 	} else {
-		$reportquery = ReportRun::sGetDirectSQL($recordid,$oRep->reporttype,false);
+		$reportquery = ReportRun::sGetDirectSQL($recordid,$oRep->cbreporttype,false);
 	}
 	$list_report_form->assign('REPORTMINFO',$reportquery);
 	$folderid = $oRep->folderid;

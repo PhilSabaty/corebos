@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-require_once('config.php');
+require_once('config.inc.php');
 require_once('include/logging.php');
 require_once('include/database/PearDatabase.php');
 require_once('modules/Accounts/Accounts.php');
@@ -131,44 +131,44 @@ function export($type){
 		$idstring = explode(";", vtlib_purify($_REQUEST['idstring']));
 		if($type == 'Accounts' && count($idstring) > 0) {
 			$query .= ' and vtiger_account.accountid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Contacts' && count($idstring) > 0) {
 			$query .= ' and vtiger_contactdetails.contactid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Potentials' && count($idstring) > 0) {
 			$query .= ' and vtiger_potential.potentialid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Leads' && count($idstring) > 0) {
 			$query .= ' and vtiger_leaddetails.leadid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Products' && count($idstring) > 0) {
 			$query .= ' and vtiger_products.productid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Documents' && count($idstring) > 0) {
 			$query .= ' and vtiger_notes.notesid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'HelpDesk' && count($idstring) > 0) {
 			$query .= ' and vtiger_troubletickets.ticketid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Vendors' && count($idstring) > 0) {
 			$query .= ' and vtiger_vendor.vendorid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Invoice' && count($idstring) > 0) {
 			$query .= ' and vtiger_invoice.invoiceid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'Quotes' && count($idstring) > 0) {
 			$query .= ' and vtiger_quotes.quoteid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'SalesOrder' && count($idstring) > 0) {
 			$query .= ' and vtiger_salesorder.salesorderid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} elseif($type == 'PurchaseOrder' && count($idstring) > 0) {
 			$query .= ' and vtiger_purchaseorder.purchaseorderid in ('. generateQuestionMarks($idstring) .')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 		} else if(count($idstring) > 0) {
 			// vtlib customization: Hook to make the export feature available for custom modules.
 			$query .= " and $focus->table_name.$focus->table_index in (" . generateQuestionMarks($idstring) . ')';
-			array_push($params, $idstring);
+			$params[] = $idstring;
 			// END
 		}
 	}
@@ -201,12 +201,14 @@ function export($type){
 
 	$__processor = new ExportUtils($type, $fields_array);
 
+	$CSV_Separator = GlobalVariable::getVariable('Export_Field_Separator_Symbol',',',$type);
+
 	// Translated the field names based on the language used.
-	$translated_fields_array = array();
-	for($i=0; $i<count($fields_array); $i++) {
-		$translated_fields_array[$i] = getTranslatedString($fields_array[$i],$type);
-	}
-	$header = implode("\",\"",array_values($translated_fields_array));
+	$translated_fields_array = array_map(
+		function ($field) use($type) { return getTranslatedString($field, $type); },
+		$fields_array
+	);
+	$header = implode('"'.$CSV_Separator.'"', $translated_fields_array);
 	$header = "\"" .$header;
 	$header .= "\"\r\n";
 
@@ -222,14 +224,14 @@ function export($type){
 			if($type == 'Documents' && $key == 'description'){
 				$value = strip_tags($value);
 				$value = str_replace('&nbsp;','',$value);
-				array_push($new_arr,$value);
+				$new_arr[] = $value;
 			}elseif($key != "user_name"){
 				// Let us provide the module to transform the value before we save it to CSV file
 				$value = $focus->transform_export_value($key, $value);
-				array_push($new_arr, preg_replace("/\"/","\"\"",$value));
+				$new_arr[] = preg_replace("/\"/","\"\"",$value);
 			}
 		}
-		$line = implode("\",\"",$new_arr);
+		$line = implode('"'.$CSV_Separator.'"',$new_arr);
 		$line = "\"" .$line;
 		$line .= "\"\r\n";
 		/** Output each row information */
@@ -299,18 +301,36 @@ class ExportUtils{
 			}elseif($uitype == 10){
 				//have to handle uitype 10
 				$value = trim($value);
-				if(!empty($value)) {
+				if (!empty($value)) {
 					$parent_module = getSalesEntityType($value);
-					$displayValueArray = getEntityName($parent_module, $value);
-					if(!empty($displayValueArray)){
-						foreach($displayValueArray as $k=>$v){
-							$displayValue = $v;
+					$Export_RelatedField_GetValueFrom = GlobalVariable::getVariable('Export_RelatedField_GetValueFrom','',$parent_module);
+					if ($Export_RelatedField_GetValueFrom != '') {
+						$qg = new QueryGenerator($parent_module, $current_user);
+						$qg->setFields(array($Export_RelatedField_GetValueFrom));
+						$qg->addCondition('id',$value,'e');
+						$query = $qg->getQuery();
+						$rs = $adb->query($query);
+						if ($rs and $adb->num_rows($rs) == 1) {
+							$displayValue = $adb->query_result($rs,0, $Export_RelatedField_GetValueFrom);
+						} else {
+							$displayValue = $value;
+						}
+					} else {
+						$displayValueArray = getEntityName($parent_module, $value);
+						if(!empty($displayValueArray)){
+							foreach($displayValueArray as $k=>$v){
+								$displayValue = $v;
+							}
 						}
 					}
-					if(!empty($parent_module) && !empty($displayValue)){
-						$value = $parent_module."::::".$displayValue;
-					}else{
-						$value = "";
+					if (!empty($parent_module) && !empty($displayValue)) {
+						$value = $parent_module.'::::'.$displayValue;
+						$Export_RelatedField_NameForSearch = GlobalVariable::getVariable('Export_RelatedField_NameForSearch','',$parent_module);
+						if ($Export_RelatedField_NameForSearch != '') {
+							$value = $value.'::::'.$Export_RelatedField_NameForSearch;
+						}
+					} else {
+						$value = '';
 					}
 				} else {
 					$value = '';

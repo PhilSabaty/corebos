@@ -47,9 +47,9 @@ function module_Chart_HomePageDashboard($userinfo) {
 	$modrecords  = Array();
 
 	// List of modules which needs to be considered for chart
-	$module_list = Array('Accounts','Potentials','Contacts','Leads','Quotes','SalesOrder','PurchaseOrder','Invoice','HelpDesk','Calendar','Campaigns');
+	$module_list = Array('Accounts','Potentials','Contacts','Leads','Quotes','SalesOrder','PurchaseOrder','Invoice','HelpDesk','cbCalendar','Campaigns');
 	// List of special module to handle
-	$spl_modules = Array('Leads', 'HelpDesk', 'Potentials', 'Calendar');
+	$spl_modules = Array('Leads', 'HelpDesk', 'Potentials');
 
 	// Leads module
 	$val_conv = ((isset($_COOKIE['LeadConv']) && $_COOKIE['LeadConv'] == 'true') ? 'le.converted = 1' : 'le.converted = 0 OR le.converted IS NULL');
@@ -69,10 +69,9 @@ function module_Chart_HomePageDashboard($userinfo) {
 	$modrecords['Potentials']= $adb->query_result($potcountres,0,'count');
 
 	// Calendar moudule
-	$calcountres = $adb->query("SELECT count(*) as count FROM vtiger_crmentity se INNER JOIN vtiger_activity act ON act.activityid = se.crmid
-		WHERE se.deleted = 0 AND se.smownerid = $user_id AND act.activitytype != 'Emails' AND
-			((act.status!='Completed' AND act.status!='Deferred') OR act.status IS NULL)
-			AND ((act.eventstatus!='Held' AND act.eventstatus!='Not Held') OR act.eventstatus IS NULL)");
+	$calcountres = $adb->pquery("SELECT count(*) as count FROM vtiger_crmentity se INNER JOIN vtiger_activity act ON act.activityid = se.crmid
+		WHERE se.deleted = 0 AND se.smownerid = ? AND act.activitytype != 'Emails' AND
+			(act.eventstatus NOT IN ('Completed', 'Deferred', 'Held', 'Not Held') OR act.eventstatus IS NULL)", array($user_id));
 	$modrecords['Calendar']= $adb->query_result($calcountres,0,'count');
 
 	// Ignore the special module
@@ -206,11 +205,10 @@ function module_Chart($user_id,$date_start="2000-01-01",$end_date="2017-01-01",$
 			$mod_tot_cnt_array[$crtd_date]+=1;
 
 			if (in_array($mod_name,$mod_name_array) == false) {
-				array_push($mod_name_array,$mod_name);
+				$mod_name_array[] = $mod_name;
 			}
-			if (in_array($search_str,$search_str_array) == false)
-			{
-				array_push($search_str_array,$search_str);
+			if (in_array($search_str,$search_str_array) == false) {
+				$search_str_array[] = $search_str;
 			}
 
 			//Counting the number of values for a type of graph

@@ -29,11 +29,21 @@ global $current_language;
 $smarty->assign('LANGUAGE', $current_language);
 $smarty->assign("MOD", $mod_strings);
 $smarty->assign("APP", $app_strings);
+$smarty->assign('LBL_CHARSET', $default_charset);
 $smarty->assign("THEME", $theme);
 $smarty->assign('THEME_PATH', "themes/$theme/");
 $smarty->assign('IMAGE_PATH', "themes/$theme/images/");
 $smarty->assign("MODULE",$currentModule);
 $smarty->assign('coreBOS_uiapp_name', GlobalVariable::getVariable('Application_UI_Name',$coreBOS_app_name));
+$sql = 'SELECT dayoftheweek FROM its4you_calendar4you_settings WHERE userid=?';
+$result = $adb->pquery($sql, array($current_user->id));
+if ($result and $adb->num_rows($result)>0) {
+	$fDOW = $adb->query_result($result, 0,0);
+	$userFirstDOW = ($fDOW=='Monday' ? 1 : 0);
+} else {
+	$userFirstDOW = 0;
+}
+$smarty->assign('USER_FIRST_DOW',$userFirstDOW);
 // Gather the custom link information to display
 include_once('vtlib/Vtiger/Link.php');
 $hdrcustomlink_params = Array('MODULE'=>$currentModule);
@@ -52,7 +62,7 @@ $smarty->assign("POPUP", str_replace('&','-a;',$suri).'-a;popqc=true');
 if (!empty($_REQUEST['popqc']) and $_REQUEST['popqc'] = 'true' and empty($_REQUEST['advft_criteria']) and !empty($_REQUEST['record'])) {
 	$fldrs = $adb->pquery('SELECT vtiger_field.fieldlabel,vtiger_field.tablename,vtiger_field.columnname,vtiger_field.fieldname,vtiger_entityname.entityidfield
 			FROM vtiger_field
-			INNER JOIN vtiger_entityname on vtiger_field.tabid=vtiger_entityname.tabid and modulename=? WHERE uitype=4',array($currentModule));
+			INNER JOIN vtiger_entityname on vtiger_field.tabid=vtiger_entityname.tabid and modulename=? WHERE vtiger_field.fieldname=vtiger_entityname.fieldname',array($currentModule));
 	$row = $adb->fetch_array($fldrs);
 	$fieldLabelEscaped = str_replace(" ","_",$row['fieldlabel']);
 	$optionvalue = $row['tablename'].":".$row['columnname'].":".$row['fieldname'].":".$currentModule."_".$fieldLabelEscaped.":V";
@@ -89,6 +99,7 @@ $smarty->assign('CURR_ROW', 0);
 $smarty->assign('FIELDNAME', '');
 $smarty->assign('PRODUCTID', 0);
 $smarty->assign('RECORDID', 0);
+$smarty->assign('RETURN_MODULE', '');
 $smarty->assign('SELECT', '');
 switch($currentModule)
 {
@@ -99,7 +110,6 @@ switch($currentModule)
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		else
 			$smarty->assign("RETURN_MODULE",'Emails');
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','lastname','true','basic',$popuptype,"","",$url);
 		break;
 	case 'Campaigns':
@@ -107,12 +117,10 @@ switch($currentModule)
 		$smarty->assign("SINGLE_MOD",'Campaign');
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','campaignname','true','basic',$popuptype,"","",$url);
 		break;
 	case 'Accounts':
 		$log = LoggerManager::getLogger('account_list');
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		$smarty->assign("SINGLE_MOD",'Account');
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
@@ -123,7 +131,6 @@ switch($currentModule)
 	case 'Leads':
 		$log = LoggerManager::getLogger('contact_list');
 		$smarty->assign("SINGLE_MOD",'Lead');
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		else
@@ -132,7 +139,6 @@ switch($currentModule)
 		break;
 	case 'Potentials':
 		$log = LoggerManager::getLogger('potential_list');
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		$smarty->assign("SINGLE_MOD",'Opportunity');
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
@@ -147,7 +153,6 @@ switch($currentModule)
 		break;
 	case 'Invoice':
 		$smarty->assign("SINGLE_MOD",'Invoice');
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','subject','true','basic',$popuptype,"","",$url);
@@ -162,17 +167,15 @@ switch($currentModule)
 		}
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','productname','true','basic',$popuptype,"","",$url);
 		$smarty->assign('Product_Default_Units', GlobalVariable::getVariable('Inventory_Product_Default_Units', '1'));
 		break;
 	case 'Vendors':
 		$smarty->assign("SINGLE_MOD",'Vendor');
-		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
+		if (isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='') {
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
+		}
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','vendorname','true','basic',$popuptype,"","",$url);
-		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
-			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		break;
 	case 'SalesOrder':
 		$smarty->assign("SINGLE_MOD",'SalesOrder');
@@ -207,15 +210,12 @@ switch($currentModule)
 		if (isset($_REQUEST['return_module']) && $_REQUEST['return_module'] != '')
 			$smarty->assign("RETURN_MODULE", vtlib_purify($_REQUEST['return_module']));
 		$alphabetical = AlphabeticalSearch($currentModule, 'Popup', 'user_name', 'true', 'basic', $popuptype, "", "", $url);
-		if (isset($_REQUEST['select']))
-			$smarty->assign("SELECT", 'enable');
 		break;
 	case 'HelpDesk':
 		$smarty->assign("SINGLE_MOD",'HelpDesk');
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','ticket_title','true','basic',$popuptype,"","",$url);
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		break;
 
 	case 'Documents':
@@ -224,7 +224,6 @@ switch($currentModule)
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		else
 			$smarty->assign("RETURN_MODULE",'Emails');
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup','notes_title','true','basic',$popuptype,"","",$url);
 		break;
 
@@ -243,15 +242,16 @@ switch($currentModule)
 		if(isset($_REQUEST['return_module']) && $_REQUEST['return_module'] !='')
 			$smarty->assign("RETURN_MODULE",vtlib_purify($_REQUEST['return_module']));
 		$alphabetical = AlphabeticalSearch($currentModule,'Popup',$focus->def_basicsearch_col,'true','basic',$popuptype,"","",$url);
-		if (isset($_REQUEST['select'])) $smarty->assign("SELECT",'enable');
 		break;
+}
+if (isset($_REQUEST['select'])) {
+	$smarty->assign('SELECT', 'enable');
 }
 
 $smarty->assign('RETURN_ACTION',isset($_REQUEST['return_action']) ? vtlib_purify($_REQUEST['return_action']) : '');
 
 //Retreive the list from Database
-if($currentModule == 'PriceBooks' && isset($_REQUEST['productid']))
-{
+if ($currentModule == 'PriceBooks' && isset($_REQUEST['productid'])) {
 	$productid= isset($_REQUEST['productid']) ? vtlib_purify($_REQUEST['productid']) : 0;
 	$currency_id= isset($_REQUEST['currencyid']) ? vtlib_purify($_REQUEST['currencyid']) : fetchCurrency($current_user->id);
 	$query = 'select vtiger_pricebook.*, vtiger_pricebookproductrel.productid, vtiger_pricebookproductrel.listprice, ' .
@@ -266,35 +266,33 @@ if($currentModule == 'PriceBooks' && isset($_REQUEST['productid']))
 	$smarty->assign('mod_var_name', '');
 	$smarty->assign('mod_var_value', '');
 	$smarty->assign('recid_var_name', '');
-	$smarty->assign('recid_var_value', 0);
-}
-else
-{
+} else {
 	$where_relquery = '';
-	if(isset($_REQUEST['recordid']) && $_REQUEST['recordid'] != '')
-	{
-		$smarty->assign("RECORDID",vtlib_purify($_REQUEST['recordid']));
-		$url_string .='&recordid='.vtlib_purify($_REQUEST['recordid']);
-		$where_relquery = getRelCheckquery($currentModule,$_REQUEST['return_module'],$_REQUEST['recordid']);
+	if (!empty($_REQUEST['recordid'])) {
+		$recid = vtlib_purify($_REQUEST['recordid']);
+		$smarty->assign('RECORDID',$recid);
+		$url_string .='&recordid='.$recid;
+		$where_relquery = getRelCheckquery($currentModule, (isset($_REQUEST['return_module']) ? $_REQUEST['return_module'] : ''), $recid);
 	}
-	if(isset($_REQUEST['relmod_id']) || isset($_REQUEST['fromPotential']))
-	{
-		if($_REQUEST['relmod_id'] !='')
-		{
+	if (isset($_REQUEST['relmod_id']) || isset($_REQUEST['fromPotential'])) {
+		if (isset($_REQUEST['relmod_id'])) {
 			$mod = vtlib_purify($_REQUEST['parent_module']);
 			$id = vtlib_purify($_REQUEST['relmod_id']);
-		}
-		else if($_REQUEST['fromPotential'] != '')
-		{
+		} else { // $_REQUEST['fromPotential'] != ''
 			$mod = "Accounts";
 			$id= vtlib_purify($_REQUEST['acc_id']);
 		}
-
 		$smarty->assign("mod_var_name", "parent_module");
 		$smarty->assign("mod_var_value", $mod);
 		$smarty->assign("recid_var_name", "relmod_id");
 		$smarty->assign("recid_var_value",$id);
 		$where_relquery.= getPopupCheckquery($currentModule,$mod,$id);
+	} elseif (isset($_REQUEST['query']) && isset($_REQUEST['search']) && $_REQUEST['query']=='true' && $_REQUEST['search']=='true') {
+		// to show "show all" button on search
+		$smarty->assign('mod_var_name', '');
+		$smarty->assign('mod_var_value', '');
+		$smarty->assign('recid_var_name', '');
+		$smarty->assign('recid_var_value', '0');
 	}
 	else if(isset($_REQUEST['task_relmod_id']))
 	{
@@ -308,7 +306,6 @@ else
 		$smarty->assign('mod_var_name', '');
 		$smarty->assign('mod_var_value', '');
 		$smarty->assign('recid_var_name', '');
-		$smarty->assign('recid_var_value', 0);
 	}
 	if($currentModule == 'Products' && empty($_REQUEST['record_id']) && ($popuptype == 'inventory_prod' || $popuptype == 'inventory_prod_po')){
 		$showSubproducts = GlobalVariable::getVariable('Product_Show_Subproducts_Popup', 'no');
@@ -355,6 +352,9 @@ else
 		$smarty->assign("RECORDID",vtlib_purify($_REQUEST['recordid']));
 	}
 
+	if ($currentModule == 'Users' && !GlobalVariable::getVariable('Users_Select_Inactive',1,'Users')) {
+		$where_relquery .= " and vtiger_users.status!='Inactive'";
+	}
 	if($currentModule == 'Users' && !empty($_REQUEST['recordid'])){
 		$where_relquery .=" and vtiger_users.id!=".$adb->sql_escape_string($_REQUEST['recordid']);
 		$smarty->assign("RECORDID",vtlib_purify($_REQUEST['recordid']));
@@ -362,7 +362,7 @@ else
 
 	$query = getListQuery($currentModule,$where_relquery);
 }
-$smarty->assign('RECORD_ID', 0);
+$smarty->assign('RECORD_ID', '');
 if($currentModule == 'Products' && !empty($_REQUEST['record_id']) && ($popuptype == 'inventory_prod' || $popuptype == 'inventory_prod_po'))
 {
 	$product_name = getProductName(vtlib_purify($_REQUEST['record_id']));
@@ -409,16 +409,13 @@ if(method_exists($focus, 'getQueryByModuleField')) {
 		$query = $override_query;
 	}
 }
-
-$count_result = $adb->pquery(mkCountQuery($query), array());
-$noofrows = $adb->query_result($count_result,0,'count');
 $list_max_entries_per_page = GlobalVariable::getVariable('Application_ListView_PageSize',20,$currentModule);
 //Retreiving the start value from request
 if(isset($_REQUEST['start']) && $_REQUEST['start'] != '') {
 	$start = vtlib_purify($_REQUEST['start']);
 	if($start == 'last'){
-		//$count_result = $adb->pquery( mkCountQuery($query), array());
-		//$noofrows = $adb->query_result($count_result,0,'count');
+		$count_result = $adb->pquery(mkCountQuery($query), array());
+		$noofrows = $adb->query_result($count_result, 0, 'count');
 		if($noofrows > 0){
 			$start = ceil($noofrows/$list_max_entries_per_page);
 		}
@@ -434,7 +431,10 @@ if(isset($_REQUEST['start']) && $_REQUEST['start'] != '') {
 }
 $limstart=($start-1)*$list_max_entries_per_page;
 $query.=" LIMIT $limstart,$list_max_entries_per_page";
+$query = 'SELECT SQL_CALC_FOUND_ROWS'.substr($query, 6);
 $list_result = $adb->pquery($query, array());
+$count_result = $adb->query('SELECT FOUND_ROWS();');
+$noofrows = $adb->query_result($count_result,0,0);
 if (GlobalVariable::getVariable('Debug_Popup_Query', '0')=='1') {
 	echo '<br>'.$query.'<br>';
 }
@@ -465,13 +465,13 @@ if($popuptype == 'set_return_emails'){
 	}
 }
 
-$listview_header = getSearchListViewHeader($focus,"$currentModule",$url_string,$sorder,$order_by);
+$listview_header = getSearchListViewHeader($focus,$currentModule,$url_string,$sorder,$order_by);
 $smarty->assign("LISTHEADER", $listview_header);
 $smarty->assign("HEADERCOUNT",count($listview_header)+1);
 
-$listview_entries = getSearchListViewEntries($focus,"$currentModule",$list_result,$navigation_array,$form);
+$listview_entries = getSearchListViewEntries($focus,$currentModule,$list_result,$navigation_array,$form);
 $smarty->assign("LISTENTITY", $listview_entries);
-if(PerformancePrefs::getBoolean('LISTVIEW_COMPUTE_PAGE_COUNT', false) === true){
+if (GlobalVariable::getVariable('Application_ListView_Compute_Page_Count', 0, $currentModule)) {
 	$record_string = getRecordRangeMessage($list_result, $limstart, $noofrows);
 } else {
 	$record_string = '';

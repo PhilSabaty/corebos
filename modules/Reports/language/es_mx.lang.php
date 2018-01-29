@@ -15,7 +15,7 @@
 *  Author       : Odin Consultores, Francisco Hernandez
  ********************************************************************************/
 
-$mod_strings = Array(
+$mod_strings = array(
 'LBL_MODULE_NAME' => 'Informes',
 'LBL_MODULE_TITLE'=>'Informes: Inicio',
 'LBL_CREATE_REPORT'=>'Crear Informe',
@@ -69,10 +69,8 @@ $mod_strings = Array(
 'LBL_GENERATED_REPORT'=>'Informe Generado',
 'LBL_GRAND_TOTAL'=>'Importe Total',
 
-//Added for 4.2 Patch I
 'LBL_EXPORTXL_BUTTON'=>'Exportar a Excel',
 'LBL_EXPORTCSV'=>'Exportar a CSV',
-//Added for 5 Beta
 'LBL_NO_PERMISSION'=>'Tu perfil no está autorizado a ver los informes de uno de los módulos',
 'LBL_SELECT_COLUMNS_TO_GENERATE_REPORTS'=>'Seleccione columnas para generar el informe',
 'LBL_AVAILABLE_FIELDS'=>'Campos Disponibles',
@@ -153,6 +151,14 @@ $mod_strings = Array(
 'This Month Activities'=>'Tareas de este Mes',
 'Campaign Expectations and Actuals'=>'Expectativas y Realidad de Campaña',
 'SalesOrder Detailed Report'=>'Informes detallado de Pedidos',
+'Emails sent to Contacts' => 'Emails enviados a Contactos',
+'Emails sent to Organizations' => 'Emails enviados a Cuentas',
+'Emails sent to Leads' => 'Emails enviados a PreContactos',
+'Emails sent to Vendors' => 'Emails enviados a Proveedores',
+'Contacts Email Report' => 'Informe de Emails a Contactos',
+'Accounts Email Report' => 'Informe de Emails a Cuentas',
+'Leads Email Report' => 'Informe de Emails a PreContactos',
+'Vendors Email Report' => 'Informe de Emails a Proveedores',
 
 'LBL_DELETE'=>'Borrar',
 'Create_Reports'=>'Crear Informe',
@@ -177,6 +183,7 @@ $mod_strings = Array(
 'Current Month'=>'Mes Actual',
 'Next Month'=>'Próximo Mes',
 'Last 7 Days'=>'Últimos 7 Días',
+'Last 14 Days' => 'Últimos 14 Días',
 'Last 30 Days'=>'Últimos 30 Días',
 'Last 60 Days'=>'Últimos 60 Días',
 'Last 90 Days'=>'Últimos 90 Días',
@@ -201,10 +208,8 @@ $mod_strings = Array(
 'ticketid'=>'Id de Caso',
 'NO_COLUMN'=>'No Hay Columnas disponibles para Total',
 
-// Added/Updated for vtiger CRM 5.0.4
 'LBL_REPORT_DELETED' => 'El Informe que intentas ver ha sido eliminado.',
 
-//Added for Reports
 'LBL_SHARING'=>'Compartir',
 'SELECT_FILTER_TYPE'=>'Selecciona Tipo Informe',
 'LBL_USERS'=>'Usuarios',
@@ -225,7 +230,7 @@ $mod_strings = Array(
 'LBL_DELETE_GROUP'=>'Eliminar Grupo',
 'LBL_NEW_CONDITION'=>'Agregar Condición',
 'LBL_SHARING_TYPE'=>'Compartir',
-'LBL_SELECT_REPORT_TYPE_TO_CONTROL_ACCESS'=>'Selecciona el método de compartir para controlar el acceso al Informe', 
+'LBL_SELECT_REPORT_TYPE_TO_CONTROL_ACCESS'=>'Selecciona el método de compartir para controlar el acceso al Informe',
 'LBL_ACTION' => 'Acción',
 'LBL ACTION' => 'Acción',
 'ACTION' => 'Acción',
@@ -243,6 +248,7 @@ $mod_strings = Array(
 'LBL_SCHEDULE_EMAIL_DESCRIPTION'=>'Programa el Informe para ser enviado via email a los destinatarios seleccionados a intervalos regulares',
 'LBL_USERS_AVAILABEL'=> 'Destinatarios',
 'LBL_REPORT_FORMAT_PDF'=> 'PDF',
+'LBL_REPORT_FORMAT_URL'=> 'URL',
 'LBL_REPORT_FORMAT_EXCEL'=> 'Excel',
 'LBL_REPORT_FORMAT_BOTH'=> 'Ambos',
 'LBL_REPORT_FORMAT'=> 'Formato Informe',
@@ -301,5 +307,4 @@ $mod_strings = Array(
 'LBL_ERROR_WHILE_DELETING_FOLDER' => 'Error eliminando la carpeta.',
 'LBL_ERROR_WHILE_DELETING_REPORTS_IN_FOLDER' => 'Error eliminando los informes de la carpeta',
 );
-
 ?>

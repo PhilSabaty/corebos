@@ -120,8 +120,6 @@ $mod_strings = Array(
 
     'LBL_TOOL_FORM_TITLE'=>'Lead: Werkzeuge',
 
-    'LBL_SELECT_TEMPLATE_TO_MAIL_MERGE'=>'Vorlage für Brief:',
-
     'Salutation'=>'Anrede',
     'First Name'=>'Vorname',
     'Phone'=>'Telefon',
@@ -237,8 +235,6 @@ $mod_strings = Array(
     'LBL_FIELD_SETTINGS' => 'Feldeinstellungen',
     'Leads ID' => 'Leads-ID',
 	'LeadAlreadyConverted' => 'Lead cannot be converted. Either it has already been converted or you lack permission on one or more of the destination modules.',
-	'Is Converted From Lead' => 'Wird konvertiert, aus Blei',
-	'Converted From Lead' => 'Konvertiert aus Blei',
 );
 
 ?>

@@ -9,7 +9,7 @@
  * Modified by crm-now GmbH, www.crm-now.com
  ************************************************************************************/
 
-include_once dirname(__FILE__) . '/QueryWithGrouping.php';
+include_once __DIR__ . '/QueryWithGrouping.php';
 
 class crmtogo_WS_RelatedRecords extends crmtogo_WS_QueryWithGrouping {
 
@@ -35,9 +35,10 @@ class crmtogo_WS_RelatedRecords extends crmtogo_WS_QueryWithGrouping {
 		$currentModule = $module;
 
 		//related module currently supported
-		$gvRelatedModules = GlobalVariable::getVariable('Mobile_Related_Modules', 'Contacts,Potentials,HelpDesk,Documents','Timecontrol', 'Mobile');
+		$gvRelatedModules = GlobalVariable::getVariable('Mobile_Related_Modules', 'Contacts,Potentials,HelpDesk,Documents,Timecontrol', 'Mobile');
 		$relatedmodule = explode(',',$gvRelatedModules);
 		$activemodule = $this->sessionGet('_MODULES');
+		$relatedRecords = array();
 		foreach($activemodule as $amodule) {
 			if (in_array($amodule->name(), $relatedmodule)) {
 				if ($amodule->name() != $module) {

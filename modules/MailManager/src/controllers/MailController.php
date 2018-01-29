@@ -47,7 +47,7 @@ class MailManager_MailController extends MailManager_Controller {
 			$viewer->assign('MAIL', $mail);
 			$uicontent = $viewer->fetch($this->getModuleTpl('Mail.Open.tpl'));
 
-			$metainfo  = array(
+			$metainfo = array(
 				'from' => $mail->from(), 'subject' => $mail->subject(),
 				'msgno' => $mail->msgNo(), 'msguid' => $mail->uniqueid(),
 				'folder' => $foldername );
@@ -103,14 +103,15 @@ class MailManager_MailController extends MailManager_Controller {
 				$toArray = explode(',', $to_string);
 				foreach($toArray as $to) {
 					$relatedtos = MailManager::lookupMailInVtiger($to, $current_user);
+					$numreltos = count($relatedtos);
 					$referenceArray = Array('Contacts','Accounts','Leads');
 					for($j=0;$j<count($referenceArray);$j++){
 						$val=$referenceArray[$j];
 						if (!empty($relatedtos) && is_array($relatedtos)) {
-							for($i=0; $i<count($relatedtos); $i++) {
-								if($i == count($relatedtos)-1) {
+							for($i=0; $i<$numreltos; $i++) {
+								if ($i == $numreltos-1) {
 									$relateto = vtws_getIdComponents($relatedtos[$i]['record']);
-									$parentIds .= $relateto[1]."@1";
+									$parentIds = $relateto[1].'@'.($relatedtos[$i]['module']=='Users' ? '-' : '').'1';
 								}elseif($relatedtos[$i]['module'] == $val){
 									$relateto = vtws_getIdComponents($relatedtos[$i]['record']);
 									$parentIds = $relateto[1]."@1";
@@ -122,10 +123,10 @@ class MailManager_MailController extends MailManager_Controller {
 							break;
 						}
 					}
-					if($parentIds == ''){
-						if(count($relatedtos) > 0){
+					if ($parentIds == '') {
+						if ($numreltos > 0) {
 							$relateto = vtws_getIdComponents($relatedtos[0]['record']);
-							$parentIds = $relateto[1]."@1";
+							$parentIds = $relateto[1].'@'.($relatedtos[0]['module']=='Users' ? '-' : '').'1';
 							break;
 						}
 					}
@@ -141,19 +142,25 @@ class MailManager_MailController extends MailManager_Controller {
 						if (!empty($parent_module)) {
 							$description = getMergedDescription($body,$entityId,$parent_module);
 							$subject = getMergedDescription($subject,$entityId,$parent_module);
+							$description = getMergedDescription($description,$current_user->id,'Users');
+							$subject = getMergedDescription($subject,$current_user->id,'Users');
 						} else {
 							$n = MailManager_RelationControllerAction::ws_modulename($relateto[0]);
 							if ($n=='Users') {
 								$description = getMergedDescription($body,$entityId,'Users');
 								$subject = getMergedDescription($subject,$entityId,'Users');
+							} else {
+								$description = getMergedDescription($body,$current_user->id,'Users');
+								$subject = getMergedDescription($subject,$current_user->id,'Users');
 							}
 						}
 					}
 
 					$pos = strpos($description, '$logo$');
+					$logo = 0;
 					if ($pos !== false) {
-						$description =str_replace('$logo$','<img src="cid:logo" />',$description);
-						$logo=1;
+						$description = str_replace('$logo$','<img src="cid:logo" />',$description);
+						$logo = 1;
 					}
 					$fromEmail = $connector->getFromEmailAddress();
 					$userFullName = getFullNameFromArray('Users', $current_user->column_fields);

@@ -117,7 +117,7 @@ class Vtiger_Link {
 		if(!$adb->num_rows($checkres)) {
 			$uniqueid = self::__getUniqueId();
 			$sql = 'INSERT INTO vtiger_links (linkid,tabid,linktype,linklabel,linkurl,linkicon,sequence';
-			$params = Array($uniqueid, $tabid, $type, $label, $url, $iconpath, intval($sequence));
+			$params = Array($uniqueid, $tabid, $type, $label, $url, $iconpath, (int)$sequence);
 			if(!empty($handlerInfo)) {
 				$sql .= (', handler_path, handler_class, handler');
 				$params[] = (isset($handlerInfo['path']) ? $handlerInfo['path'] : '');
@@ -235,7 +235,7 @@ class Vtiger_Link {
 			if($return == false) continue;
 			$instance = new self();
 			$instance->initialize($row);
-			if(!empty($row['handler_path']) && isFileAccessible($row['handler_path'])) {
+			if (!empty($row['handler_path']) && isInsideApplication($row['handler_path'])) {
 				checkFileAccessForInclusion($row['handler_path']);
 				require_once $row['handler_path'];
 				$linkData = new Vtiger_LinkData($instance, $current_user);
@@ -252,7 +252,7 @@ class Vtiger_Link {
 			if($multitype) {
 				$instances[$instance->linktype][] = $instance;
 			} else {
-				$instances[] = $instance;
+				$instances[$instance->linktype] = $instance;
 			}
 		}
 		return $instances;
@@ -278,5 +278,29 @@ class Vtiger_Link {
 		return $user->is_admin == 'on' || $user->column_fields['is_admin'] == 'on';
 	}
 
+	public static function updateLink($tabId, $linkId, $linkInfo = array()) {
+		if ($linkInfo && is_array($linkInfo)) {
+			$db = PearDatabase::getInstance();
+			$result = $db->pquery('SELECT 1 FROM vtiger_links WHERE tabid=? AND linkid=?', array($tabId, $linkId));
+			if ($db->num_rows($result)) {
+				$columnsList = $db->getColumnNames('vtiger_links');
+				$isColumnUpdate = false;
+
+				$sql = 'UPDATE vtiger_links SET ';
+				foreach ($linkInfo as $column => $columnValue) {
+					if (in_array($column, $columnsList)) {
+						$columnValue = ($column == 'sequence') ? intval($columnValue) : $columnValue;
+						$sql .= "$column='$columnValue',";
+						$isColumnUpdate = true;
+					}
+				}
+
+				if ($isColumnUpdate) {
+					$sql = trim($sql, ',').' WHERE tabid=? AND linkid=?';
+					$db->pquery($sql, array($tabId, $linkId));
+				}
+			}
+		}
+	}
 }
 ?>

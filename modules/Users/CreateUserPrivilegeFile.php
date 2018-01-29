@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-require_once('config.php');
+require_once('config.inc.php');
 require_once('modules/Users/Users.php');
 require_once('include/utils/UserInfoUtil.php');
 require_once('include/utils/utils.php');
@@ -449,9 +449,9 @@ function getUserModuleSharingObjects($module,$userid,$def_org_share,$current_use
 		$parRoleList = array();
 		foreach($parent_roles as $par_role_id)
 		{
-			array_push($parRoleList, $par_role_id);
+			$parRoleList[] = $par_role_id;
 		}
-		array_push($parRoleList, $current_user_roles);
+		$parRoleList[] = $current_user_roles;
 		$query="select vtiger_datashare_role2rs.* from vtiger_datashare_role2rs inner join vtiger_datashare_module_rel on vtiger_datashare_module_rel.shareid=vtiger_datashare_role2rs.shareid where vtiger_datashare_module_rel.tabid=? and vtiger_datashare_role2rs.to_roleandsubid in (". generateQuestionMarks($parRoleList) .")";
 		$result=$adb->pquery($query, array($mod_tabid, $parRoleList));
 		$num_rows=$adb->num_rows($result);
@@ -504,7 +504,7 @@ function getUserModuleSharingObjects($module,$userid,$def_org_share,$current_use
 
 			if (count($groupList) > 0) {
 				$query .= " and vtiger_datashare_role2group.to_groupid in (". generateQuestionMarks($groupList) .")";
-				array_push($qparams, $groupList);
+				$qparams[] = $groupList;
 			}
 			$result=$adb->pquery($query, $qparams);
 			$num_rows=$adb->num_rows($result);
@@ -603,9 +603,9 @@ function getUserModuleSharingObjects($module,$userid,$def_org_share,$current_use
 		$parRoleList = array();
 		foreach($parent_roles as $par_role_id)
 		{
-			array_push($parRoleList, $par_role_id);
+			$parRoleList[] = $par_role_id;
 		}
-		array_push($parRoleList, $current_user_roles);
+		$parRoleList[] = $current_user_roles;
 		$query="select vtiger_datashare_rs2rs.* from vtiger_datashare_rs2rs inner join vtiger_datashare_module_rel on vtiger_datashare_module_rel.shareid=vtiger_datashare_rs2rs.shareid where vtiger_datashare_module_rel.tabid=? and vtiger_datashare_rs2rs.to_roleandsubid in (". generateQuestionMarks($parRoleList) .")";
 		$result=$adb->pquery($query, array($mod_tabid, $parRoleList));
 		$num_rows=$adb->num_rows($result);
@@ -658,7 +658,7 @@ function getUserModuleSharingObjects($module,$userid,$def_org_share,$current_use
 		$qparams = array($mod_tabid);
 		if (count($groupList) > 0) {
 			$query .= " and vtiger_datashare_rs2grp.to_groupid in (". generateQuestionMarks($groupList) .")";
-			array_push($qparams, $groupList);
+			$qparams[] = $groupList;
 		}
 		$result=$adb->pquery($query, $qparams);
 		$num_rows=$adb->num_rows($result);
@@ -877,7 +877,7 @@ function getUserModuleSharingObjects($module,$userid,$def_org_share,$current_use
 		$qparams = array($mod_tabid);
 		if (count($groupList) > 0) {
 			$query .= " and vtiger_datashare_grp2grp.to_groupid in (". generateQuestionMarks($groupList) .")";
-			array_push($qparams, $groupList);
+			$qparams[] = $groupList;
 		}
 		$result=$adb->pquery($query, $qparams);
 		$num_rows=$adb->num_rows($result);
@@ -1196,7 +1196,7 @@ function constructArray($var)
  */
 function constructSingleStringValueArray($var)
 {
-	$size = sizeof($var);
+	$size = count($var);
 	$i=1;
 	if (is_array($var)) {
 		$code = 'array(';
@@ -1219,7 +1219,7 @@ function constructSingleStringValueArray($var)
  */
 function constructSingleStringKeyAndValueArray($var)
 {
-	$size = sizeof($var);
+	$size = count($var);
 	$i=1;
 	if (is_array($var)) {
 		$code = 'array(';
@@ -1242,7 +1242,7 @@ function constructSingleStringKeyAndValueArray($var)
  */
 function constructSingleStringKeyValueArray($var) {
 	global $adb;
-	$size = sizeof($var);
+	$size = count($var);
 	$i=1;
 	if (is_array($var)) {
 		$code = 'array(';
@@ -1452,34 +1452,48 @@ function populateSharingPrivileges($enttype,$userid,$module,$pertype, $var_name_
 		// Lookup for the variable if not set through function argument
 		if(!$var_name_arr) $var_name_arr=$$var_name;
 		$user_arr=Array();
-		if(sizeof($var_name_arr['ROLE']) > 0)
-		{
+		if (count($var_name_arr['ROLE']) > 0) {
+			$query = "insert into $table_name values ";
+			$has_values = false;
 			foreach($var_name_arr['ROLE'] as $roleid=>$roleusers)
 			{
 				foreach($roleusers as $user_id)
 				{
 					if(! in_array($user_id,$user_arr))
 					{
-						$query="insert into ".$table_name." values(?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $user_id));
-						$user_arr[]=$user_id;
+						if (is_numeric($userid) && is_numeric($tabid) && is_numeric($user_id)) {
+							$query .= "($userid, $tabid, $user_id),";
+							$user_arr[]=$user_id;
+							$has_values = true;
+						}
 					}
 				}
 			}
+			if ($has_values) {
+				$query = rtrim($query, ',');
+				$adb->query($query);
+			}
 		}
-		if(sizeof($var_name_arr['GROUP']) > 0)
-		{
+		if (count($var_name_arr['GROUP']) > 0) {
+			$query = "insert into $table_name values ";
+			$has_values = false;
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
 				foreach($grpusers as $user_id)
 				{
 					if(! in_array($user_id,$user_arr))
 					{
-						$query="insert into ".$table_name." values(?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $user_id));
-						$user_arr[]=$user_id;
+						if (is_numeric($userid) && is_numeric($tabid) && is_numeric($user_id)) {
+							$query .= "($userid, $tabid, $user_id),";
+							$user_arr[]=$user_id;
+							$has_values = true;
+						}
 					}
 				}
+			}
+			if ($has_values) {
+				$query = rtrim($query, ',');
+				$adb->query($query);
 			}
 		}
 
@@ -1499,16 +1513,22 @@ function populateSharingPrivileges($enttype,$userid,$module,$pertype, $var_name_
 		// Lookup for the variable if not set through function argument
 		if(!$var_name_arr) $var_name_arr=$$var_name;
 		$grp_arr=Array();
-		if(sizeof($var_name_arr['GROUP']) > 0)
-		{
+		if (count($var_name_arr['GROUP']) > 0) {
+			$query = "insert into $table_name values ";
+			$has_values = false;
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
-				if(! in_array($grpid,$grp_arr))
-				{
-					$query="insert into ".$table_name." values(?,?,?)";
-					$adb->pquery($query, array($userid, $tabid, $grpid));
-					$grp_arr[]=$grpid;
+				if (!in_array($grpid, $grp_arr)) {
+					if (is_numeric($userid) && is_numeric($tabid) && is_numeric($grpid)) {
+						$query .=" ($userid,$tabid,$grpid),";
+						$grp_arr[]=$grpid;
+						$has_values = true;
+					}
 				}
+			}
+			if ($has_values) {
+				$query = rtrim($query, ',');
+				$adb->query($query);
 			}
 		}
 
@@ -1550,34 +1570,48 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 		// Lookup for the variable if not set through function argument
 		if(!$var_name_arr) $var_name_arr=$$var_name;
 		$user_arr=Array();
-		if(sizeof($var_name_arr['ROLE']) > 0)
-		{
+		if (count($var_name_arr['ROLE']) > 0) {
+			$query="insert into ".$table_name." values ";
+			$has_values = false;
 			foreach($var_name_arr['ROLE'] as $roleid=>$roleusers)
 			{
 				foreach($roleusers as $user_id)
 				{
 					if(! in_array($user_id,$user_arr))
 					{
-						$query="insert into ".$table_name." values(?,?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $reltabid, $user_id));
-						$user_arr[]=$user_id;
+						if (is_numeric($userid) && is_numeric($tabid) && is_numeric($reltabid) && is_numeric($user_id)) {
+							$query .= "($userid, $tabid, $reltabid, $user_id),";
+							$user_arr[]=$user_id;
+							$has_values = true;
+						}
 					}
 				}
 			}
+			if ($has_values) {
+				$query = rtrim($query, ',');
+				$adb->query($query);
+			}
 		}
-		if(sizeof($var_name_arr['GROUP']) > 0)
-		{
+		if (count($var_name_arr['GROUP']) > 0) {
+			$query = "insert into $table_name values ";
+			$has_values = false;
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
 				foreach($grpusers as $user_id)
 				{
 					if(! in_array($user_id,$user_arr))
 					{
-						$query="insert into ".$table_name." values(?,?,?,?)";
-						$adb->pquery($query, array($userid, $tabid, $reltabid, $user_id));
-						$user_arr[]=$user_id;
+						if (is_numeric($userid) && is_numeric($tabid) && is_numeric($reltabid) && is_numeric($user_id)) {
+							$query .= "($userid, $tabid, $reltabid, $user_id),";
+							$user_arr[]=$user_id;
+							$has_values = true;
+						}
 					}
 				}
+			}
+			if ($has_values) {
+				$query = rtrim($query, ',');
+				$adb->query($query);
 			}
 		}
 	}
@@ -1596,16 +1630,23 @@ function populateRelatedSharingPrivileges($enttype,$userid,$module,$relmodule,$p
 		// Lookup for the variable if not set through function argument
 		if(!$var_name_arr) $var_name_arr=$$var_name;
 		$grp_arr=Array();
-		if(sizeof($var_name_arr['GROUP']) > 0)
-		{
+		if (count($var_name_arr['GROUP']) > 0) {
+			$query = "insert into $table_name values ";
+			$has_values = false;
 			foreach($var_name_arr['GROUP'] as $grpid=>$grpusers)
 			{
 				if(! in_array($grpid,$grp_arr))
 				{
-					$query="insert into ".$table_name." values(?,?,?,?)";
-					$adb->pquery($query, array($userid, $tabid, $reltabid, $grpid));
-					$grp_arr[]=$grpid;
+					if (is_numeric($userid) && is_numeric($tabid) && is_numeric($reltabid) && is_numeric($grpid)) {
+						$query .= "($userid, $tabid, $reltabid, $grpid),";
+						$grp_arr[]=$grpid;
+						$has_values = true;
+					}
 				}
+			}
+			if ($has_values) {
+				$query = rtrim($query, ',');
+				$adb->query($query);
 			}
 		}
 	}

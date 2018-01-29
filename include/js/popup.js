@@ -23,10 +23,11 @@ function showAllRecords()
 	for (i=0;i< emp_url.length;i++) {
 		if (emp_url[i] != '') {
 			split_value = emp_url[i].split("=");
-			if (split_value[0] == modname || split_value[0] == idname )
+			if (split_value[0] == modname || split_value[0] == idname ) {
 				emp_url[i]='';
-			else if (split_value[0] == "fromPotential" || split_value[0] == "acc_id")
+			} else if (split_value[0] == "fromPotential" || split_value[0] == "acc_id" || emp_url[i] == "query=true" || emp_url[i] == "search=true" || split_value[0] == "searchtype") {
 				emp_url[i]='';
+			}
 		}
 	}
 	correctUrl =emp_url.join("&");
@@ -244,4 +245,26 @@ function getListViewSorted_js(module,url)
 		document.getElementById("ListViewContents").innerHTML= response;
 		document.getElementById("status").style.display = "none";
 	});
+}
+
+function QCreatePop(module,urlpop) {
+	if (module != 'none') {
+		document.getElementById("status").style.display="inline";
+		jQuery.ajax({
+			method: 'POST',
+			url: 'index.php?module='+module+'&action='+module+'Ajax&file=QuickCreate&from=popup&pop='+urlpop
+		}).done(function(response) {
+			document.getElementById("status").style.display="none";
+			document.getElementById("qcformpop").style.display="inline";
+			document.getElementById("qcformpop").innerHTML = response;
+			// Evaluate all the script tags in the response text.
+			var scriptTags = document.getElementById("qcformpop").getElementsByTagName("script");
+			for (var i = 0; i< scriptTags.length; i++) {
+				var scriptTag = scriptTags[i];
+				eval(scriptTag.innerHTML);
+			}
+		});
+	} else {
+		hide('qcformpop');
+	}
 }

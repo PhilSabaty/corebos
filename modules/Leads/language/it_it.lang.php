@@ -110,7 +110,6 @@ $mod_strings = Array(
   'LBL_HOT' => 'Caldo',
   'LBL_COLD' => 'Freddo',
   'LBL_TOOL_FORM_TITLE' => 'Strumenti per Lead',
-  'LBL_SELECT_TEMPLATE_TO_MAIL_MERGE' => 'Seleziona template per il Mail Merge',
   'Salutation' => 'Formula saluti',
   'First Name' => 'Nome',
   'Phone' => 'Telefono',
@@ -215,8 +214,6 @@ $mod_strings = Array(
 'LBL_FIELD_SETTINGS' => 'Field Settings',
 'Leads ID' => 'Leads ID',
 'LeadAlreadyConverted' => 'Lead cannot be converted. Either it has already been converted or you lack permission on one or more of the destination modules.',
-'Is Converted From Lead' => 'Viene convertito da Lead',
-'Converted From Lead' => 'Convertito da Lead',
 );
 
 ?>

@@ -132,6 +132,7 @@ if($isduplicate == 'true') {
 	$currencyid = $inventory_cur_info['currency_id'];
 	$focus->id = '';
 	$focus->mode = '';
+	$smarty->assign('__cbisduplicatedfromrecordid', $record);
 }
 $focus->preEditCheck($_REQUEST,$smarty);
 if (!empty($_REQUEST['save_error']) and $_REQUEST['save_error'] == "true") {
@@ -226,7 +227,7 @@ if (!empty ($_REQUEST['parent_id']) && !empty ($_REQUEST['return_module'])) {
 }
 
 // Get Account address if vtiger_account is given
-if ((isset ($_REQUEST['account_id'])) && ($_REQUEST['record'] == '') && ($_REQUEST['account_id'] != '') && ($_REQUEST['convertmode'] != 'update_quote_val')) {
+if (!empty($_REQUEST['account_id']) && is_null($record) && isset($_REQUEST['convertmode']) && $_REQUEST['convertmode'] != 'update_quote_val') {
 	require_once ('modules/Accounts/Accounts.php');
 	$acct_focus = new Accounts();
 	$acct_focus->retrieve_entity_info($_REQUEST['account_id'], "Accounts");
@@ -279,9 +280,9 @@ if($focus->mode == 'edit' || $isduplicate == 'true') {
 	$smarty->assign('UPDATEINFO',updateInfo($record));
 }
 
-if (isset ($_REQUEST['convertmode']) && ($_REQUEST['convertmode'] == 'quotetoso' || $_REQUEST['convertmode'] == 'update_quote_val')) {
-	$txtTax = (($quote_focus->column_fields['txtTax'] != '') ? $quote_focus->column_fields['txtTax'] : '0.000');
-	$txtAdj = (($quote_focus->column_fields['txtAdjustment'] != '') ? $quote_focus->column_fields['txtAdjustment'] : '0.000');
+if (isset($_REQUEST['convertmode']) && ($_REQUEST['convertmode'] == 'quotetoso' || $_REQUEST['convertmode'] == 'update_quote_val')) {
+	$txtTax = (!empty($quote_focus->column_fields['txtTax']) ? $quote_focus->column_fields['txtTax'] : '0.000');
+	$txtAdj = (!empty($quote_focus->column_fields['txtAdjustment']) ? $quote_focus->column_fields['txtAdjustment'] : '0.000');
 	$associated_prod = getAssociatedProducts('Quotes', $quote_focus);
 	$smarty->assign('ASSOCIATEDPRODUCTS', $associated_prod);
 	$smarty->assign('MODE', $focus->mode);

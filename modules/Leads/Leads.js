@@ -6,8 +6,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-document.write("<script type='text/javascript' src='include/js/Mail.js'></script>");
-document.write("<script type='text/javascript' src='include/js/Merge.js'></script>");
+
 function verifyConvertLeadData(form) {
 	var convertForm=document.ConvertLead;
 	var no_ele=convertForm.length;
@@ -55,7 +54,18 @@ function verifyConvertLeadData(form) {
 				return false;
 			}
 		}
-		if(form.amount.value!=null && isNaN(form.amount.value)){
+		val = form.amount.value;
+		if(typeof userCurrencySeparator != 'undefined' && userCurrencySeparator != '') {
+			while(val.indexOf(userCurrencySeparator) != -1) {
+				val = val.replace(userCurrencySeparator,'');
+			}
+		}
+		if(typeof userDecimalSeparator != 'undefined' && userDecimalSeparator != '') {
+			if(val.indexOf(userDecimalSeparator) != -1) {
+				val = val.replace(userDecimalSeparator,'.');
+			}
+		}
+		if(form.amount.value!=null && isNaN(val)){
 			alert(alert_arr["ERR_POTENTIAL_AMOUNT"]);
 			return false;
 		}
@@ -226,4 +236,10 @@ function toggle_converted(){
 		setCookie('LeadConv','true');
 	}
 	document.location.reload(true);
+}
+
+function LeadssetValueFromCapture(recordid,value,target_fieldname) {
+	if (target_fieldname=="accountname") {
+		document.getElementById('txtbox_accountname').value = value;
+	}
 }

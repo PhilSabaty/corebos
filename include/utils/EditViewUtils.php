@@ -12,12 +12,12 @@ require_once('include/ComboUtil.php');
 require_once('include/utils/CommonUtils.php');
 require_once 'modules/PickList/DependentPickListUtils.php';
 
-/** This function returns the vtiger_field details for a given vtiger_fieldname.
-  * Param $uitype - UI type of the vtiger_field
-  * Param $fieldname - Form vtiger_field name
-  * Param $fieldlabel - Form vtiger_field label name
-  * Param $maxlength - maximum length of the vtiger_field
-  * Param $col_fields - array contains the vtiger_fieldname and values
+/** This function returns the field details for a given fieldname.
+  * Param $uitype - UI type of the field
+  * Param $fieldname - Form field name
+  * Param $fieldlabel - Form field label name
+  * Param $maxlength - maximum length of the field
+  * Param $col_fields - array contains the fieldname and values
   * Param $generatedtype - Field generated type (default is 1)
   * Param $module_name - module name
   * Return type is an array
@@ -40,9 +40,11 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 
 	// vtlib customization: Related type field
 	if($uitype == '10') {
-		global $adb;
-		$fldmod_result = $adb->pquery('SELECT relmodule, status FROM vtiger_fieldmodulerel WHERE fieldid=
-			(SELECT fieldid FROM vtiger_field, vtiger_tab WHERE vtiger_field.tabid=vtiger_tab.tabid AND fieldname=? AND name=? and vtiger_field.presence in (0,2)) order by sequence',
+		$fldmod_result = $adb->pquery('SELECT relmodule, status
+				FROM vtiger_fieldmodulerel
+				INNER JOIN vtiger_tab ON vtiger_fieldmodulerel.relmodule=vtiger_tab.name and vtiger_tab.presence=0
+				WHERE fieldid=
+				(SELECT fieldid FROM vtiger_field, vtiger_tab WHERE vtiger_field.tabid=vtiger_tab.tabid AND fieldname=? AND name=? and vtiger_field.presence in (0,2) and vtiger_tab.presence=0) order by sequence',
 			Array($fieldname, $module_name));
 
 		$entityTypes = Array();
@@ -76,17 +78,10 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 	else if($uitype == 5 || $uitype == 6 || $uitype ==23)
 	{
 		$log->info("uitype is ".$uitype);
+		$curr_time = '';
 		if($value == '') {
-			//modified to fix the issue in trac(http://trac.vtiger.com/cgi-bin/trac.cgi/ticket/1469)
 			if ($fieldname != 'birthday' && $generatedtype != 2 && getTabid($module_name) != 14)
 				$disp_value = getNewDisplayDate();
-
-			if(($module_name == 'Events' || $module_name == 'Calendar') && $uitype == 6) {
-				$curr_time = date('H:i', strtotime('+5 minutes'));
-			}
-			if(($module_name == 'Events' || $module_name == 'Calendar') && $uitype == 23) {
-				$curr_time = date('H:i', strtotime('+10 minutes'));
-			}
 
 			//Added to display the Contact - Support End Date as one year future instead of
 			//today's date -- 30-11-2005
@@ -98,21 +93,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 		} else {
 			if($uitype == 6) {
-				if ($col_fields['time_start'] != '' && ($module_name == 'Events' || $module_name
-						== 'Calendar')) {
-					$curr_time = $col_fields['time_start'];
-					$value = $value . ' ' . $curr_time;
-				} else {
 				$curr_time = date('H:i', strtotime('+5 minutes'));
-				}
-			}
-			if(($module_name == 'Events' || $module_name == 'Calendar') && $uitype == 23) {
-				if ($col_fields['time_end'] != '') {
-					$curr_time = $col_fields['time_end'];
-					$value = $value . ' ' . $curr_time;
-				} else {
-					$curr_time = date('H:i', strtotime('+10 minutes'));
-				}
 			}
 			$date = new DateTimeField($value);
 			$isodate = $date->convertToDBFormat($value);
@@ -121,55 +102,52 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		}
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
 		$date_format = parse_calendardate($app_strings['NTC_DATE_FORMAT']);
-		if(!empty($curr_time)) {
-			if(($module_name == 'Events' || $module_name == 'Calendar') && ($uitype == 23 ||
-					$uitype == 6)) {
-				$curr_time = DateTimeField::convertToUserTimeZone($curr_time);
-				$curr_time = $curr_time->format('H:i');
-			}
-		} else {
-			$curr_time = '';
-		}
+
 		if (empty($disp_value)) $disp_value = '';
 		$fieldvalue[] = array($disp_value => $curr_time);
-		if($uitype == 5 || $uitype == 23)
-		{
-			if($module_name == 'Events' && $uitype == 23)
-			{
-				$fieldvalue[] = array($date_format=>$current_user->date_format.' '.$app_strings['YEAR_MONTH_DATE']);
-			}
-			else
-				$fieldvalue[] = array($date_format=>$current_user->date_format);
-		}
-		else
-		{
+		if($uitype == 5 || $uitype == 23) {
+			$fieldvalue[] = array($date_format=>$current_user->date_format);
+		} else {
 			$fieldvalue[] = array($date_format=>$current_user->date_format.' '.$app_strings['YEAR_MONTH_DATE']);
 		}
 	}
 	elseif($uitype == 50) {
-		if(empty($value)) {
+		$user_format = ($current_user->hour_format=='24' ? '24' : '12');
+		if (empty($value)) {
 			if ($generatedtype != 2) {
-				$disp_value = getNewDisplayTime();
+				$date = new DateTimeField();
+				$disp_value = substr($date->getDisplayDateTimeValue(),0,16);
+				$curr_time = DateTimeField::formatUserTimeString($disp_value, $user_format);
+				if (strlen($curr_time)>5) {
+					$time_format = substr($curr_time, -2);
+					$curr_time = substr($curr_time, 0, 5);
+				} else {
+					$time_format = '24';
+				}
+				list($dt,$tm) = explode(' ',$disp_value);
+				$disp_value12 = $dt . ' ' . $curr_time;
 			} else {
-				$disp_value = '';
+				$disp_value = $disp_value12 = $curr_time = $time_format = '';
 			}
 		} else {
 			$date = new DateTimeField($value);
-			$isodate = $date->getDBInsertDateTimeValue();
-			$date = new DateTimeField($isodate);
 			$disp_value = substr($date->getDisplayDateTimeValue(),0,16);
+			$curr_time = DateTimeField::formatUserTimeString($disp_value, $user_format);
+			if (strlen($curr_time)>5) {
+				$time_format = substr($curr_time, -2);
+				$curr_time = substr($curr_time, 0, 5);
+			} else {
+				$time_format = '24';
+			}
+			list($dt,$tm) = explode(' ',$disp_value);
+			$disp_value12 = $dt . ' ' . $curr_time;
 		}
 		$value = $disp_value;
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
 		$date_format = parse_calendardate($app_strings['NTC_DATE_FORMAT']).' '.($current_user->hour_format=='24' ? '%H' : '%I').':%M';
-		if(!empty($curr_time)) {
-			$curr_time = DateTimeField::convertToUserTimeZone($curr_time);
-			$curr_time = $curr_time->format('H:i');
-		} else {
-			$curr_time = '';
-		}
-		$fieldvalue[] = array($disp_value => $curr_time);
-		$fieldvalue[] = array($date_format=>$current_user->date_format.' '.$current_user->hour_format);
+		$fieldvalue[] = array($disp_value => $disp_value12);
+		$fieldvalue[] = array($date_format=>$current_user->date_format.' '.($current_user->hour_format=='24' ? '24' : 'am/pm'));
+		$fieldvalue[] = array($user_format => $time_format);
 	}
 	elseif($uitype == 16) {
 		require_once 'modules/PickList/PickListUtils.php';
@@ -207,7 +185,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		}
 		$fieldvalue [] = $options;
 	}
-	elseif($uitype == 1613 || $uitype == 1614) {
+	elseif($uitype == 1613 || $uitype == 1614 || $uitype == 1615) {
 		require_once 'modules/PickList/PickListUtils.php';
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
 		$fieldvalue [] = getPicklistValuesSpecialUitypes($uitype,$fieldname,$value);
@@ -216,17 +194,25 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		require_once 'modules/PickList/PickListUtils.php';
 		$roleid=$current_user->roleid;
 		$picklistValues = getAssignedPicklistValues($fieldname, $roleid, $adb);
-		$valueArr = explode("|##|", $value);
+		if (!empty($value)) {
+			$valueArr = explode('|##|', $value);
+		} else {
+			$valueArr = array();
+		}
 		foreach ($valueArr as $key => $value) {
 			$valueArr[$key] = trim(html_entity_decode($value, ENT_QUOTES, $default_charset));
 		}
-		$pickcount = 0;
-
+		if ($uitype == 15 ) {
+			if (count($valueArr)>0) {
+				$valueArr = array_combine($valueArr, $valueArr);
+			}
+			$picklistValues = array_merge($picklistValues, $valueArr);
+		}
+		$options = array();
 		if(!empty($picklistValues)){
-			foreach($picklistValues as $order=>$pickListValue){
+			foreach ($picklistValues as $pickListValue) {
 				if(in_array(trim($pickListValue),$valueArr)){
 					$chk_val = "selected";
-					$pickcount++;
 				}else{
 					$chk_val = '';
 				}
@@ -236,13 +222,9 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 					$options[] = array(getTranslatedString($pickListValue),$pickListValue,$chk_val );
 				}
 			}
-
-			if($pickcount == 0 && !empty($value)){
-				$options[] = array($app_strings['LBL_NOT_ACCESSIBLE'],$value,'selected');
-			}
 		}
 		$editview_label[]=getTranslatedString($fieldlabel,$module_name,$value);
-		$fieldvalue [] = $options;
+		$fieldvalue[] = $options;
 	} elseif($uitype == 3313 || $uitype == 3314){
 		require_once 'modules/PickList/PickListUtils.php';
 		$editview_label[]=getTranslatedString($fieldlabel,$module_name);
@@ -252,6 +234,38 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		require_once 'modules/PickList/PickListUtils.php';
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
 		$fieldvalue [] = getPicklistValuesSpecialUitypes($uitype,$fieldname,$value);
+	}
+	elseif ($uitype == 1025){
+		$entityTypes = Array();
+		$parent_id = $value;
+		$values = explode(' |##| ', $value);
+		foreach ($cbMapFI['searchfields'] as $k=>$value) {
+			$entityTypes[] = $k;
+		}
+
+		if (!empty($value) && !empty($values[0])) {
+			$valueType= $srchmod=  getSalesEntityType($values[0]);
+			$field_val = getEntityFieldNames($srchmod);
+
+			$response=array();
+			$shown_val='';
+			foreach ($values as $val) {
+				$displayValueArray = getEntityName($valueType, $val);
+				if (!empty($displayValueArray)) {
+					foreach ($displayValueArray as $key=>$value2) {
+						$shown_val = $value2;
+					}
+				}
+				$response[]=html_entity_decode($shown_val,ENT_QUOTES,$default_charset);
+			}
+			$displayValue=implode(',',$response).',';
+		} else {
+			$displayValue='';
+			$valueType='';
+			$value='';
+		}
+		$editview_label[] = Array('options'=>$entityTypes, 'selected'=>$valueType, 'displaylabel'=>getTranslatedString($fieldlabel, $module_name));
+		$fieldvalue[] = Array('displayvalue'=>$displayValue,'entityid'=>$parent_id);
 	}
 	elseif($uitype == 17)
 	{
@@ -317,7 +331,6 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			$combo_lbl_name = 'assigned_user_id1';
 		}
 
-		//Control will come here only for Products - Handler and Quotes - Inventory Manager
 		if($is_admin==false && $profileGlobalPermission[2] == 1 && ($defaultOrgSharingPermission[getTabid($module_name)] == 3 or $defaultOrgSharingPermission[getTabid($module_name)] == 0))
 		{
 			$ua = get_user_array(FALSE, "Active", $assigned_user_id,'private');
@@ -392,7 +405,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 	{
 		$options = array();
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
-		$pick_query="select * from vtiger_groups";
+		$pick_query="select name from vtiger_groups";
 		$pickListResult = $adb->pquery($pick_query, array());
 		$noofpickrows = $adb->num_rows($pickListResult);
 		for($j = 0; $j < $noofpickrows; $j++)
@@ -426,7 +439,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 				$picklistValues = getAssignedPicklistValues('salutationtype', $roleid, $adb);
 				$pickcount = 0;
 				$salt_value = (isset($col_fields['salutationtype']) ? $col_fields['salutationtype'] : '');
-				foreach($picklistValues as $order=>$pickListValue){
+				foreach ($picklistValues as $pickListValue) {
 					if($salt_value == trim($pickListValue)){
 						$chk_val = "selected";
 						$pickcount++;
@@ -434,9 +447,9 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 						$chk_val = '';
 					}
 					if(isset($_REQUEST['file']) && $_REQUEST['file'] == 'QuickCreate'){
-						$options[] = array(htmlentities(getTranslatedString($pickListValue),ENT_QUOTES,$default_charset),$pickListValue,$chk_val );
+						$options[] = array(htmlentities(getTranslatedString($pickListValue, 'Contacts'),ENT_QUOTES,$default_charset),$pickListValue,$chk_val );
 					}else{
-						$options[] = array(getTranslatedString($pickListValue),$pickListValue,$chk_val);
+						$options[] = array(getTranslatedString($pickListValue, 'Contacts'),$pickListValue,$chk_val);
 					}
 				}
 				if($pickcount == 0 && $salt_value != ''){
@@ -449,24 +462,6 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		}
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
 		$fieldvalue[] = $value;
-	}elseif($uitype == 59){
-		if($_REQUEST['module'] == 'HelpDesk')
-		{
-			if(isset($_REQUEST['product_id']) && $_REQUEST['product_id'] != '')
-				$value = $_REQUEST['product_id'];
-		}
-		elseif(isset($_REQUEST['parent_id']) && $_REQUEST['parent_id'] != '')
-			$value = vtlib_purify($_REQUEST['parent_id']);
-
-		if($value != '')
-		{
-			$product_name = getProductName($value);
-		} else {
-			$product_name = '';
-		}
-		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
-		$fieldvalue[]=$product_name;
-		$fieldvalue[]=$value;
 	}
 	elseif($uitype == 63)
 	{
@@ -474,7 +469,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		if($value=='')
 			$value=1;
 		$options = array();
-		$pick_query="select * from vtiger_duration_minutes order by sortorderid";
+		$pick_query="select duration_minutes from vtiger_duration_minutes order by sortorderid";
 		$pickListResult = $adb->pquery($pick_query, array());
 		$noofpickrows = $adb->num_rows($pickListResult);
 		$salt_value = $col_fields["duration_minutes"];
@@ -577,7 +572,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 				$attachmentid=$adb->query_result($adb->pquery("select * from vtiger_seattachmentsrel where crmid = ?", array($col_fields['record_id'])),0,'attachmentsid');
 				if($col_fields[$fieldname] == '' && $attachmentid != '')
 				{
-					$attachquery = "select * from vtiger_attachments where attachmentsid=?";
+					$attachquery = "select name from vtiger_attachments where attachmentsid=?";
 					$value = $adb->query_result($adb->pquery($attachquery, array($attachmentid)),0,'name');
 				}
 			}
@@ -593,10 +588,10 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 	}
 	elseif($uitype == 28){
 		if (!(empty($col_fields['record_id']))) {
-			$attrs = $adb->pquery('select * from vtiger_seattachmentsrel where crmid = ?', array($col_fields['record_id']));
+			$attrs = $adb->pquery('select attachmentsid from vtiger_seattachmentsrel where crmid = ?', array($col_fields['record_id']));
 			$attachmentid=$adb->query_result($attrs,0,'attachmentsid');
 			if ($col_fields[$fieldname] == '' && $attachmentid != '') {
-				$attachquery = "select * from vtiger_attachments where attachmentsid=?";
+				$attachquery = "select name from vtiger_attachments where attachmentsid=?";
 				$attqrs = $adb->pquery($attachquery, array($attachmentid));
 				$value = $adb->query_result($attqrs,0,'name');
 			}
@@ -611,15 +606,21 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			$fieldvalue[] = $value;
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
 	}
-	elseif($uitype == 69)
+	elseif ($uitype == 69 or $uitype == '69m')
 	{
 		$editview_label[]=getTranslatedString($fieldlabel, $module_name);
-		if (!empty($col_fields['record_id'])) {
-			if($module_name == 'Products') {
+		if (isset($_REQUEST['isDuplicate']) && $_REQUEST['isDuplicate'] == 'true') {
+			if ($uitype == '69') {
+				$fieldvalue[] = array('name'=>$col_fields[$fieldname],'path'=>'','orgname'=>$col_fields[$fieldname]);
+			} else {
+				$fieldvalue[] = '';
+			}
+		} elseif (!empty($col_fields['record_id'])) {
+			if ($uitype == '69m') { // module_name == 'Products'
 				$query = 'select vtiger_attachments.path, vtiger_attachments.attachmentsid, vtiger_attachments.name ,vtiger_crmentity.setype from vtiger_products left join vtiger_seattachmentsrel on vtiger_seattachmentsrel.crmid=vtiger_products.productid inner join vtiger_attachments on vtiger_attachments.attachmentsid=vtiger_seattachmentsrel.attachmentsid inner join vtiger_crmentity on vtiger_crmentity.crmid=vtiger_attachments.attachmentsid where vtiger_crmentity.setype="Products Image" and productid=?';
 				$params = array($col_fields['record_id']);
 			} else {
-				if ($module_name == 'Contacts') {
+				if ($module_name == 'Contacts' and $fieldname=='imagename') {
 					$imageattachment = 'Image';
 				} else {
 					$imageattachment = 'Attachment';
@@ -636,7 +637,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			$result_image = $adb->pquery($query, $params);
 			$image_array = array();
-			for($image_iter=0;$image_iter < $adb->num_rows($result_image);$image_iter++) {
+			for ($image_iter=0, $img_itrMax = $adb->num_rows($result_image); $image_iter < $img_itrMax; $image_iter++) {
 				$image_id_array[] = $adb->query_result($result_image,$image_iter,'attachmentsid');
 
 				//decode_html  - added to handle UTF-8   characters in file names
@@ -647,7 +648,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 				$image_path_array[] = $adb->query_result($result_image,$image_iter,'path');
 			}
 			if(count($image_array)>0)
-				for($img_itr=0;$img_itr<count($image_array);$img_itr++) {
+				for ($img_itr=0, $img_itrMax = count($image_array); $img_itr< $img_itrMax; $img_itr++) {
 					$fieldvalue[] = array('name'=>$image_array[$img_itr],'path'=>$image_path_array[$img_itr].$image_id_array[$img_itr]."_","orgname"=>$image_orgname_array[$img_itr]);
 				}
 			else
@@ -682,7 +683,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			elseif($parent_module == "Accounts")
 			{
-				$sql = "select * from vtiger_account where accountid=?";
+				$sql = "select accountname from vtiger_account where accountid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name = $adb->query_result($result,0,"accountname");
 				$account_selected = "selected";
@@ -690,7 +691,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			elseif($parent_module == "Potentials")
 			{
-				$sql = "select * from vtiger_potential where potentialid=?";
+				$sql = "select potentialname from vtiger_potential where potentialid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name = $adb->query_result($result,0,"potentialname");
 				$potential_selected = "selected";
@@ -698,7 +699,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			elseif($parent_module == "Products")
 			{
-				$sql = "select * from vtiger_products where productid=?";
+				$sql = "select productname from vtiger_products where productid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name= $adb->query_result($result,0,"productname");
 				$product_selected = "selected";
@@ -706,7 +707,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			elseif($parent_module == "PurchaseOrder")
 			{
-				$sql = "select * from vtiger_purchaseorder where purchaseorderid=?";
+				$sql = "select subject from vtiger_purchaseorder where purchaseorderid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name= $adb->query_result($result,0,"subject");
 				$porder_selected = "selected";
@@ -714,7 +715,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			elseif($parent_module == "SalesOrder")
 			{
-				$sql = "select * from vtiger_salesorder where salesorderid=?";
+				$sql = "select subject from vtiger_salesorder where salesorderid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name= $adb->query_result($result,0,"subject");
 				$sorder_selected = "selected";
@@ -722,20 +723,20 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 			elseif($parent_module == "Invoice")
 			{
-				$sql = "select * from vtiger_invoice where invoiceid=?";
+				$sql = "select subject from vtiger_invoice where invoiceid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name= $adb->query_result($result,0,"subject");
 				$invoice_selected = "selected";
 			}
 			elseif($parent_module == "Quotes")
 			{
-				$sql = "select * from vtiger_quotes where quoteid=?";
+				$sql = "select subject from vtiger_quotes where quoteid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name= $adb->query_result($result,0,"subject");
 				$quote_selected = "selected";
 			}elseif($parent_module == "HelpDesk")
 			{
-				$sql = "select * from vtiger_troubletickets where ticketid=?";
+				$sql = "select title from vtiger_troubletickets where ticketid=?";
 				$result = $adb->pquery($sql, array($value));
 				$parent_name= $adb->query_result($result,0,"title");
 				$ticket_selected = "selected";
@@ -770,6 +771,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		if(!empty($_REQUEST['parent_id'])) {
 			$value = vtlib_purify($_REQUEST['parent_id']);
 		}
+		$parent_module = '';
 		if(!empty($value)) {
 			$parent_module = getSalesEntityType($value);
 			if($parent_module != "Contacts") {
@@ -780,7 +782,6 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 				$fieldvalue[] = $value;
 			}
 		}
-		// Check for vtiger_activity type if task orders to be added in select option
 		$act_mode = $_REQUEST['activity_mode'];
 
 		$parentModulesList = array(
@@ -817,118 +818,70 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 	//added by rdhital/Raju for better email support
 	elseif($uitype == 357)
 	{
-		$pmodule = isset($_REQUEST['pmodule']) ? $_REQUEST['pmodule'] : null;
-		if(empty($pmodule))
-			$pmodule = $_REQUEST['par_module'];
-
-		if($pmodule == 'Contacts')
-		{
-			$contact_selected = 'selected';
-		}
-		elseif($pmodule == 'Accounts')
-		{
-			$account_selected = 'selected';
-		}
-		elseif($pmodule == 'Leads')
-		{
-			$lead_selected = 'selected';
-		}
-		elseif($pmodule == 'Vendors')
-		{
-			$vendor_selected = 'selected';
-		}
-		elseif($pmodule == 'Users')
-		{
-			$user_selected = 'selected';
-		}
-		elseif($pmodule == 'Project')
-		{
-			$project_selected = 'selected';
-		}
-		elseif($pmodule == 'ProjectTask')
-		{
-			$projecttask_selected = 'selected';
-		}
-		elseif($pmodule == 'Potentials')
-		{
-			$potentials_selected = 'selected';
-		}
-		elseif($pmodule == 'HelpDesk')
-		{
-			$helpdesk_selected = 'selected';
-		}
-		if(isset($_REQUEST['emailids']) && $_REQUEST['emailids'] != '')
-		{
+		$pmodule = isset($_REQUEST['pmodule']) ? $_REQUEST['pmodule'] : (isset($_REQUEST['par_module']) ? $_REQUEST['par_module'] : null);
+		if (isset($_REQUEST['emailids']) && $_REQUEST['emailids'] != '') {
 			$parent_id = $_REQUEST['emailids'];
 			$parent_name='';
 
 			$myids=explode("|",$parent_id);
-			for ($i=0;$i<(count($myids)-1);$i++)
-			{
+			for ($i=0;$i<(count($myids)-1);$i++) {
 				$realid=explode("@",$myids[$i]);
 				$entityid=$realid[0];
 				$nemail=count($realid);
 
-				if ($pmodule=='Accounts'){
+				if ($pmodule=='Accounts') {
 					require_once('modules/Accounts/Accounts.php');
 					$myfocus = new Accounts();
 					$myfocus->retrieve_entity_info($entityid,"Accounts");
 					$fullname=br2nl($myfocus->column_fields['accountname']);
-					$account_selected = 'selected';
 				}
-				elseif ($pmodule=='Contacts'){
+				elseif ($pmodule=='Contacts') {
 					require_once('modules/Contacts/Contacts.php');
 					$myfocus = new Contacts();
 					$myfocus->retrieve_entity_info($entityid,"Contacts");
 					$fname=br2nl($myfocus->column_fields['firstname']);
 					$lname=br2nl($myfocus->column_fields['lastname']);
 					$fullname=$lname.' '.$fname;
-					$contact_selected = 'selected';
 				}
-				elseif ($pmodule=='Leads'){
+				elseif ($pmodule=='Leads') {
 					require_once('modules/Leads/Leads.php');
 					$myfocus = new Leads();
 					$myfocus->retrieve_entity_info($entityid,"Leads");
 					$fname=br2nl($myfocus->column_fields['firstname']);
 					$lname=br2nl($myfocus->column_fields['lastname']);
 					$fullname=$lname.' '.$fname;
-					$lead_selected = 'selected';
 				}
-				elseif ($pmodule=='Project'){
+				elseif ($pmodule=='Project') {
 					require_once('modules/Project/Project.php');
 					$myfocus = new Project();
 					$myfocus->retrieve_entity_info($entityid,"Project");
 					$fname=br2nl($myfocus->column_fields['projectname']);
-					$lname=br2nl($myfocus->column_fields['projectid']);
 					$fullname=$fname;
-					$project_selected = 'selected';
 				}
-				elseif ($pmodule=='ProjectTask'){
+				elseif ($pmodule=='ProjectTask') {
 					require_once('modules/ProjectTask/ProjectTask.php');
 					$myfocus = new ProjectTask();
 					$myfocus->retrieve_entity_info($entityid,"ProjectTask");
 					$fname=br2nl($myfocus->column_fields['projecttaskname']);
-					$lname=br2nl($myfocus->column_fields['projecttaskid']);
 					$fullname=$fname;
-					$projecttask_selected = 'selected';
 				}
-				elseif ($pmodule=='Potentials'){
+				elseif ($pmodule=='Potentials') {
 					require_once('modules/Potentials/Potentials.php');
 					$myfocus = new Potentials();
 					$myfocus->retrieve_entity_info($entityid,"Potentials");
 					$fname=br2nl($myfocus->column_fields['potentialname']);
-					$lname=br2nl($myfocus->column_fields['potentialid']);
 					$fullname=$fname;
-					$potentials_selected = 'selected';
 				}
-				elseif ($pmodule=='HelpDesk'){
+				elseif ($pmodule=='HelpDesk') {
 					require_once('modules/HelpDesk/HelpDesk.php');
 					$myfocus = new HelpDesk();
 					$myfocus->retrieve_entity_info($entityid,"HelpDesk");
 					$fname=br2nl($myfocus->column_fields['title']);
-					$lname=br2nl($myfocus->column_fields['ticketid']);
 					$fullname=$fname;
-					$helpdesk_selected = 'selected';
+				}
+				else {
+					$ename = getEntityName($pmodule, array($entityid));
+					$fullname = br2nl($ename[$entityid]);
 				}
 				for ($j=1;$j<$nemail;$j++){
 					$querystr='select columnname from vtiger_field where fieldid=? and vtiger_field.presence in (0,2)';
@@ -959,19 +912,15 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 		}
 		else
 		{
-			$contact_selected = $account_selected = $vendor_selected = $lead_selected = $user_selected = '';
 			$parent_name='';
 			$parent_id='';
-			if(!empty($_REQUEST['record']))
-			{
+			if (!empty($_REQUEST['record'])) {
 				$myemailid= vtlib_purify($_REQUEST['record']);
 				$mysql = "select crmid from vtiger_seactivityrel where activityid=?";
 				$myresult = $adb->pquery($mysql, array($myemailid));
 				$mycount=$adb->num_rows($myresult);
-				if($mycount >0)
-				{
-					for ($i=0;$i<$mycount;$i++)
-					{
+				if ($mycount >0) {
+					for ($i=0;$i<$mycount;$i++) {
 						$mycrmid=$adb->query_result($myresult,$i,'crmid');
 						$parent_module = getSalesEntityType($mycrmid);
 						if($parent_module == "Leads")
@@ -980,9 +929,8 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 							$result = $adb->pquery($sql, array($mycrmid));
 							$full_name = getFullNameFromQResult($result,0,"Leads");
 							$myemail=$adb->query_result($result,0,"email");
-							$parent_id .=$mycrmid.'@0|' ; //make it such that the email adress sent is remebered and only that one is retrived
+							$parent_id .=$mycrmid.'@0|' ;
 							$parent_name .= $full_name.'<'.$myemail.'>; ';
-							$lead_selected = 'selected';
 						}
 						elseif($parent_module == "Contacts")
 						{
@@ -990,54 +938,65 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 							$result = $adb->pquery($sql, array($mycrmid));
 							$full_name = getFullNameFromQResult($result,0,"Contacts");
 							$myemail=$adb->query_result($result,0,"email");
-							$parent_id .=$mycrmid.'@0|';//make it such that the email adress sent is remebered and only that one is retrived
+							$parent_id .=$mycrmid.'@0|';
 							$parent_name .= $full_name.'<'.$myemail.'>; ';
-							$contact_selected = 'selected';
 						}
 						elseif($parent_module == "Accounts")
 						{
-							$sql = "select * from vtiger_account where accountid=?";
+							$sql = "select accountname, email1 from vtiger_account where accountid=?";
 							$result = $adb->pquery($sql, array($mycrmid));
 							$account_name = $adb->query_result($result,0,"accountname");
 							$myemail=$adb->query_result($result,0,"email1");
-							$parent_id .=$mycrmid.'@0|';//make it such that the email adress sent is remebered and only that one is retrived
+							$parent_id .=$mycrmid.'@0|';
 							$parent_name .= $account_name.'<'.$myemail.'>; ';
-							$account_selected = 'selected';
 						}elseif($parent_module == "Users")
 						{
 							$sql = "select user_name,email1 from vtiger_users where id=?";
 							$result = $adb->pquery($sql, array($mycrmid));
 							$account_name = $adb->query_result($result,0,"user_name");
 							$myemail=$adb->query_result($result,0,"email1");
-							$parent_id .=$mycrmid.'@0|';//make it such that the email adress sent is remebered and only that one is retrived
+							$parent_id .=$mycrmid.'@0|';
 							$parent_name .= $account_name.'<'.$myemail.'>; ';
-							$user_selected = 'selected';
 						}
 						elseif($parent_module == "Vendors")
 						{
-							$sql = "select * from vtiger_vendor where vendorid=?";
+							$sql = "select vendorname, email from vtiger_vendor where vendorid=?";
 							$result = $adb->pquery($sql, array($mycrmid));
 							$vendor_name = $adb->query_result($result,0,"vendorname");
 							$myemail=$adb->query_result($result,0,"email");
-							$parent_id .=$mycrmid.'@0|';//make it such that the email adress sent is remebered and only that one is retrived
+							$parent_id .=$mycrmid.'@0|';
 							$parent_name .= $vendor_name.'<'.$myemail.'>; ';
-							$vendor_selected = 'selected';
+						}
+						else
+						{
+							$emailfield = getFirstEmailField($pmodule);
+							if ($emailfield != '') {
+								$qg = new QueryGenerator($pmodule, $current_user);
+								$qg->setFields(array($emailfield));
+								$qg->addCondition('id', $mycrmid, 'e');
+								$query = $qg->getQuery();
+								$result = $adb->query($query);
+								$myemail = $adb->query_result($result,0,$emailfield);
+							} else {
+								$myemail = '';
+							}
+							$parent_id .=$mycrmid.'@0|';
+							$minfo = getEntityName($pmodule,array($mycrmid));
+							$parent_name .= $minfo[$mycrmid] . '<'.$myemail.'>; ';
 						}
 					}
 				}
 			}
-			$editview_label[] = array(
-					'Contacts'=>$contact_selected,
-					'Accounts'=>$account_selected,
-					'Vendors'=>$vendor_selected,
-					'Leads'=>$lead_selected,
-					'Users'=>$user_selected
-					);
+			$emailmodules = modulesWithEmailField();
+			$evlbl = array();
+			foreach ($emailmodules as $mod) {
+				$evlbl[$mod] = ($pmodule == $mod ? 'selected' : '');
+			}
+			$editview_label[] = $evlbl;
 			$fieldvalue[] = $parent_name;
 			$fieldvalue[] = $parent_id;
 		}
 	}
-	//end of rdhital/Raju
 	elseif ($uitype == 9 || $uitype == 7) {
 		$editview_label[] = getTranslatedString($fieldlabel, $module_name);
 		$fldrs = $adb->pquery('select typeofdata from vtiger_field
@@ -1264,7 +1223,7 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 			}
 		}
 		if(isset($image_array) && is_array($image_array))
-			for($img_itr=0;$img_itr<count($image_array);$img_itr++)
+			for($img_itr=0, $img_itrMax = count($image_array); $img_itr< $img_itrMax; $img_itr++)
 			{
 				$fieldvalue[] = array('name'=>$image_array[$img_itr],'path'=>$image_path_array[$img_itr]);
 			}
@@ -1360,13 +1319,17 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 	$final_arr[]=$editview_label;
 	$final_arr[]=$editview_fldname;
 	$final_arr[]=$fieldvalue;
-	$type_of_data = explode('~',$typeofdata);
-	$final_arr[]=$type_of_data[1];
+	if (!empty($typeofdata)) {
+		$type_of_data = explode('~',$typeofdata);
+		$final_arr[] = $type_of_data[1];
+	} else {
+		$final_arr[] = 'O';
+	}
 	$log->debug('Exiting getOutputHtml method ...');
 	return $final_arr;
 }
 
-/** This function returns the vtiger_invoice object populated with the details from sales order object.
+/** This function returns the invoice object populated with the details from sales order object.
 * Param $focus - Invoice object
 * Param $so_focus - Sales order focus
 * Param $soid - sales order id
@@ -1375,12 +1338,12 @@ function getOutputHtml($uitype, $fieldname, $fieldlabel, $maxlength, $col_fields
 function getConvertSoToInvoice($focus,$so_focus,$soid) {
 	global $log,$current_user;
 	$log->debug("Entering getConvertSoToInvoice(".get_class($focus).",".get_class($so_focus).",".$soid.") method ...");
-	$xyz=array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
-	for($i=0;$i<count($xyz);$i++){
-		if (getFieldVisibilityPermission('SalesOrder', $current_user->id,$xyz[$i]) == '0') {
-			$so_focus->column_fields[$xyz[$i]] = $so_focus->column_fields[$xyz[$i]];
+	$fields = array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
+	foreach ($fields as $fieldname) {
+		if (getFieldVisibilityPermission('SalesOrder', $current_user->id, $fieldname) == '0') {
+			$so_focus->column_fields[$fieldname] = $so_focus->column_fields[$fieldname];
 		} else {
-			$so_focus->column_fields[$xyz[$i]] = '';
+			$so_focus->column_fields[$fieldname] = '';
 		}
 	}
 	$focus->column_fields['salesorder_id'] = $soid;
@@ -1417,7 +1380,7 @@ function getConvertSoToInvoice($focus,$so_focus,$soid) {
 	return $focus;
 }
 
-/** This function returns the vtiger_invoice object populated with the details from quote object.
+/** This function returns the invoice object populated with the details from quote object.
 * Param $focus - Invoice object
 * Param $quote_focus - Quote order focus
 * Param $quoteid - quote id
@@ -1427,13 +1390,13 @@ function getConvertQuoteToInvoice($focus,$quote_focus,$quoteid)
 {
 	global $log,$current_user;
 	$log->debug("Entering getConvertQuoteToInvoice(".get_class($focus).",".get_class($quote_focus).",".$quoteid.") method ...");
-	$xyz=array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
-	for($i=0;$i<12;$i++){
-		if (getFieldVisibilityPermission('Quotes', $current_user->id,$xyz[$i]) == '0'){
-			$quote_focus->column_fields[$xyz[$i]] = $quote_focus->column_fields[$xyz[$i]];
+	$fields = array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
+	foreach ($fields as $fieldname) {
+		if (getFieldVisibilityPermission('Quotes', $current_user->id,$fieldname) == '0'){
+			$quote_focus->column_fields[$fieldname] = $quote_focus->column_fields[$fieldname];
 		}
 		else
-			$quote_focus->column_fields[$xyz[$i]] = '';
+			$quote_focus->column_fields[$fieldname] = '';
 	}
 	$focus->column_fields['subject'] = $quote_focus->column_fields['subject'];
 	$focus->column_fields['account_id'] = $quote_focus->column_fields['account_id'];
@@ -1473,13 +1436,13 @@ function getConvertQuoteToSoObject($focus,$quote_focus,$quoteid)
 {
 	global $log,$current_user;
 	$log->debug("Entering getConvertQuoteToSoObject(".get_class($focus).",".get_class($quote_focus).",".$quoteid.") method ...");
-	$xyz=array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
-	for($i=0;$i<12;$i++){
-		if (getFieldVisibilityPermission('Quotes', $current_user->id,$xyz[$i]) == '0'){
-			$quote_focus->column_fields[$xyz[$i]] = $quote_focus->column_fields[$xyz[$i]];
+	$fields = array('bill_street','bill_city','bill_code','bill_pobox','bill_country','bill_state','ship_street','ship_city','ship_code','ship_pobox','ship_country','ship_state');
+	foreach ($fields as $fieldname) {
+		if (getFieldVisibilityPermission('Quotes', $current_user->id,$fieldname) == '0'){
+			$quote_focus->column_fields[$fieldname] = $quote_focus->column_fields[$fieldname];
 		}
 		else
-			$quote_focus->column_fields[$xyz[$i]] = '';
+			$quote_focus->column_fields[$fieldname] = '';
 	}
 	$focus->column_fields['quote_id'] = $quoteid;
 	$focus->column_fields['subject'] = $quote_focus->column_fields['subject'];
@@ -1512,7 +1475,7 @@ function getConvertQuoteToSoObject($focus,$quote_focus,$quoteid)
 	return $focus;
 }
 
-/** This function returns the detailed list of vtiger_products associated to a given entity or a record.
+/** This function returns the detailed list of products associated to a given entity or a record.
 * Param $module - module name
 * Param $focus - module object
 * Param $seid - sales entity id
@@ -1596,6 +1559,28 @@ function getAssociatedProducts($module,$focus,$seid='')
 			INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid=vtiger_service.serviceid
 			WHERE vtiger_crmentity.deleted=0 AND serviceid=?";
 			$params = array($seid);
+	} else {
+		$query = "SELECT vtiger_products.productid, vtiger_products.productname, vtiger_products.productcode,
+			vtiger_products.unit_price, vtiger_products.qtyinstock, vtiger_crmentity.description AS product_description,
+			'Products' AS entitytype
+			FROM vtiger_products
+			INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid=vtiger_products.productid
+			INNER JOIN vtiger_crmentityrel ON (
+				(vtiger_crmentityrel.crmid=vtiger_products.productid and vtiger_crmentityrel.relcrmid=?) or
+				(vtiger_crmentityrel.crmid=? and vtiger_crmentityrel.relcrmid=vtiger_products.productid)
+			)
+			WHERE vtiger_crmentity.deleted=0";
+		$query.=" UNION SELECT vtiger_service.serviceid AS productid, vtiger_service.servicename AS productname,
+			'NA' AS productcode, vtiger_service.unit_price AS unit_price, 'NA' AS qtyinstock,
+			vtiger_crmentity.description AS product_description, 'Services' AS entitytype
+			FROM vtiger_service
+			INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid=vtiger_service.serviceid
+			INNER JOIN vtiger_crmentityrel ON (
+				(vtiger_crmentityrel.crmid=vtiger_service.serviceid and vtiger_crmentityrel.relcrmid=?) or
+				(vtiger_crmentityrel.crmid=? and vtiger_crmentityrel.relcrmid=vtiger_service.serviceid)
+			)
+			WHERE vtiger_crmentity.deleted=0";
+			$params = array($seid, $seid, $seid, $seid);
 	}
 
 	$cbMap = cbMap::getMapByName($module.'InventoryDetails','MasterDetailLayout');
@@ -1665,7 +1650,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		$product_Detail[$i]['hdnProductId'.$i] = $hdnProductId;
 		$product_Detail[$i]['productName'.$i]= $productname;
 		/* Added to fix the issue Product Pop-up name display*/
-		if($_REQUEST['action'] == 'CreateSOPDF' || $_REQUEST['action'] == 'CreatePDF' || $_REQUEST['action'] == 'SendPDFMail')
+		if (isset($_REQUEST['action']) and ($_REQUEST['action'] == 'CreateSOPDF' || $_REQUEST['action'] == 'CreatePDF' || $_REQUEST['action'] == 'SendPDFMail'))
 			$product_Detail[$i]['productName'.$i]= htmlspecialchars($product_Detail[$i]['productName'.$i]);
 		$product_Detail[$i]['hdnProductcode'.$i] = $hdnProductcode;
 		$product_Detail[$i]['productDescription'.$i]= $productdescription;
@@ -1676,14 +1661,15 @@ function getAssociatedProducts($module,$focus,$seid='')
 		}
 		if ($MDMapFound) {
 			foreach ($cbMapFields['detailview']['fields'] as $mdfield) {
-				$mdrs = $adb->pquery('select '.$mdfield['fieldinfo']['name'].' from vtiger_inventorydetails
+				$mdrs = $adb->pquery('select '.$mdfield['fieldinfo']['name'].',vtiger_inventorydetails.inventorydetailsid from vtiger_inventorydetails
 						inner join vtiger_crmentity on crmid=vtiger_inventorydetails.inventorydetailsid
 						inner join vtiger_inventorydetailscf on vtiger_inventorydetailscf.inventorydetailsid=vtiger_inventorydetails.inventorydetailsid
 						where deleted=0 and related_to=? and lineitem_id=?',
 					array($focus->id,$adb->query_result($result, $i - 1, 'lineitem_id')));
 				if ($mdrs) {
 					$col_fields = array();
-					$col_fields[$mdfield['fieldinfo']['name']] = $adb->query_result($mdrs, 0, 0);
+					$col_fields[$mdfield['fieldinfo']['name']] = $adb->query_result($mdrs, 0, $mdfield['fieldinfo']['name']);
+					$col_fields['record_id'] = $adb->query_result($mdrs, 0, 'inventorydetailsid');
 					$foutput = getOutputHtml($mdfield['fieldinfo']['uitype'], $mdfield['fieldinfo']['name'], $mdfield['fieldinfo']['label'], 100, $col_fields, 0, 'InventoryDetails', 'edit', $mdfield['fieldinfo']['typeofdata']);
 					$product_Detail[$i]['moreinfo'.$i][] = $foutput;
 				}
@@ -1759,8 +1745,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 		//First we will get all associated taxes as array
 		$tax_details = getTaxDetailsForProduct($hdnProductId,'all',$acvid);
 		//Now retrieve the tax values from the current query with the name
-		for($tax_count=0;$tax_count<count($tax_details);$tax_count++)
-		{
+		for ($tax_count=0, $tax_countMax = count($tax_details); $tax_count< $tax_countMax; $tax_count++) {
 			$tax_name = $tax_details[$tax_count]['taxname'];
 			$tax_label = $tax_details[$tax_count]['taxlabel'];
 			$tax_value = '0.00';
@@ -1836,8 +1821,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 	$tax_details = getAllTaxes('available','','edit',$focus->id);
 	$ipr_cols = $adb->getColumnNames('vtiger_inventoryproductrel');
 
-	for($tax_count=0;$tax_count<count($tax_details);$tax_count++)
-	{
+	for ($tax_count=0, $tax_countMax = count($tax_details); $tax_count< $tax_countMax; $tax_count++) {
 		$tax_name = $tax_details[$tax_count]['taxname'];
 		$tax_label = $tax_details[$tax_count]['taxlabel'];
 
@@ -1873,8 +1857,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 	$shtax_details = getAllTaxes('available','sh','edit',$focus->id);
 
 	//if taxtype is group then the tax should be same for all products in vtiger_inventoryproductrel table
-	for($shtax_count=0;$shtax_count<count($shtax_details);$shtax_count++)
-	{
+	for ($shtax_count=0, $shtax_countMax = count($shtax_details); $shtax_count< $shtax_countMax; $shtax_count++) {
 		$shtax_name = $shtax_details[$shtax_count]['taxname'];
 		$shtax_label = $shtax_details[$shtax_count]['taxlabel'];
 		$shtax_percent = '0.00';
@@ -1904,7 +1887,7 @@ function getAssociatedProducts($module,$focus,$seid='')
 	return $product_Detail;
 }
 
-/** This function returns the no of vtiger_products associated to the given entity or a record.
+/** This function returns the no of products associated to the given entity or a record.
 * Param $module - module name
 * Param $focus - module object
 * Param $seid - sales entity id
@@ -1955,8 +1938,8 @@ function getNoOfAssocProducts($module,$focus,$seid='')
 * Param $module - module name
 * Param $block - block name
 * Param $mode - view type (detail/edit/create)
-* Param $col_fields - vtiger_fields array
-* Param $tabid - vtiger_tab id
+* Param $col_fields - fields array
+* Param $tabid - tab id
 * Param $info_type - information type (basic/advance) default ""
 * Return type is an object array
 */
@@ -1997,25 +1980,19 @@ function getBlockInformation($module, $result, $col_fields,$tabid,$block_label,$
 		}
 		$editview_arr[$block][]=$custfld;
 	}
-	foreach($editview_arr as $headerid=>$editview_value)
-	{
-		$editview_data = Array();
-		for ($i=0,$j=0;$i<count($editview_value);$j++)
-		{
+	foreach ($editview_arr as $headerid=>$editview_value) {
+		$editview_data = array();
+		for ($i=0, $j=0, $iMax = count($editview_value); $i< $iMax; $j++) {
 			$key1=$editview_value[$i];
-			if(isset($editview_value[$i+1]) && is_array($editview_value[$i+1]) && ($key1[0][0]!=19 && $key1[0][0]!=20))
-			{
+			if (isset($editview_value[$i+1]) && is_array($editview_value[$i+1]) && ($key1[0][0]!=19 && $key1[0][0]!=20)) {
 				$key2=$editview_value[$i+1];
-			}
-			else
-			{
+			} else {
 				$key2 =array();
 			}
-			if($key1[0][0]!=19 && $key1[0][0]!=20){
+			if ($key1[0][0]!=19 && $key1[0][0]!=20) {
 				$editview_data[$j]=array(0 => $key1,1 => $key2);
 				$i+=2;
-			}
-			else{
+			} else {
 				$editview_data[$j]=array(0 => $key1);
 				$i++;
 			}
@@ -2049,8 +2026,8 @@ function getBlockInformation($module, $result, $col_fields,$tabid,$block_label,$
 	return $returndata;
 }
 
-/** This function returns the data type of the vtiger_fields, with vtiger_field label, which is used for javascript validation.
-* Param $validationData - array of vtiger_fieldnames with datatype
+/** This function returns the data type of the fields, with field label, which is used for javascript validation.
+* Param $validationData - array of fieldnames with datatype
 * Return type array
 */
 function split_validationdataArray($validationData)
@@ -2098,4 +2075,26 @@ function split_validationdataArray($validationData)
 	return $data;
 }
 
+/**
+ * Get field validation information
+ */
+function getDBValidationData($tablearray, $tabid='') {
+	if($tabid != '') {
+		global $adb, $mod_strings, $default_charset;
+		$fieldModuleName = getTabModuleName($tabid);
+		$fieldres = $adb->pquery(
+			"SELECT fieldlabel,fieldname,typeofdata FROM vtiger_field
+			WHERE displaytype IN (1,3) AND presence in (0,2) AND tabid=?", Array($tabid));
+		$fieldinfos = Array();
+		while($fieldrow = $adb->fetch_array($fieldres)) {
+			$fieldlabel = getTranslatedString(html_entity_decode($fieldrow['fieldlabel'], ENT_QUOTES, $default_charset), $fieldModuleName);
+			$fieldname = $fieldrow['fieldname'];
+			$typeofdata= $fieldrow['typeofdata'];
+			$fieldinfos[$fieldname] = Array($fieldlabel => $typeofdata);
+		}
+		return $fieldinfos;
+	} else {
+		return array();
+	}
+}
 ?>

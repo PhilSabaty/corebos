@@ -1,14 +1,10 @@
 <?php
-/*********************************************************************************
- * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
- * Software distributed under the License is distributed on an  "AS IS"  basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
- * the specific language governing rights and limitations under the License.
- * The Original Code is:  SugarCRM Open Source
- * The Initial Developer of the Original Code is SugarCRM, Inc.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.;
+/*+********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
 
@@ -34,33 +30,6 @@ $mod_strings = array (
   'LBL_CURRENCY_TOOL' => 'Strumenti',
   'LBL_CURRENCY_LIST' => 'Lista Valute',
   'NTC_DELETE_CONFIRMATION' => 'Sei sicuro di voler cancellare questo record?',
-  'LEADCUSTOMFIELDS' => 'Campi Lead Personalizzati',
-  'ACCOUNTCUSTOMFIELDS' => 'Campi Azienda Personalizzati',
-  'CONTACTCUSTOMFIELDS' => 'Campi Contatto Personalizzati',
-  'OPPORTUNITYCUSTOMFIELDS' => 'Campi Opportunit&agrave;  Personalizzati',
-  'HELPDESKCUSTOMFIELDS' => 'Campi Assistenza Clienti Personalizzati',
-  'PRODUCTCUSTOMFIELDS' => 'Campi Prodotti Personalizzati',
-  'VENDORCUSTOMFIELDS' => 'Campi Fornitore Personalizzati',
-  'PRICEBOOKCUSTOMFIELDS' => 'Campi Listino Personalizzati',
-  'POCUSTOMFIELDS' => 'Campi Ordine di Acquisto Personalizzati',
-  'SOCUSTOMFIELDS' => 'Campi Ordine di Vendita Personalizzati',
-  'QUOTESCUSTOMFIELDS' => 'Campi Preventivo Personalizzati',
-  'INVOICECUSTOMFIELDS' => 'Campi Fattura Personalizzati',
-  'EDITLEADPICKLISTVALUES' => 'Modifica la Picklist dei Lead',
-  'EDITACCOUNTPICKLISTVALUES' => 'Modifica la Picklist delle Aziende',
-  'EDITCONTACTPICKLISTVALUES' => 'Modifica la Picklist dei Contatti',
-  'EDITOPPORTUNITYPICKLISTVALUES' => 'Modifica la Picklist Opportunit&agrave;',
-  'EDITHELPDESKPICKLISTVALUES' => 'Modifica la PickList Assistenza Clienti',
-  'EDITPRODUCTPICKLISTVALUES' => 'Modifica la Picklist Prodotti',
-  'EDITEVENTPICKLISTVALUES' => 'Modifica la  Picklist Evento',
-  'EDITTASKPICKLISTVALUES' => 'Modifica la Picklist Compito',
-  'EDITRSSPICKLISTVALUES' => 'Modifica la Picklist Rss',
-  'EDITVENDORPICKLISTVALUES' => 'Modifica la Picklist Fornitore',
-  'EDITPBPICKLISTVALUES' => 'Modifica la Picklist Listino',
-  'EDITPOPICKLISTVALUES' => 'Modifica la Picklist Ordine di Acquisto',
-  'EDITSOPICKLISTVALUES' => 'Modifica la Picklist Ordine di Vendita',
-  'EDITQUOTEPICKLISTVALUES' => 'Modifica la Picklist Preventivo',
-  'EDITINVOICEPICKLISTVALUES' => 'Modifica la Picklist Fattura',
   'LBL_PICKLIST_FIELD_SETTINGS' => 'Impostazioni Campi Picklist:',
   'Leads' => 'Lead',
   'Accounts' => 'Azienda',
@@ -140,8 +109,8 @@ $mod_strings = array (
   'LBL_PROXY_SETTINGS' => 'Server Proxy',
   'LBL_AUDIT_TRAIL' => 'Informazioni di Controllo Utente',
   'LBL_ENABLE_AUDIT_TRAIL' => 'Abilita Controllo Utente',
-  'AuditTrailEnabled' => 'Audit Trail Enabled',
-  'AuditTrailDisabled' => 'Audit Trail Disabled',
+  'AuditTrailEnabled' => 'Audit Trail attivato',
+  'AuditTrailDisabled' => 'Audit Trail disattivato',
   'LBL_USER_AUDIT' => 'Seleziona Utente',
   'LBL_VIEW_AUDIT_TRAIL' => 'Vedi Controllo Utente',
   'LBL_AUDIT_TRAIL_DESC' => 'Mostra il Controllo Utente per coloro che hanno fatto accesso al CRM',
@@ -326,7 +295,6 @@ $mod_strings = array (
   'LBL_FIELD_MAPPING' => 'Mappatura Campi',
   'LBL_LEAD_FIELD' => 'Campo Personalizzato Lead',
   'LBL_TEXT_AREA' => 'Area di testo',
-  'NOTESCUSTOMFIELDS' => 'Campi Personalizzati Note',
   'LBL_ASSIGN_MODULE_OWNERS' => 'Assegna proprietari dei moduli',
   'LBL_MODULE_OWNERS' => 'Proprietari Modulo',
   'LBL_ASSIGN_MODULE_OWNERS_INFO' => ' - Assegna Proprietari per ciascun modulo',
@@ -436,7 +404,7 @@ $mod_strings = array (
   'LBL_CONTACT_FIELDS' => 'Campi Contatto',
   'LBL_LEAD_FIELDS' => 'Campi Lead',
   'LBL_USER_FIELDS' => 'Campi Utente',
-	'LBL_HELPDESK_FIELDS'=>'Ticket Fields',
+  'LBL_HELPDESK_FIELDS'=>'Ticket Fields',
   'LNK_SAMPLE_EMAIL' => 'Visualizza email di esempio',
   'LBL_TEMPLATE_FILE' => 'File di Template',
   'LBL_MODULENAMES' => 'Modulo',
@@ -560,7 +528,7 @@ $mod_strings = array (
   'LBL_CHECK_ASSIGNEDTO_MAILID' => 'Prego verificare l`identificativo email di Assegnato A',
   'LBL_MAILSENDERROR' => 'La mail non pu&ograve; essere inviata all`amministratore. Verifica le configurazioni del mail server e la email dell`amministratore',
   'LBL_RECORD_NOEXIST' => 'Record non presente',
-  'Could not get file list' => 'Could not get file list',
+  'Could not get file list' => 'Lista file non trovata',
   'LBL_ENTER_PROFILE' => 'Inserisci il nome del profilo',
   'LBL_PROXY' => 'proxy',
   'LBL_FIELDS_TO_BE_SHOWN' => 'Campi da visualizzare',
@@ -590,7 +558,9 @@ $mod_strings = array (
   'LBL_SELECT_EMAIL_TEMPLATE_FOR' => 'Scegli il Template Email',
   'ERR_CUSTOM_FIELD_WITH_NAME'=>'Campo Personalizzato con il Nome',
   'ERR_ALREADY_EXISTS'=>' esiste gi&agrave;.',
-  'ERR_SPECIFY_DIFFERENT_LABEL'=>'Prego specifica una etichetta diversa',
+'ERR_SPECIFY_DIFFERENT_LABEL'=>'Prego specifica una etichetta diversa',
+'ROWSIZEERROR' => 'Row size too large. Reached maximum size limit of database table size.',
+  'ADDFIELDERROR' => 'Custom field could not be added due to a database error.',
   'LBL_TOOLS_TO_BE_SHOWN'=>'Strumenti da mostrare',
   'LBL_PICKLIST_GLOBAL_DELETE'=>'Eliminazione Globale',
   'LBL_PICKLIST_TRANSFER'=>'Trasferendo i valori di ',
@@ -694,6 +664,7 @@ $mod_strings = array (
 'LBL_SCANNING' => 'Scansionamento', //? bisognerebbe scambiare le stringhe (mail scanner)
 'LBL_LOOKFOR' => 'Cerca',
 'LBL_UNREAD' => 'Non Letto',
+'LBL_ALLUNREAD'=>'ALL Unread',
 'LBL_READ' => 'Letto',
 'LBL_AFTER_SCAN' => 'Dopo scansione',
 'LBL_MESSAGES_FROM_LASTSCAN' => 'Messaggi dopo l\'ultima scansione',
@@ -715,7 +686,7 @@ $mod_strings = array (
 'LBL_EVERYTIME_RECORD_SAVED' => 'Ogni volta che il record viene salvato',
 'LBL_ON_MODIFY' => 'Ogni volta che il record viene modificato',
 'LBL_ON_SCHEDULE' => 'Schedule',
-'LBL_ON_DELETE' => 'When record is deleted',
+'LBL_ON_DELETE' => 'Quando il record è stato cancellato',
 'LBL_CONDITIONS' => 'Condizioni',
 'LBL_NEW_CONDITION_BUTTON_LABEL' => 'Nuova Condizione',
 'LBL_TASKS' => 'Operazioni',
@@ -798,8 +769,6 @@ $mod_strings = array (
 'LBL_MAPPED_FIELDS' => 'Campi Mappati',
 'LEADS_CUSTOM_FIELD_MAPPING_DESCRIPTION' => 'Mappa i campi personalizzati dei Leads con Aziende,Contatti e Opportunit&agrave;',
 'LEADS_CUSTOM_FIELD_MAPPING' => 'Mappatura Campi Personalizzati Leads',
-'LBL_CALENDER_CUSTOMFIELDS' => 'Campi Personalizzati Calendario',
-'LBL_CALENDER_CUSTOMFIELDS_DESCRIPTION' => 'Puoi creare Campi Personalizzati per il Calendario',
 'LBL_GO_BACK' => 'Torna Indietro',
 'LBL_USE_PREFIX' => 'Usa Prefisso',
 'LBL_START_SEQ' => 'Personalizza Numero',
@@ -828,16 +797,13 @@ $mod_strings = array (
 'LBL_PICKLIST_DEPENDENCY_SETUP' => 'Impostazioni Dipendenze Menu a Tendina',
 'LBL_PICKLIST_DEPENDENCY_DESCRIPTION' => 'Imposta le dipendenze tra menu a tendina per i diversi moduli',
 'Settings' => 'Impostazioni',
-'LBL_ERR_TAX_LABEL_ALREADY_EXISTS' => 'TTassa gia disponibile.',
+'LBL_ERR_TAX_LABEL_ALREADY_EXISTS' => 'Tassa già disponibile.',
 'LBL_ERR_SOME_TAX_LABELS_ALREADY_EXISTS' => 'Alcuni nomi di tassa sono gia utilizzati, anche se non salvati.',
-'LBL_ERR_ADDTAX' => 'There may be some problem in adding the Tax type. Please try again',
+'LBL_ERR_ADDTAX' => 'Possono esserci dei problemi quando si aggiunge il tipo di tassa. Prego riprovare di nuovo',
 'Configuration Editor'=>'Editor Configurazione',
 'ModTracker' => 'ModTracker',
 'LBL_MODTRACKER_DESCRIPTION' => 'Selezionare i moduli da tracciare',
-'LBL_MENUS_TO_SHOW'=>'Selezionare i moduli da visualizzare nel menu principale',
-'LBL_MENU_DESC'=>'Personalizza sequenza menu',
 'LBL_MENU_EDITOR'=>'Editor Menu',
-'LBL_MENUS_TO_SHOW_DESCRIPTION' => 'Puoi usare le frecce per ordinare le voci di menu. Le prime 10 voci compariranno nel menu principale e le restanti verranno mostrate nel menu a tendina <b><i>Altro</i></b>',
 'LBL_ALL_MODULES' => 'Tutti i moduli',
 'LBL_SELECTED_MODULES' => 'Moduli selezionati',
 'LBL_CRM_SETTINGS' => 'Impostazioni CRM',
@@ -864,5 +830,8 @@ $mod_strings = array (
 // language translation strings
 'SendEmailFrom' => 'Invia Email Da',
 'LeaveEmptyForUserEmail' => 'Lascia vuoto per usare il tuo indirizzo mail',
+'LBL_OPENSSL_SUPPORT' => 'Supporto OpenSSL',
+'LBL_IMAP_SUPPORT' => 'Supporto IMAP',
+'StorageSpaceUsage' => 'Storage Space Usage',
 );
 ?>

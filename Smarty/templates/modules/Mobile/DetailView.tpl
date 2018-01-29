@@ -74,11 +74,11 @@
 					<input type="hidden" name="{$_FIELD->name()}" id="{$_FIELD->name()}" value="{$_FIELD->valueLabel()}">
 					<div class="ui-grid-a">
 						<div class="ui-block-a">
-							{if $_MODULE->name() eq 'Calendar' || $_MODULE->name() eq 'Events'}
+							{if $_MODULE->name() eq 'cbCalendar'}
 								{if $_FIELD->name() eq 'date_start'}
 									{'Start Date'|@getTranslatedString:$_MODULE->name()}:
-								{elseif $_FIELD->name() neq 'reminder_time' && $_FIELD->name() neq 'recurringtype' && $_FIELD->name() neq 'duration_hours' && $_FIELD->name() neq 'duration_minutes' && $_FIELD->name() neq 'notime' && $_FIELD->name() neq 'location'}
-									{if ($_FIELD->name() neq 'eventstatus' && $_FIELD->name() neq 'taskstatus') || $_FIELD->valueLabel() neq ''}
+								{elseif $_FIELD->name() neq 'reminder_time' && $_FIELD->name() neq 'recurringtype' && $_FIELD->name() neq 'duration_hours' && $_FIELD->name() neq 'duration_minutes' && $_FIELD->name() neq 'notime' && $_FIELD->name() neq 'location' && $_FIELD->name() neq 'dtstart' && $_FIELD->name() neq 'dtend'}
+									{if ($_FIELD->name() neq 'eventstatus') || $_FIELD->valueLabel() neq ''}
 										{$_FIELD->label()}:
 									{/if}
 								{/if}
@@ -100,7 +100,7 @@
 									</a>
 								{/if}
 							{else}
-								{if ($_MODULE->name() eq 'Calendar' || $_MODULE->name() eq 'Events') && $_FIELD->name() neq 'reminder_time' && $_FIELD->name() neq 'recurringtype' && $_FIELD->name() neq 'duration_hours' && $_FIELD->name() neq 'duration_minutes' && $_FIELD->name() neq 'notime' && $_FIELD->name() neq 'location'}
+								{if $_MODULE->name() eq 'cbCalendar' && $_FIELD->name() neq 'reminder_time' && $_FIELD->name() neq 'recurringtype' && $_FIELD->name() neq 'duration_hours' && $_FIELD->name() neq 'duration_minutes' && $_FIELD->name() neq 'notime' && $_FIELD->name() neq 'location' && $_FIELD->name() neq 'dtstart' && $_FIELD->name() neq 'dtend'}
 									{if $_FIELD->name() eq 'date_start' ||$_FIELD->name() eq 'due_date'}
 										{$_FIELD->valueLabel()}
 									{else}
@@ -111,12 +111,12 @@
 												{$MOD.LBL_NO}
 											{/if}
 										{else}
-											{if ($_FIELD->name() neq 'eventstatus' && $_FIELD->name() neq 'taskstatus') || $_FIELD->valueLabel() neq ''}
+											{if $_FIELD->name() neq 'eventstatus' || $_FIELD->valueLabel() neq ''}
 												{$_FIELD->valueLabel()|@getTranslatedString:$_MODULE->name()}
 											{/if}
 										{/if}
 									{/if}
-								{elseif $_MODULE->name() neq 'Calendar' && $_MODULE->name() neq 'Events'}
+								{elseif $_MODULE->name() neq 'cbCalendar'}
 									{if $_FIELD->uitype() eq '56'}
 										{if $_FIELD->valueLabel() eq '1'}
 											{$MOD.LBL_YES}
@@ -132,6 +132,8 @@
 										{elseif $_FIELD->uitype() eq 'crm_app_map'}
 											<a  href="http://maps.google.com/maps?q={$_FIELD->valueLabel()}"  target="_blank" class="ui-btn  ui-corner-all ui-icon-location ui-btn-icon-right" data-rel="dialog">Google Maps: {$_FIELD->label()}
 											</a>
+										{elseif $_FIELD->uitype() eq '13'}
+											<a href="#" onclick="window.location.href ='mailto:{$_FIELD->valueLabel()}';">{$_FIELD->valueLabel()} </a>
 										{elseif $_FIELD->uitype() eq '5' || $_FIELD->uitype() eq '23'}
 											{$_FIELD->valueLabel()}
 										{elseif $_FIELD->uitype() eq '9'}
@@ -161,7 +163,7 @@
 	<div data-role="footer" data-theme="{$COLOR_HEADER_FOOTER}" data-position="fixed">
 		<a href="?_operation=deleteConfirmation&module={$_MODULE->name()}&record={$_RECORD->id()}&&lang={$LANGUAGE}" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext" data-rel="dialog" data-iconpos="left" data-prefetch>{$MOD.LBL_DELETE}</a>
 		{if $_MODULE->name() eq "HelpDesk" && 'Timecontrol'|vtlib_isModuleActive}
-		<a href="?_operation=create&module=Timecontrol&record=''&relatedto={$_RECORD->id()}" class="ui-btn ui-btn-right ui-corner-all ui-icon-clock ui-btn-icon-notext" data-transition="turn" data-iconpos="right">{$MOD.LBL_NEW}</a>
+		<a href="?_operation=create&module=Timecontrol&record=''&relatedto={$_RECORD->id()}" class="ui-btn ui-btn-right ui-corner-all ui-icon-clock ui-btn-icon-notext" rel="external" data-transition="slideup" data-iconpos="right">{$MOD.LBL_NEW}</a>
 		{/if}
 	</div>
 	{include file="modules/Mobile/PanelMenu.tpl"}

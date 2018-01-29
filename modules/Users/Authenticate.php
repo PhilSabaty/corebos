@@ -12,18 +12,37 @@ require_once('modules/Users/CreateUserPrivilegeFile.php');
 require_once('include/logging.php');
 require_once('user_privileges/audit_trail.php');
 
-global $mod_strings, $default_charset, $adb;
+global $mod_strings, $default_charset, $adb, $cbodUniqueUserConnection;
 
 $focus = new Users();
 
 // Add in defensive code here.
-$focus->column_fields["user_name"] = to_html(vtlib_purify($_REQUEST['user_name']));
-$user_password = $_REQUEST['user_password'];
+$focus->column_fields["user_name"] = to_html(vtlib_purify($_POST['user_name']));
+$user_password = isset($_POST['user_password']) ? $_POST['user_password'] : '';
 
 $focus->load_user($user_password);
 
-if($focus->is_authenticated())
-{
+if ($cbodUniqueUserConnection && $focus->loggedIn() && (empty($_REQUEST['unblock']) || $_REQUEST['unblock'] != 'on')) {
+	coreBOS_Session::set('login_user_name', $focus->column_fields['user_name']);
+	coreBOS_Session::set('login_password', $user_password);
+	// go back to the login screen and create an error message for the user.
+	if ($focus->canUnblock()) {
+		coreBOS_Session::set('login_error', $mod_strings['ERR_USER_CAN_UNBLOCK']);
+		coreBOS_Session::set('can_unblock', 1);
+	} else {
+		coreBOS_Session::set('login_error', $mod_strings['ERR_USER_LOGGED_IN']);
+		coreBOS_Session::set('can_unblock', 0);
+	}
+	header('Location: index.php');
+	exit;
+}
+
+if ($focus->is_authenticated() and !$focus->is_twofaauthenticated()) {
+	coreBOS_Session::set('login_user_name', $focus->column_fields['user_name']);
+	include 'modules/Users/do2FAAuthentication.php';
+	die();
+}
+if ($focus->is_authenticated() and $focus->is_twofaauthenticated()) {
 	coreBOS_Session::destroy();
 	//Inserting entries for audit trail during login
 	if ($audit_trail == 'true') {
@@ -41,18 +60,18 @@ if($focus->is_authenticated())
 	$loghistory=new LoginHistory();
 	$Signin = $loghistory->user_login($focus->column_fields["user_name"],$usip,$intime);
 
-	//Security related entries start
 	require_once('include/utils/UserInfoUtil.php');
-
 	createUserPrivilegesfile($focus->id);
 
-	//Security related entries end
 	coreBOS_Session::delete('login_password');
 	coreBOS_Session::delete('login_error');
 	coreBOS_Session::delete('login_user_name');
 
 	coreBOS_Session::set('authenticated_user_id', $focus->id);
 	coreBOS_Session::set('app_unique_key', $application_unique_key);
+	$connection_id = uniqid();
+	coreBOS_Session::set('conn_unique_key', $connection_id);
+	coreBOS_Settings::setSetting('cbodUserConnection'.$focus->id, $connection_id);
 
 	//Enabled session variable for KCFINDER
 	coreBOS_Session::setKCFinderVariables();
@@ -113,7 +132,14 @@ else
 	coreBOS_Session::set('login_user_name', $focus->column_fields["user_name"]);
 	coreBOS_Session::set('login_password', $user_password);
 	if (empty($_SESSION['login_error'])) {
-		coreBOS_Session::set('login_error', ($failed_login_attempts>=$maxFailedLoginAttempts ? $mod_strings['ERR_MAXLOGINATTEMPTS'] : $mod_strings['ERR_INVALID_PASSWORD']));
+		if ($failed_login_attempts >= $maxFailedLoginAttempts) {
+			$errstr = $mod_strings['ERR_MAXLOGINATTEMPTS'];
+		} elseif (!$focus->is_twofaauthenticated()) {
+			$errstr = $mod_strings['ERR_INVALID_2FACODE'];
+		} else {
+			$errstr = $mod_strings['ERR_INVALID_PASSWORD'];
+		}
+		coreBOS_Session::set('login_error', $errstr);
 	}
 	cbEventHandler::do_action('corebos.audit.login.attempt',array(0, $focus->column_fields["user_name"], 'Login Attempt', 0, date('Y-m-d H:i:s')));
 	// go back to the login screen.

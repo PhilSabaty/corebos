@@ -44,16 +44,17 @@ if(isset($_REQUEST['record']) && $_REQUEST['record'] !='') {
 	$result = $adb->pquery($query, array($focus->id));
 	$from_email = $adb->query_result($result,0,'from_email');
 	$smarty->assign('FROM_MAIL',$from_email);
-	$to_email = implode(',',json_decode($adb->query_result($result,0,'to_email'),true));
+	$to_email = decode_html($adb->query_result($result,0,'to_email'));
+	$to_email = implode(',',json_decode($to_email,true));
 	$smarty->assign('TO_MAIL',$to_email);
-	$cc_add = implode(',',json_decode($adb->query_result($result,0,'cc_email'),true));
+	$cc_add = decode_html($adb->query_result($result,0,'cc_email'));
+	$cc_add = implode(',',json_decode($cc_add,true));
 	$smarty->assign('CC_MAIL',$cc_add);
-	$bcc_add = implode(',',json_decode($adb->query_result($result,0,'bcc_email'),true));
+	$bcc_add = decode_html($adb->query_result($result,0,'bcc_email'));
+	$bcc_add = implode(',',json_decode($bcc_add,true));
 	$smarty->assign('BCC_MAIL',$bcc_add);
 	$idlist = $adb->query_result($result,0,'idlists');
 	$smarty->assign('IDLISTS',$idlist);
-	$log->info("Entity info successfully retrieved for EditView.");
-	$focus->name=$focus->column_fields['name'];
 }
 elseif(isset($_REQUEST['sendmail']) && $_REQUEST['sendmail'] !='')
 {
@@ -132,8 +133,13 @@ if(isset($_REQUEST["internal_mailer"]) and $_REQUEST["internal_mailer"] == "true
 		//check added for email link in user detail view
 		$module_focus = Vtiger_Module::getInstance($type);
 		$field_focus = Vtiger_Field::getInstance($fieldname,$module_focus);
-		$q = "select $fieldname from " . $field_focus->table . " where " . $module_focus->basetableid. "= ?";
-		$email1 = $adb->query_result($adb->pquery($q, array($rec_id)),0,$fieldname);
+		if ($field_focus) {
+			$q = 'select ' . $field_focus->name . ' from ' . $field_focus->table . ' where ' . $module_focus->basetableid. '= ?';
+			$rsfn = $adb->pquery($q, array($rec_id));
+			$email1 = $adb->query_result($rsfn,0,$fieldname);
+		} else {
+			$email1 = '';
+		}
 	} elseif ($rec_type == "email_addy") {
 		$email1 = vtlib_purify($_REQUEST["email_addy"]);
 	}
@@ -270,19 +276,19 @@ $smarty->assign("ATT_ID_LIST",$att_id_list);
 if (isset($_REQUEST['contact_name']) && is_null($focus->contact_name)) {
 	$focus->contact_name = vtlib_purify($_REQUEST['contact_name']);
 }
-if (isset($_REQUEST['contact_id']) && is_null($focus->contact_id)) {
+if (isset($_REQUEST['contact_id']) && empty($focus->contact_id)) {
 	$focus->contact_id = vtlib_purify($_REQUEST['contact_id']);
 }
-if (isset($_REQUEST['parent_name']) && is_null($focus->parent_name)) {
+if (isset($_REQUEST['parent_name']) && empty($focus->parent_name)) {
 	$focus->parent_name = vtlib_purify($_REQUEST['parent_name']);
 }
-if (isset($_REQUEST['parent_id']) && is_null($focus->parent_id)) {
+if (isset($_REQUEST['parent_id']) && empty($focus->parent_id)) {
 	$focus->parent_id = vtlib_purify($_REQUEST['parent_id']);
 }
 if (isset($_REQUEST['parent_type'])) {
 	$focus->parent_type = vtlib_purify($_REQUEST['parent_type']);
 }
-if (isset($_REQUEST['filename']) && $_REQUEST['isDuplicate'] != 'true') {
+if (isset($_REQUEST['filename']) && (empty($_REQUEST['isDuplicate']) || $_REQUEST['isDuplicate'] != 'true')) {
 	$focus->filename = vtlib_purify($_REQUEST['filename']);
 } else {
 	if (GlobalVariable::getVariable('Application_B2B', '1')) {
@@ -299,6 +305,7 @@ global $current_language;
 $smarty->assign('LANGUAGE', $current_language);
 $smarty->assign("MOD", $mod_strings);
 $smarty->assign("APP", $app_strings);
+$smarty->assign('LBL_CHARSET', $default_charset);
 if (isset($focus->name)) $smarty->assign("NAME", $focus->name);
 else $smarty->assign("NAME", "");
 
@@ -360,14 +367,21 @@ if(isset($ret_error) and $ret_error == 1) {
 		$smarty->assign("BCC_MAIL",$ret_bccaddress);
 	if($ret_description != '')
 		$smarty->assign("DESCRIPTION", $ret_description);
-	$temp_obj = new MailBox($mailbox);
+	$smarty->assign('mailid','');
+	$smarty->assign('mailbox','');
+	$temp_obj = new MailBox();
 	$temp_id = $temp_obj->boxinfo['mail_id'];
-	if($temp_id != '')
+	if ($temp_id != '') {
 		$smarty->assign('from_add',$temp_id);
+	} else {
+		$smarty->assign('from_add','');
+	}
 }
 $check_button = Button_Check($module);
 $smarty->assign("CHECK", $check_button);
-$smarty->assign('LISTID',vtlib_purify($_REQUEST['idlist']));
+$smarty->assign('LISTID',(isset($_REQUEST['idlist']) ? vtlib_purify($_REQUEST['idlist']) : ''));
+
+$smarty->assign('EMail_Maximum_Number_Attachments',GlobalVariable::getVariable('EMail_Maximum_Number_Attachments',6));
 
 $smarty->display("ComposeEmail.tpl");
 ?>

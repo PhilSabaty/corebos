@@ -40,7 +40,7 @@ class Google_List_View  {
         $viewer->assign('STATE', 'home');
         $viewer->assign('SYNCTIME', Google_Utils_Helper::getLastSyncTime($sourceModule));
         $viewer->assign('SOURCEMODULE', $request->get('sourcemodule'));
-        $viewer->assign('SCRIPTS',$this->getHeaderScripts($request));
+        $viewer->assign('SCRIPTS','');
         global $coreBOS_app_name;
         $coreBOS_uiapp_name = GlobalVariable::getVariable('Application_UI_Name',$coreBOS_app_name);
         $viewer->assign('coreBOS_uiapp_name',$coreBOS_uiapp_name);
@@ -107,21 +107,6 @@ class Google_List_View  {
     }
 
     /**
-     * Sync Calendar Records
-     * @return <array> Count of Calendar Records
-     */
-    public function Calendar($userId = false) {
-        global $current_user;
-        $user = $current_user;
-        $controller = new Google_Calendar_Controller($user);
-        $records = $controller->synchronize();
-        $syncRecords = $this->getSyncRecordsCount($records);
-        $syncRecords['vtiger']['more'] = $controller->targetConnector->moreRecordsExits();
-        $syncRecords['google']['more'] = $controller->sourceConnector->moreRecordsExits();
-        return $syncRecords;
-    }
-
-    /**
      * Removes Synchronization
      */
     function removeSynchronization($request) {
@@ -169,7 +154,7 @@ class Google_List_View  {
                 if (count($records) == 0) {
                     $pullRecord = true;
                 }
-                foreach ($records as $type => $record) {
+                foreach ($records as $record) {
                     foreach ($record as $type => $data) {
                         if ($type == 'target') {
                             if ($data->getMode() == WSAPP_SyncRecordModel::WSAPP_UPDATE_MODE) {
@@ -190,16 +175,6 @@ class Google_List_View  {
         }
         return $countRecords;
     }
-
-	/**
-	 * Function to get the list of Script models to be included
-	 * @param Vtiger_Request $request
-	 * @return <Array> - List of Vtiger_JsScript_Model instances
-	 */
-	public function getHeaderScripts(Vtiger_Request $request) {
-		$moduleName = $request->getModule();
-		return $this->checkAndConvertJsScripts(array("~libraries/bootstrap/js/bootstrap-popover.js","modules.$moduleName.resources.List"));
-	}
 
 	public function validateRequest(Vtiger_Request $request) {
 		//don't do validation because there is a redirection from google

@@ -35,7 +35,7 @@
 	<input type="hidden" name="campaignid" value="{if isset($campaignid)}{$campaignid}{/if}">
 
 {elseif $MODULE eq 'Potentials'}
-	<input type="hidden" name="contact_id" value="{$CONTACT_ID}">
+	<input type="hidden" name="contact_id" value="{if isset($CONTACT_ID)}{$CONTACT_ID}{/if}">
 
 {elseif $MODULE eq 'Calendar'}
 	<input type="hidden" name="activity_mode" value="{$ACTIVITY_MODE}">
@@ -69,5 +69,8 @@
 <input type="hidden" name="createmode" value="{$CREATEMODE}" />
 <input type="hidden" name="cbcustominfo1" value="{if isset($smarty.request.cbcustominfo1)}{$smarty.request.cbcustominfo1|@urlencode}{/if}" />
 <input type="hidden" name="cbcustominfo2" value="{if isset($smarty.request.cbcustominfo2)}{$smarty.request.cbcustominfo2|@urlencode}{/if}" />
+{if isset($DUPLICATE) && $DUPLICATE eq 'true'}
+<input type="hidden" name="__cbisduplicatedfromrecordid" value="{$__cbisduplicatedfromrecordid}" />
+{/if}
 <input type="hidden" name="Module_Popup_Edit" value="{if isset($smarty.request.Module_Popup_Edit)}{$smarty.request.Module_Popup_Edit|@urlencode}{/if}" />
 

@@ -9,11 +9,10 @@
  ********************************************************************************/
 
 //check for mail server configuration through ajax
-if(isset($_REQUEST['server_check']) && $_REQUEST['server_check'] == 'true')
-{
-	$sql='select * from vtiger_systems where server_type = ?';
+if (isset($_REQUEST['server_check']) && $_REQUEST['server_check'] == 'true') {
+	$sql = 'select 1 from vtiger_systems where server_type = ?';
 	$emailcfg = $adb->pquery($sql, array('email'));
-	if($adb->num_rows($emailcfg)>0) {
+	if ($adb->num_rows($emailcfg)>0) {
 		$upload_file_path = decideFilePath();
 		if (!is_writable($upload_file_path)) {
 			echo 'FAILURESTORAGE';
@@ -195,11 +194,13 @@ if(isset($_REQUEST['send_mail']) && $_REQUEST['send_mail'] && $_REQUEST['parent_
 } elseif( isset($_REQUEST['send_mail']) && $_REQUEST['send_mail'])
 	include("modules/Emails/mailsend.php");
 
-if(isset($_REQUEST['return_action']) && $_REQUEST['return_action'] == 'mailbox')
+if (isset($_REQUEST['return_action']) && $_REQUEST['return_action'] == 'mailbox') {
 	header('Location: index.php?action=index&module='.urlencode($return_module));
-else {
-	if($_REQUEST['return_viewname'] == '') $return_viewname='0';
-	if($_REQUEST['return_viewname'] != '')$return_viewname=vtlib_purify($_REQUEST['return_viewname']);
+} elseif (isset($_REQUEST['return_action'])) {
+	header('Location: index.php?action='.urlencode($return_action).'&module='.urlencode($return_module).'&record='.urlencode($return_id));
+} else {
+	if (empty($_REQUEST['return_viewname'])) $return_viewname = '0';
+	if (!empty($_REQUEST['return_viewname'])) $return_viewname = vtlib_purify($_REQUEST['return_viewname']);
 	//Added for 4600
 	$inputs="<script>window.opener.location.href=window.opener.location.href;window.self.close();</script>";
 	echo $inputs;

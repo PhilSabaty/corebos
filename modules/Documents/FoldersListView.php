@@ -133,23 +133,8 @@ $smarty->assign('export_where',to_html($where));
 
 $focus->query = $query;
 
-if($viewid ==0) {
-	echo "<table border='0' cellpadding='5' cellspacing='0' width='100%' height='450px'><tr><td align='center'>
-		<div style='border: 3px solid rgb(153, 153, 153); background-color: rgb(255, 255, 255); width: 55%; position: relative; z-index: 10000000;'>
-		<table border='0' cellpadding='5' cellspacing='0' width='98%'>
-		<tbody><tr>
-		<td rowspan='2' width='11%'><img src='". vtiger_imageurl('denied.gif', $theme) ."' ></td>
-		<td style='border-bottom: 1px solid rgb(204, 204, 204);' nowrap='nowrap' width='70%'><span clas
-		s='genHeaderSmall'>".$app_strings['LBL_PERMISSION']."</span></td>
-		</tr>
-		<tr>
-		<td class='small' align='right' nowrap='nowrap'>
-		<a href='javascript:window.history.back();'>".$app_strings['LBL_GO_BACK']."</a><br>
-		</td>
-		</tr>
-		</tbody></table>
-		</div>
-		</td></tr></table>";
+if ($viewid ==0) {
+	$smarty->display('modules/Vtiger/OperationNotPermitted.tpl');
 	exit;
 }
 
@@ -278,10 +263,14 @@ $smarty->assign('FOLDERS', $folders);
 $smarty->assign('EMPTY_FOLDERS', $emptyfolders);
 $smarty->assign('ALL_FOLDERS', array_merge($folders, $emptyfolders));
 
+$smarty->assign("AVALABLE_FIELDS", getMergeFields($currentModule,"available_fields"));
+$smarty->assign("FIELDS_TO_MERGE", getMergeFields($currentModule,"fileds_to_merge"));
+
 //Added to select Multiple records in multiple pages
 $smarty->assign('SELECTEDIDS', (isset($_REQUEST['selobjs']) ? vtlib_purify($_REQUEST['selobjs']) : ''));
 $smarty->assign('ALLSELECTEDIDS', (isset($_REQUEST['allselobjs']) ? vtlib_purify($_REQUEST['allselobjs']) : ''));
 $smarty->assign('CURRENT_PAGE_BOXES', '');
+ListViewSession::setSessionQuery($currentModule,$focus->query,$viewid);
 
 $alphabetical = AlphabeticalSearch($currentModule,'index','notes_title','true','basic','','','','',$viewid);
 $fieldnames = $controller->getAdvancedSearchOptionString();
@@ -295,15 +284,13 @@ $smarty->assign("IS_ADMIN",$adminuser);
 $check_button = Button_Check($module);
 $smarty->assign("CHECK", $check_button);
 
-ListViewSession::setSessionQuery($currentModule,$focus->query,$viewid);
-
 // Gather the custom link information to display
 include_once('vtlib/Vtiger/Link.php');
 $customlink_params = Array('MODULE'=>$currentModule, 'ACTION'=>vtlib_purify($_REQUEST['action']), 'CATEGORY'=> $category);
 $smarty->assign('CUSTOM_LINKS', Vtiger_Link::getAllByType(getTabid($currentModule), Array('LISTVIEWBASIC','LISTVIEW'), $customlink_params));
 
 // Search Panel Status
-$DEFAULT_SEARCH_PANEL_STATUS = GlobalVariable::getVariable('Application_Search_Panel_Open',1);
+$DEFAULT_SEARCH_PANEL_STATUS = GlobalVariable::getVariable('Application_ListView_SearchPanel_Open',1);
 $smarty->assign('DEFAULT_SEARCH_PANEL_STATUS',($DEFAULT_SEARCH_PANEL_STATUS ? 'display: block' : 'display: none'));
 
 if((isset($_REQUEST['ajax']) && $_REQUEST['ajax'] != '') || (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'ajax'))

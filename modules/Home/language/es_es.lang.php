@@ -72,7 +72,7 @@ $mod_strings = Array(
 'LBL_HOME_STUFFTITLE'=>'Título Ventana',
 'LBL_HOME_SHOW'=>'Mostrar',
 'LBL_HOME_FILTERBY'=>'Filtrar Por',
-'LBL_HOME_Fields'=>'Campos a Mostrar <br>(selecciona dos)',
+'LBL_HOME_Fields'=>'Campos a Mostrar',
 'LBL_HOME_PRESSCTRL'=>'(Pulsa "Ctrl" <br> para seleccionar varios)',
 'LBL_HOME_RSSURL'=>'RSS URL',
 'LBL_HOME_DASHBOARD_NAME'=>'Nombre Análisis', 
@@ -134,6 +134,9 @@ $mod_strings = Array(
 'LBL_HOME_ADDWINDOW' => 'Añadir Ventana',
 'LBL_GETTING_STARTED' => 'Empezando',
 'ExpirePasswordAfterDays' => 'Invalida Contraseña Después de Días',
+'FieldsNotFoundInFilter' => 'No se han encontrado campos en el filtro seleccionado',
+'FilterNotFound' => 'No se ha encontrado el filtro seleccionado',
+'Permission Denied' => 'Permiso Denegado',
 );
 
 ?>

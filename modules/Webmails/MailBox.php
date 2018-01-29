@@ -8,7 +8,6 @@
 * Portions created by FOSS Labs are Copyright (C) FOSS Labs.
 * All Rights Reserved.
 ************************************************************************************/
-include_once('config.php');
 require_once('include/logging.php');
 require_once('include/utils/utils.php');
 
@@ -97,8 +96,7 @@ class MailBox {
 		if ($current_mails<=0)$current_mails=0;
 
 		$mailOverviews = @imap_fetch_overview($this->mbox, "$start:$current_mails", 0);
-		$out = array("overview"=>$mailOverviews,"count"=>$numEmails);
-		return $out;
+		return array('overview'=>$mailOverviews,'count'=>$numEmails);
 	}
 
 	function searchMailList($searchstring,$page) {
@@ -131,7 +129,7 @@ class MailBox {
 	
 	function fullMailList() {
 		$mailHeaders = @imap_headers($this->mbox);
-		$numEmails = sizeof($mailHeaders);
+		$numEmails = count($mailHeaders);
 		$mailOverviews = @imap_fetch_overview($this->mbox, "1:$numEmails", 0);
 		$out = array("headers"=>$mailHeaders,"overview"=>$mailOverviews,"count"=>$numEmails);
 		return $out;

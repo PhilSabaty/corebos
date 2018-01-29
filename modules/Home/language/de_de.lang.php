@@ -61,7 +61,7 @@ $mod_strings = Array(
     'LBL_HOME_STUFFTITLE'=>'Fenstertitel',
     'LBL_HOME_SHOW'=>'liste',
     'LBL_HOME_FILTERBY'=>'Listenansicht',
-    'LBL_HOME_Fields'=>'anzuzeigende Inhalte <br>(1 oder 2 auswählen)',
+    'LBL_HOME_Fields'=>'anzuzeigende Inhalte',
     'LBL_HOME_PRESSCTRL'=>'(nutze "Strg" <br> für Mehrfachauswahl)',
     'LBL_HOME_RSSURL'=>'RSS URL',
     'LBL_HOME_DASHBOARD_NAME'=>'Cockpit Name', 
@@ -122,6 +122,9 @@ $mod_strings = Array(
 	'LBL_HOME_ADDWINDOW' => 'Add Window',
 	'LBL_GETTING_STARTED' => 'Getting Started',
 	'ExpirePasswordAfterDays' => 'Expire Password After Days',
+	'FieldsNotFoundInFilter' => 'Fields not found in Selected Filter',
+	'FilterNotFound' => 'Filter You have Selected is Not Found',
+	'Permission Denied' => 'Permission Denied',
 );
 
 ?>

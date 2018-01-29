@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once dirname(__FILE__) . '/../ISMSProvider.php';
+include_once __DIR__ . '/../ISMSProvider.php';
 include_once 'vtlib/Vtiger/Net/Client.php';
 
 class ClickATellREST implements ISMSProvider {
@@ -72,9 +72,7 @@ class ClickATellREST implements ISMSProvider {
 	}
 
 	public function send($message, $tonumbers) {
-		if(!is_array($tonumbers)) {
-			$tonumbers = array($tonumbers);
-		}
+		$tonumbers = (array)$tonumbers;
 
 		$params = array();
 		$params['content'] = $message;
@@ -91,7 +89,6 @@ class ClickATellREST implements ISMSProvider {
 		$httpClient->setBody(json_encode($params));
 		$response = $httpClient->doPost(false);
 		$rsp = json_decode($response,true);
-		global $log;$log->fatal($rsp);
 		$results = array();
 		if (empty($rsp['error'])) {
 			$responseLines = $rsp['messages'];

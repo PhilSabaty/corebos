@@ -89,7 +89,7 @@ function getSharingUserName($id) {
 		$params = array($current_user->id, $role_seq."::%", $current_user->id);
 		if (!empty($assigned_user_id)) {
 			$query .= " OR id=?";
-			array_push($params, $assigned_user_id);
+			$params[] = $assigned_user_id;
 		}
 		$query .= " order by user_name ASC";
 		$result = $adb->pquery($query, $params, true, "Error filling in user array: ");
@@ -120,8 +120,7 @@ function getaddEventPopupTime($starttime,$endtime,$format)
 	$timearr = Array();
 	list($sthr,$stmin) = explode(":",$starttime);
 	list($edhr,$edmin) = (!empty($endtime) ? explode(':',$endtime) : array('23','0'));
-	if($format == 'am/pm')
-	{
+	if ($format == '12' || $format == 'am/pm') {
 		$hr = $sthr+0;
 		$timearr['startfmt'] = ($hr >= 12) ? "pm" : "am";
 		if($hr == 0) $hr = 12;
@@ -133,18 +132,15 @@ function getaddEventPopupTime($starttime,$endtime,$format)
 		if($edhr == 0) $edhr = 12;
 		$timearr['endhour'] = twoDigit(($edhr>12)?($edhr-12):$edhr);
 		$timearr['endmin']  = $edmin;
-		return $timearr;
-	}
-	if($format == '24')
-	{
+	} else { // if ($format == '24') {
 		$timearr['starthour'] = twoDigit($sthr);
 		$timearr['startmin']  = $stmin;
 		$timearr['startfmt']  = '';
 		$timearr['endhour']   = twoDigit($edhr);
 		$timearr['endmin']    = $edmin;
 		$timearr['endfmt']    = '';
-		return $timearr;
 	}
+	return $timearr;
 }
 
 /**
@@ -244,7 +240,7 @@ function getActFieldCombo($fieldname,$tablename,$follow_activitytype = false) {
 		if(count($subrole)> 0)
 		{
 			$roleids = $subrole;
-			array_push($roleids, $roleid);
+			$roleids[] = $roleid;
 		}
 		else
 		{
@@ -291,22 +287,23 @@ function getAssignedTo($tabid)
 
 	if($is_admin==false && $profileGlobalPermission[2] == 1 && ($defaultOrgSharingPermission[$tabid] == 3 or $defaultOrgSharingPermission[$tabid] == 0))
 	{
-		$users_combo = get_select_options_array(get_user_array(FALSE, "Active", $assigned_user_id,'private'), $assigned_user_id);
+		$user_array = get_user_array(FALSE, 'Active', $assigned_user_id,'private');
 	}
 	else
 	{
-		$users_combo = get_select_options_array(get_user_array(FALSE, "Active", $assigned_user_id), $assigned_user_id);
+		$user_array = get_user_array(FALSE, 'Active', $assigned_user_id);
 	}
-	if($noof_group_rows!=0)
-	{
+	$users_combo = get_select_options_array($user_array, $assigned_user_id);
+	$group_option = array();
+	if ($noof_group_rows!=0) {
 		do
 		{
 			$groupname=$nameArray["groupname"];
-			$group_option[] = array($groupname=>$selected);
+			$group_option[] = array($groupname=>false);
 
 		}while($nameArray = $adb->fetch_array($result));
 	}
-	$fieldvalue[]=$users_combo;
+	$fieldvalue[] = $users_combo;
 	$fieldvalue[] = $group_option;
 	return $fieldvalue;
 }
@@ -321,7 +318,7 @@ function getActivityDetails($description,$user_id,$from='') {
 	global $log,$current_user,$current_language,$adb;
 	require_once 'include/utils/utils.php';
 	$mod_strings = return_module_language($current_language, 'Calendar');
-	$log->debug("Entering getActivityDetails(".$description.") method ...");
+	$log->debug("Entering getActivityDetails() method ...");
 	$updated = $mod_strings['LBL_UPDATED'];
 	$created = $mod_strings['LBL_CREATED'];
 	$reply = (($description['mode'] == 'edit')?"$updated":"$created");
@@ -375,9 +372,13 @@ function twoDigit( $no ){
 
 function timeString($datetime,$fmt){
 	if (is_object($datetime)) {
-		$dateStr = $datetime->year."-".twoDigit($datetime->month)."-".twoDigit($datetime->day);
+		$dateStr = (isset($datetime->year) ? $datetime->year : date('Y')) . '-';
+		$dateStr.= (isset($datetime->month) ? twoDigit($datetime->month) : twoDigit(date('m'))) . '-';
+		$dateStr.= (isset($datetime->day) ? twoDigit($datetime->day) : twoDigit(date('d')));
 	} else {
-		$dateStr = $datetime['year']."-".twoDigit($datetime['month'])."-".twoDigit($datetime['day']);
+		$dateStr = (isset($datetime['year']) ? $datetime['year'] : date('Y')) . '-';
+		$dateStr.= (isset($datetime['month']) ? twoDigit($datetime['month']) : twoDigit(date('m'))) . '-';
+		$dateStr.= (isset($datetime['day']) ? twoDigit($datetime['day']) : twoDigit(date('d')));
 	}
 	$timeStr = formatUserTimeString($datetime, $fmt);
 	$date = new DateTimeField($dateStr." ".$timeStr);

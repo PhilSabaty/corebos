@@ -6,25 +6,20 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-document.write("<script type='text/javascript' src='include/js/Mail.js'></script>");
-document.write("<script type='text/javascript' src='include/js/Merge.js'></script>");
-document.write('<div id="setaddressvendordiv" style="z-index:12;display:none;width:400px;top:30px;left:0;right:0;margin:auto;" class="layerPopup"></div>');
 
-function check4null(form)
-{
-	var isError = false;
-	var errorMessage = "";
-	if (trim(form.productname.value) =='') {
-		isError = true;
-		errorMessage += "\n Product Name";
-		form.productname.focus();
-	}
-	if (isError == true) {
-		alert(alert_arr.MISSING_REQUIRED_FIELDS + errorMessage);
-		return false;
-	}
-	return true;
-}
+document.addEventListener('DOMContentLoaded', function() {
+	var accdiv = document.createElement("div");
+	accdiv.style.zIndex = "12";
+	accdiv.style.display = "none";
+	accdiv.style.width = "400px";
+	accdiv.style.top = "30px";
+	accdiv.style.left = "0";
+	accdiv.style.right = "0";
+	accdiv.style.margin = "auto";
+	accdiv.id = "setaddressvendordiv";
+	accdiv.className = "layerPopup";
+	document.body.prepend(accdiv);
+}, false);
 
 function set_return_specific(vendor_id, vendor_name) {
 	//getOpenerObj used for DetailView

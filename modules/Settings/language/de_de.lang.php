@@ -1,19 +1,14 @@
 <?php
-/*********************************************************************************
- * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
- * Software distributed under the License is distributed on an  "AS IS"  basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
- * the specific language governing rights and limitations under the License.
- * The Original Code is:  SugarCRM Open Source
- * The Initial Developer of the Original Code is SugarCRM, Inc.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.;
+/*+********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
- * Contributor(s): ______________________________________.
  ********************************************************************************/
 
-$mod_strings = Array(
+$mod_strings = array(
     'LBL_MODULE_NAME'=>'Einstellungen',
     'LBL_MODULE_TITLE'=>'Einstellungen: Startseite',
     'LBL_LIST_CONTACT_ROLE'=>'Rolle',
@@ -37,43 +32,9 @@ $mod_strings = Array(
     'LBL_CURRENCY_LIST'=>'Währungsliste',
 
     'NTC_DELETE_CONFIRMATION'=>'Möchten Sie diesen Eintrag löschen?',
-    'LEADCUSTOMFIELDS'=>'Leads',
-    'ACCOUNTCUSTOMFIELDS'=>'Organisationen',
-    'CONTACTCUSTOMFIELDS'=>'Personen',
-    'OPPORTUNITYCUSTOMFIELDS'=>'Verkaufspotentiale',
-    'HELPDESKCUSTOMFIELDS'=>'Tickets',
-    'PRODUCTCUSTOMFIELDS'=>'Produkte',
-    'VENDORCUSTOMFIELDS'=>'Lieferant',
-    'PRICEBOOKCUSTOMFIELDS'=>'Preisliste',
 
-    'POCUSTOMFIELDS'=>'Bestellungen',
-    'SOCUSTOMFIELDS'=>'Aufträge',
-    'QUOTESCUSTOMFIELDS'=>'Angebote',
-    'INVOICECUSTOMFIELDS'=>'Rechnungen',
-
-    'EDITLEADPICKLISTVALUES'=>'Bearbeite Leads',
-    'EDITACCOUNTPICKLISTVALUES'=>'Bearbeite Organisationen',
-    'EDITCONTACTPICKLISTVALUES'=>'Bearbeite Personen',
-    'EDITOPPORTUNITYPICKLISTVALUES'=>'Bearbeite Verkaufspotentiale',
-    'EDITHELPDESKPICKLISTVALUES'=>'Bearbeite Trouble Tickets',
-    'EDITPRODUCTPICKLISTVALUES'=>'Bearbeite Produkte',
-    'EDITEVENTPICKLISTVALUES'=>'Bearbeite Termine/Anrufe',
-    'EDITTASKPICKLISTVALUES'=>'Bearbeite Aufgaben',
-
-    'EDITRSSPICKLISTVALUES'=>'Bearbeite RSS',
-    'EDITVENDORPICKLISTVALUES'=>'Bearbeite Lieferant',
-    'EDITPBPICKLISTVALUES'=>'Bearbeite Preisliste',
-    'EDITPOPICKLISTVALUES'=>'Bearbeite Bestellungen',
-    'EDITSOPICKLISTVALUES'=>'Bearbeite Aufträge',
-    'EDITQUOTEPICKLISTVALUES'=>'Bearbeite Angebote',
-    'EDITINVOICEPICKLISTVALUES'=>'Bearbeite Rechnungen',
-
-    // Added for Release vtigerCRM 3.2 PATCH 1.0
-
-    //Settings/index.php
     'LBL_PICKLIST_FIELD_SETTINGS'=>'Auswahllisten Feldeinstellungen:',
 
-    //SETTINGS/CustomFieldList.php,ComboFieldList.php,CreateCustomField.php
     'Leads'=>'Lead',
     'Accounts'=>'Organisationen',
     'Contacts'=>'Personen',
@@ -383,12 +344,8 @@ $mod_strings = Array(
     'CUSTOMFIELDMAPPING'=>'Zuordnungen der benutzerdefinierten Felder',
     'LBL_FIELD_MAPPING'=>'Feldzuordnung',
     'LBL_LEAD_FIELD'=>'Lead Feld',
-    //After 4.2 GA
     'LBL_TEXT_AREA'=>'Text Bereich',
-    //for Edit ordering the blocks
-    'NOTESCUSTOMFIELDS'=>'Notizen angepasste Felder',
 
-    //Added fields after 4.2 ptach 2
     'LBL_ASSIGN_MODULE_OWNERS'=>'Modulen Besitzer zuweisen',
     'LBL_MODULE_OWNERS'=>'Modulbesitzer',
     'LBL_ASSIGN_MODULE_OWNERS_INFO'=>' - weise einen Besitzer für jedes Modul zu',
@@ -396,8 +353,6 @@ $mod_strings = Array(
     'LBL_OWNER'=>'Besitzer',
     'LBL_MIGRATION'=>'Migriere von vorhergehender Version',
     'LBL_MIGRATION_INFO'=>' - Migration von vorhergehenden Version',
-
-    //Added for 5 GA - Description of Settings UI
 
     'LBL_USER_DESCRIPTION'=>'bearbeiten Sie die CRM Benutzerliste und weisen Sie Benutzern Rollen zu',
     'LBL_ROLE_DESCRIPTION'=>'definieren Sie die Hierarchie von Rollen und weisen Sie diesen Profile zu',
@@ -688,7 +643,6 @@ $mod_strings = Array(
     'LBL_MOVE_ROLE'=>'Rolle verschieben',
     'LBL_BACKUP_DESC'=>' Sie können ein vollständiges Backup Ihrer Datenbank auf einen FTP Server machen. Dieses Backup wird dann automatisch ausgeführt, wenn sich der admin Nutzer ausloggt. Sie müssen sicherstellen, dass Ihr FTP Server über ausreichend Speicherplatz verfügt. Die Backup Datei liegt dann im folgenden Format vor: "backup-datum-zeit.sql".',
 
-    // Added/Updated for vtiger CRM 5.0.4
     'LBL_SUPPORT_NOTICIATION'=>'Ende Supportfall',
     'LBL_SUPPORT_NOTICIATION_MONTH'=>'Supportfall ist in einem Monat beendet' ,
     'LBL_SUPPORT_DESCRIPTION'=>'Mitteilung über einen abgeschlossenen Supportfall',
@@ -700,7 +654,9 @@ $mod_strings = Array(
     'ERR_CUSTOM_FIELD_WITH_NAME'=>'Ein benutzerdefiniertes Feld mit dem Namen ',
     'ERR_ALREADY_EXISTS'=>' existiert bereits.',
     'ERR_SPECIFY_DIFFERENT_LABEL'=>'Bitte eine andere Bezeichung auswählen',
-    'LBL_TOOLS_TO_BE_SHOWN'=>'Werkzeuge zur Anzeige',
+	'ROWSIZEERROR' => 'Row size too large. Reached maximum size limit of database table size.',
+	'ADDFIELDERROR' => 'Custom field could not be added due to a database error.',
+	'LBL_TOOLS_TO_BE_SHOWN'=>'Werkzeuge zur Anzeige',
     'LBL_PICKLIST_GLOBAL_DELETE'=>'globales Löschen',
     'LBL_PICKLIST_TRANSFER'=>'übertrage die Einträge von ',
     'LBL_REPLACE_VALUE_WITH'=>'Ersetze Einträge mit ',
@@ -827,6 +783,7 @@ $mod_strings = Array(
     'LBL_SCANNING'=>'Scannen',
     'LBL_LOOKFOR'=>'suche nach',
     'LBL_UNREAD'=>'ungelesenen',
+    'LBL_ALLUNREAD'=>'ALL Unread',
     'LBL_READ'=>'gelesen',
     'LBL_AFTER_SCAN'=>'nach dem Scan',
     'LBL_MESSAGES_FROM_LASTSCAN'=>'Nachrichten vom letzten Scan',
@@ -948,11 +905,8 @@ $mod_strings = Array(
     'LBL_MAPPED_FIELDS' => 'zugeordnete Felder',
     'LEADS_CUSTOM_FIELD_MAPPING_DESCRIPTION' => 'Ordnen Sie Lead Felder Organisationen, Personen und Potentialen zu',
     'LEADS_CUSTOM_FIELD_MAPPING'=> 'Zuordnung von Lead Feldern',
-    'LBL_CALENDER_CUSTOMFIELDS' => 'Kalenderfelder',
-    'LBL_CALENDER_CUSTOMFIELDS_DESCRIPTION' => 'Sie können benutzerdefinierte Felder für die Kalender erstellen.',
     'LBL_GO_BACK'=>'zurück',
 
-    //Added fix for: 5418
     'LBL_USE_PREFIX' => 'Präfix benutzen',
     'LBL_START_SEQ' => 'Startsequenz',
     'LBL_MODULE_NUMBERING' => 'Modul Nummern',
@@ -961,7 +915,6 @@ $mod_strings = Array(
     'LBL_IN_USE' => 'in Benutzung',
     'LBL_MODULE_NUMBERING_FIX_MISSING' => 'fehlende Datensatzsequenz jetzt aktualisieren',
 
-    //Added for: 5473
     'LBL_SHARING_ACCESS_HELPNOTE' => 'Nachdem Sie Änderungen duchgeführt haben, müssen Sie den Neu Berechnen Button klicken.',
 
     'LBL_ADD_CUSTOMFIELD' => 'Add Custom Field',
@@ -1000,10 +953,7 @@ $mod_strings = Array(
     'ModTracker' => 'Modulverfolger',
     'LBL_MODTRACKER_DESCRIPTION' => 'Wähle zu verfolgende Module',
 
-    'LBL_MENUS_TO_SHOW'=>'Wähle Module, die im Hauptmenü gezeigt werden sollen',
-    'LBL_MENU_DESC'=>'Menüreihenfolge anpassen',
     'LBL_MENU_EDITOR'=>'Menüeditor',
-    'LBL_MENUS_TO_SHOW_DESCRIPTION' => 'Benutze die Pfeile, um die Menüeinträge zu ordnen. Die ersten 10 erscheinen im Haupmenü, die restlichen sind über <b><i>Mehr</i></b> -Auswahl erreichbar.',
     'LBL_ALL_MODULES' => 'alle Module',
     'LBL_SELECTED_MODULES' => 'gewählte Module',
 
@@ -1029,5 +979,8 @@ $mod_strings = Array(
 	// language translation strings
 	'SendEmailFrom' => 'Send Email From',
 	'LeaveEmptyForUserEmail' => 'Leave empty to use your user email',
+	'LBL_OPENSSL_SUPPORT' => 'OpenSSL Support',
+	'LBL_IMAP_SUPPORT' => 'IMAP Support',
+	'StorageSpaceUsage' => 'Storage Space Usage',
 );
 ?>

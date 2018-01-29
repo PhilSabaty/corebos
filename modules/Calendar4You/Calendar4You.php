@@ -131,10 +131,11 @@ public function setgoogleaccessparams($userid){
 		include_once('modules/Calendar4You/class/color_converter.class.php');
 		include_once('modules/Calendar4You/class/color_harmony.class.php');
 
-        if (count($this->View) > 0) $load_ch = true; else $load_ch = false;
+		if (count($this->View) > 0) $load_ch = true; else $load_ch = false;
 
-        $colorHarmony = new colorHarmony();
+		$colorHarmony = new colorHarmony();
 
+		$sortusersby = GlobalVariable::getVariable('Calendar_sort_users_by','first_name, last_name');
 		if ($this->view_all) {
 			$calshowinactiveusers = GlobalVariable::getVariable('Calendar_Show_Inactive_Users',1);
 			if ($calshowinactiveusers) {
@@ -142,8 +143,7 @@ public function setgoogleaccessparams($userid){
 			} else {
 				$sqllshowinactiveusers = "and status='Active'";
 			}
-			$sortusersby = GlobalVariable::getVariable('Calendar_sort_users_by','first_name, last_name');
-			$query = "SELECT * FROM vtiger_users WHERE deleted=0 $sqllshowinactiveusers ORDER BY $sortusersby";
+			$query = "SELECT id, user_name, first_name, last_name, status FROM vtiger_users WHERE deleted=0 $sqllshowinactiveusers ORDER BY $sortusersby";
 			$params = array();
 		} else {
 			if (empty($this->tabid)) $this->tabid = getTabid("Calendar4You");
@@ -151,52 +151,50 @@ public function setgoogleaccessparams($userid){
 			require('user_privileges/sharing_privileges_'.$current_user->id.'.php');
 			require('user_privileges/user_privileges_'.$current_user->id.'.php');
 
-            $query = "select status as status, id as id,user_name as user_name,first_name,last_name from vtiger_users where id=? 
-                      union 
-                      select status as status, vtiger_user2role.userid as id,vtiger_users.user_name as user_name ,
-					  vtiger_users.first_name as first_name ,vtiger_users.last_name as last_name
-					  from vtiger_user2role inner join vtiger_users on vtiger_users.id=vtiger_user2role.userid inner join vtiger_role on vtiger_role.roleid=vtiger_user2role.roleid where vtiger_role.parentrole like ? 
-                      union
-					  select status as status, shareduserid as id,vtiger_users.user_name as user_name,
-					  vtiger_users.first_name as first_name ,vtiger_users.last_name as last_name from vtiger_tmp_write_user_sharing_per inner join vtiger_users on vtiger_users.id=vtiger_tmp_write_user_sharing_per.shareduserid where vtiger_tmp_write_user_sharing_per.userid=? and vtiger_tmp_write_user_sharing_per.tabid=?
-                      union
-                      select status as status, id as id,user_name as user_name,first_name,last_name from vtiger_users 
-                      inner join vtiger_sharedcalendar on vtiger_sharedcalendar.userid = vtiger_users.id where sharedid=?";
+			$query = "select status as status, id as id,user_name as user_name,first_name,last_name from vtiger_users where id=?
+				union
+				select status as status, vtiger_user2role.userid as id,vtiger_users.user_name as user_name, vtiger_users.first_name as first_name ,vtiger_users.last_name as last_name
+					from vtiger_user2role inner join vtiger_users on vtiger_users.id=vtiger_user2role.userid inner join vtiger_role on vtiger_role.roleid=vtiger_user2role.roleid where vtiger_role.parentrole like ?
+				union
+				select status as status, shareduserid as id,vtiger_users.user_name as user_name, vtiger_users.first_name as first_name ,vtiger_users.last_name as last_name
+					from vtiger_tmp_write_user_sharing_per inner join vtiger_users on vtiger_users.id=vtiger_tmp_write_user_sharing_per.shareduserid where vtiger_tmp_write_user_sharing_per.userid=? and vtiger_tmp_write_user_sharing_per.tabid=?
+				union
+				select status as status, id as id,user_name as user_name,first_name,last_name from vtiger_users
+					inner join vtiger_sharedcalendar on vtiger_sharedcalendar.userid = vtiger_users.id where sharedid=? ORDER BY $sortusersby";
 			$params = array($current_user->id, $current_user_parent_role_seq."::%", $current_user->id, $this->tabid, $current_user->id);
-        }
-        $result = $this->db->pquery($query,$params);
+		}
+		$result = $this->db->pquery($query,$params);
 
-        $return_data = Array();
+		$return_data = Array();
 		$num_rows = $this->db->num_rows($result);
 
-		for($i=0;$i < $num_rows; $i++) {
+		for ($i=0;$i < $num_rows; $i++) {
 			$userid = $this->db->query_result($result,$i,'id');
-            $user_name = $this->db->query_result($result,$i,'user_name');
+			$user_name = $this->db->query_result($result,$i,'user_name');
 			$first_name = $this->db->query_result($result,$i,'first_name');
-            $last_name = $this->db->query_result($result,$i,'last_name');
-            $status = $this->db->query_result($result,$i,'status');
-            
-            if($this->CheckUserPermissions($userid) === false)
-                continue;
-            
-            $User_Colors = getEColors("user",$userid);
-            $User_Colors_Palette = $colorHarmony->Monochromatic($User_Colors["bg"]); 
-            
-            if (!$load_ch || !empty($this->View["2"][$userid])) $user_checked = true; else $user_checked = false;
-            
-            $user_array = array("id"=> $userid, "firstname" => $first_name, "lastname" => $last_name, "fullname" => trim($first_name." ".$last_name), "color" => $User_Colors_Palette[1], "textColor" => $User_Colors["text"], "title_color" => $User_Colors_Palette[0], "status" => $status, "checked"=>$user_checked);			
+			$last_name = $this->db->query_result($result,$i,'last_name');
+			$status = $this->db->query_result($result,$i,'status');
+
+			if ($this->CheckUserPermissions($userid) === false)
+				continue;
+
+			$User_Colors = getEColors("user",$userid);
+			$User_Colors_Palette = $colorHarmony->Monochromatic($User_Colors["bg"]);
+
+			if (!$load_ch || !empty($this->View["2"][$userid])) $user_checked = true; else $user_checked = false;
+
+			$user_array = array("id"=> $userid, "firstname" => $first_name, "lastname" => $last_name, "fullname" => trim($first_name." ".$last_name), "color" => $User_Colors_Palette[1], "textColor" => $User_Colors["text"], "title_color" => $User_Colors_Palette[0], "status" => $status, "checked"=>$user_checked);
 			$return_data [$userid]= $user_array;
-            
-            unset($User_Colors);
-            unset($User_Colors_Palette);
+
+			unset($User_Colors,$User_Colors_Palette);
 		}
 
 		return $return_data;
 	}
-	
-    public function CheckUserPermissions($userid) {
-        return true;
-    }    
+
+	public function CheckUserPermissions($userid) {
+		return true;
+	}
 
     /**
      * Handle module events
@@ -243,7 +241,7 @@ public function setgoogleaccessparams($userid){
 		for($index = 0; $index < $adb->num_rows($result1); ++$index) {
 			$actionid = $adb->query_result($result1, $index, 'share_action_id');
 			
-            $sql2 = "SELECT * FROM vtiger_org_share_action2tab WHERE share_action_id = ? AND tabid = ?";
+            $sql2 = "SELECT tabid FROM vtiger_org_share_action2tab WHERE share_action_id = ? AND tabid = ? limit 1";
             $result2 = $adb->pquery($sql2,array($actionid,$this->tabid));
             $num_rows2 = $adb->num_rows($result2);
             
@@ -312,7 +310,7 @@ public function setgoogleaccessparams($userid){
         $Settings["show_weekends"] = "true"; 
         $Settings["user_view"] = "me"; 
         
-        $sql1 = "SELECT * FROM its4you_calendar4you_settings WHERE userid=?";
+        $sql1 = "SELECT user_view, dayoftheweek, show_weekends FROM its4you_calendar4you_settings WHERE userid=?";
         $result1 = $adb->pquery($sql1, array($current_user->id));
         $num_rows1 = $adb->num_rows($result1);
         
@@ -329,39 +327,35 @@ public function setgoogleaccessparams($userid){
         
         return $Settings;
     }
-    
+
     public function getEventColors() {
         global $adb,$current_user;
-  
-        $sql1 = "SELECT * FROM its4you_calendar4you_colors WHERE userid=?";
+        $sql1 = "SELECT mode, entity, type, color FROM its4you_calendar4you_colors WHERE userid=?";
         $result1 = $adb->pquery($sql1, array($current_user->id));
         $num_rows1 = $adb->num_rows($result1);
-        
+        $Colors = array();
         if ($num_rows1 > 0) {
             while($row = $adb->fetchByAssoc($result1)) {
             	$Colors[$row['mode']][$row['entity']][$row['type']] = $row['color'];
             }
         }
-        
         return $Colors;
-    } 
-    
+    }
+
     public function getEventColor($mode,$entity) {
         global $adb,$current_user;
-  
-        $sql1 = "SELECT * FROM its4you_calendar4you_colors WHERE userid=? AND mode=? AND entity=?";
+        $sql1 = "SELECT type, color FROM its4you_calendar4you_colors WHERE userid=? AND mode=? AND entity=?";
         $result1 = $adb->pquery($sql1, array($current_user->id, $mode, $entity));
         $num_rows1 = $adb->num_rows($result1);
-        
+        $Colors = array();
         if ($num_rows1 > 0) {
             while($row = $adb->fetchByAssoc($result1)) {
             	$Colors[$row['type']] = $row['color'];
             }
         }
-        
         return $Colors;
     }
-    
+
     public function getDayNumber($day) {
         switch($day) {
             case "Sunday": $dn = "0"; break;
@@ -436,26 +430,22 @@ public function setgoogleaccessparams($userid){
                             if ($ui) return true;
                         }
                     } else {
-                        return true; 
+                        return true;
                     }
                 }
             }
         }
         return false;
     }
-    
-    function isUserCalendarPermittedByInviti($recordId) {
-    	global $adb;
-    	global $current_user;
 
-    	$query = "select * from vtiger_invitees where activityid =? and inviteeid=?";
-        $result=$adb->pquery($query, array($recordId, $current_user->id));
-    	if($adb->num_rows($result) >0) {
-    		return true;
-    	}
-    	return false;
-    }
-    
+	function isUserCalendarPermittedByInviti($recordId) {
+		global $adb, $current_user;
+
+		$query = 'select activityid from vtiger_invitees where activityid=? and inviteeid=? limit 1';
+		$result = $adb->pquery($query, array($recordId, $current_user->id));
+		return $adb->num_rows($result) > 0;
+	}
+
     function getActStatusFieldValues($fieldname,$tablename) {
     	global $adb, $mod_strings,$current_user,$default_charset;
     	require('user_privileges/user_privileges_'.$current_user->id.'.php');
@@ -480,38 +470,37 @@ public function setgoogleaccessparams($userid){
     		$subrole = getRoleSubordinates($roleid);
     		if(count($subrole)> 0) {
     			$roleids = $subrole;
-    			array_push($roleids, $roleid);
-    		} else {	
+				$roleids[] = $roleid;
+			} else {
     			$roleids = $roleid;
     		}
-    
-    		if (count($roleids) > 1) {
-    			$q="select distinct $fieldname, picklist_valueid from  $tablename inner join vtiger_role2picklist on vtiger_role2picklist.picklistvalueid = $tablename.picklist_valueid where roleid in (\"". implode($roleids,"\",\"") ."\") and picklistid in (select picklistid from $tablename) order by sortid asc";
-    		} else {
-    			$q="select distinct $fieldname, picklist_valueid from $tablename inner join vtiger_role2picklist on vtiger_role2picklist.picklistvalueid = $tablename.picklist_valueid where roleid ='".$roleid."' and picklistid in (select picklistid from $tablename) order by sortid asc";
-    		}
-    	}
-        
-    	$Res = $adb->query($q);
-    	$noofrows = $adb->num_rows($Res);
-    
-    	for($i = 0; $i < $noofrows; $i++) {
-    		$checked = true;
-            $valueid = $adb->query_result($Res,$i,"picklist_valueid");
-            $value = $adb->query_result($Res,$i,$fieldname);
-            $value = html_entity_decode($value,ENT_QUOTES,$default_charset);
-            $label = getTranslatedString($value,'Calendar');
-            
-            if ($type != "" || $load_ch ) {
-                if (!empty($this->View[$type][$valueid])) 
-                    $checked = false; 
-            }
-            
-            $Data[$value] = array("id"=>$valueid,"value"=>$value,"label"=>$label,"checked"=>$checked);
-    	}
-    
-    	return $Data;
-    }
+
+			if (count($roleids) > 1) {
+				$q="select $fieldname, picklist_valueid from  $tablename inner join vtiger_role2picklist on vtiger_role2picklist.picklistvalueid = $tablename.picklist_valueid where roleid in (\"". implode($roleids,"\",\"") ."\") and picklistid in (select picklistid from $tablename) order by sortid asc";
+			} else {
+				$q="select $fieldname, picklist_valueid from $tablename inner join vtiger_role2picklist on vtiger_role2picklist.picklistvalueid = $tablename.picklist_valueid where roleid ='".$roleid."' and picklistid in (select picklistid from $tablename) order by sortid asc";
+			}
+		}
+
+		$Res = $adb->query($q);
+		$noofrows = $adb->num_rows($Res);
+		$previousValue = '';
+		for ($i = 0; $i < $noofrows; $i++) {
+			$value = $adb->query_result($Res,$i,$fieldname);
+			if ($previousValue == $value) continue;
+			$previousValue = $value;
+			$value = html_entity_decode($value,ENT_QUOTES,$default_charset);
+			$checked = true;
+			$valueid = $adb->query_result($Res,$i,"picklist_valueid");
+			$label = getTranslatedString($value,'Calendar');
+			if ($type != "" || $load_ch ) {
+				if (!empty($this->View[$type][$valueid]))
+					$checked = false;
+			}
+			$Data[$value] = array("id"=>$valueid,"value"=>$value,"label"=>$label,"checked"=>$checked);
+		}
+		return $Data;
+	}
 
 	//Function Call for Related List -- Start
 	/**
@@ -579,42 +568,46 @@ public function setgoogleaccessparams($userid){
 		return $return_data;
 	}
 
-    function SaveView($Type_Ids, $Users_Ids, $all_users, $Load_Event_Status, $Load_Task_Status, $Load_Task_Priority) {
-        global $adb,$current_user;
-        
-        $Save = array("1" => $Type_Ids, "2" => $Users_Ids, "3" => $Load_Event_Status, "4" => $Load_Task_Status, "5" => $Load_Task_Priority);
-        
-        foreach ($Save AS $type => $Save_Array) {
-            if (($type == 2 && $all_users) || $type != 2) {
-                $d_sql = "DELETE FROM its4you_calendar4you_view WHERE userid = ? AND type = ?";
-                $adb->pquery($d_sql,array($current_user->id,$type));
-        
-                if (count($Save_Array) > 0) {
-                    $i_sql = "INSERT its4you_calendar4you_view (userid,type,parent) VALUES (?,?,?)";
-                    foreach ($Save_Array AS $parent) {
-                        if ($parent !="") $adb->pquery($i_sql,array($current_user->id,$type,$parent));
-                    }
-                }
-            }
-        }
+	function SaveView($Type_Ids, $Users_Ids, $all_users, $Load_Event_Status, $Load_Modules, $Load_Task_Priority) {
+		global $adb,$current_user;
+		$Save = array('1' => $Type_Ids, '2' => $Users_Ids, '3' => $Load_Event_Status, '4' => $Load_Modules, '5' => $Load_Task_Priority);
+		$block_status = json_decode($_REQUEST['block_status'],true);
+		$Save['6'] = array(vtlib_purify($block_status['event_type']));
+		$Save['7'] = array(vtlib_purify($block_status['module_type']));
+		$Save['8'] = array(vtlib_purify($block_status['et_status']));
+		$Save['9'] = array(vtlib_purify($block_status['task_priority']));
+		$d_sql = 'DELETE FROM its4you_calendar4you_view WHERE userid = ? AND type = ?';
+		$i_sql = 'INSERT its4you_calendar4you_view (userid,type,parent) VALUES (?,?,?)';
+		foreach ($Save AS $type => $Save_Array) {
+			if (($type == 2 && $all_users) || $type != 2) {
+				$adb->pquery($d_sql,array($current_user->id,$type));
+				if (count($Save_Array) > 0) {
+					foreach ($Save_Array AS $parent) {
+						if ($parent != '') {
+							$adb->pquery($i_sql, array($current_user->id, $type, $parent));
+						}
+					}
+				}
+			}
+		}
+	}
 
-    }
-
-    function GetView() {
-        global $adb,$current_user;
-        
-        $View = array();
-        $sql = "SELECT * FROM its4you_calendar4you_view WHERE userid = ?";
-        $result = $adb->pquery($sql,array($current_user->id));
-        $num_rows = $adb->num_rows($result);
-    
-        if ($num_rows > 0) {
-            while($row = $adb->fetchByAssoc($result)) {
-            	$this->View[$row["type"]][$row["parent"]] = true;
-            }
-        }
-
-        return $this->View;
-    }
+	function GetView() {
+		global $adb,$current_user;
+		$View = array();
+		$sql = 'SELECT type, parent FROM its4you_calendar4you_view WHERE userid = ?';
+		$result = $adb->pquery($sql,array($current_user->id));
+		$num_rows = $adb->num_rows($result);
+		if ($num_rows > 0) {
+			while ($row = $adb->fetchByAssoc($result)) {
+				if ($row['type']>5 && $row['type']<10) {
+					$this->View[$row['type']] = $row['parent'];
+				} else {
+					$this->View[$row['type']][$row['parent']] = true;
+				}
+			}
+		}
+		return $this->View;
+	}
 }
 ?>

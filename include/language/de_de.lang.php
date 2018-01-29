@@ -1,18 +1,14 @@
 <?php
-/*********************************************************************************
- * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
- * ("License"); You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at http://www.sugarcrm.com/SPL
- * Software distributed under the License is distributed on an  "AS IS"  basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
- * the specific language governing rights and limitations under the License.
- * The Original Code is:  SugarCRM Open Source
- * The Initial Developer of the Original Code is SugarCRM, Inc.
- * Portions created by SugarCRM are Copyright (C) SugarCRM, Inc.;
+/*+********************************************************************************
+ * The contents of this file are subject to the vtiger CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  vtiger CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
 $app_strings = array(
-'LBL_BROWSER_TITLE' => 'vtiger CRM 5 - Commercial Open Source CRM',
+'LBL_BROWSER_TITLE' => 'coreBOS',
 'LBL_MY_ACCOUNT'=>'Mein Konto',
 'LBL_MY_PREFERENCES'=>'Meine Einstellungen',
 'LBL_ADMIN'=>'Admin',
@@ -24,6 +20,7 @@ $app_strings = array(
 'LBL_SHOW'=>'zeige:',
 'today'=>"heutige",
 'all'=>'Alle',
+'Generate Document'=>'Merge Document',
 'LBL_UPCOMING_EVENTS'=>'aktuelle Aktivitäten',
 'LBL_PENDING_EVENTS'=>'überfällige Aktivitäten',
 'NTC_WELCOME_MESSAGE'=>"Willkommen!",
@@ -38,6 +35,7 @@ $app_strings = array(
 'LBL_SEND_MAIL_BUTTON'=>'E-Mail senden',
 'LBL_SAVE_BUTTON_TITLE'=>'Speichern [Alt+S]',
 'LBL_EDIT_BUTTON_TITLE'=>'Bearbeiten [Alt+E]',
+'LBL_RECALCULATE_BUTTON_TITLE' => 'Neu berechnen [Alt+R]',
 'LBL_CONVERTSO_BUTTON_TITLE'=>'erstelle Kundenbestellung',
 'LBL_CONVERTINVOICE_BUTTON_TITLE'=>'Rechnung erstellen',
 'LBL_EDIT_BUTTON'=>'Bearbeiten',
@@ -75,6 +73,7 @@ $app_strings = array(
 'LBL_CONVERTINVOICE_BUTTON_KEY'=>'I',
 'LBL_DUPLICATE_BUTTON_KEY'=>'U',
 'LBL_DELETE_BUTTON_KEY'=>'D',
+'LBL_RECALCULATE_BUTTON_KEY' => 'R',
 'LBL_NEW_BUTTON_KEY'=>'N',
 'LBL_CHANGE_BUTTON_KEY'=>'G',
 'LBL_CANCEL_BUTTON_KEY'=>'X',
@@ -87,6 +86,7 @@ $app_strings = array(
 'LBL_CONVERTINVOICE_BUTTON_LABEL'=>'erstelle Rechnung',
 'LBL_DUPLICATE_BUTTON_LABEL'=>'Kopieren',
 'LBL_DELETE_BUTTON_LABEL'=>'Löschen',
+'LBL_RECALCULATE_BUTTON' => 'Neu berechnen',
 'LBL_NEW_BUTTON_LABEL'=>'Neu',
 'LBL_CHANGE_BUTTON_LABEL'=>'Wähle',
 'LBL_CANCEL_BUTTON_LABEL'=>'Abbrechen',
@@ -176,6 +176,7 @@ $app_strings = array(
 'ERR_CREATING_FIELDS'=>'Fehler beim Ausfüllen der zusätzlichen Felder: ',
 'ERR_MISSING_REQUIRED_FIELDS'=>'Fehlende Pflichtangaben:',
 'ERR_INVALID_EMAIL_ADDRESS'=>'ist keine gültige E-Mail Adresse.',
+'ERR_INVALID_SECONDARY_EMAIL_ADDRESS' => 'not a valid secondary email address.',
 'ERR_INVALID_YAHOO_EMAIL_ADDRESS' => 'ist keine gültige Yahoo E-Mail Adresse.',
 'ERR_INVALID_DATE_FORMAT'=>'Das Datumsformat muss lauten: jj-mm-tt',
 'ERR_INVALID_MONTH'=>'Bitte einen gültigen Monat eingeben.',
@@ -202,10 +203,13 @@ $app_strings = array(
 'Photo2Document' => 'Photo to Document',
 'Snap Photo' => 'Snap Photo',
 'Clear Photo' => 'Clear Photo',
+'DocumentCreatedRelated' => 'Document added and related',
 'Export'=>'Export',
 'Import'=>'Import',
 'Merge'=>'Zusammenführen',
 'ConvertLead'=>'Lead umwandeln',
+'Is Converted From Lead' => 'Wird konvertiert, aus Blei',
+'Converted From Lead' => 'Konvertiert aus Blei',
 'LBL_SHOW_RESULTS'=>'zeige Ergebnisse in',
 'LBL_TOTAL_RECORDS_FOUND'=>'Gesamtanzahl gefunden :',
 'LBL_SEARCH_RESULTS_FOR'=>' -- Suchergebnisse für ',
@@ -463,10 +467,10 @@ $app_strings = array(
 'Invoice No'=>'Rechnungsnr.',
 'Sales Order'=>'Kundenbestellung',
 'COMBO_QUOTES'=>'Angebote',
-'End Date'=>'Ende',
-'End Date & Time' => 'Termin endet',
+'End Date'=>'Ende (System Date)',
+'End Date & Time' => 'Termin endet (System Date)',
 'Start Date'=>'Start',
-'Start Date & Time' => 'Termin beginnt',
+'Start Date & Time' => 'Termin beginnt (System Date)',
 'Recurring Type'=> 'Wiederholungsart',
 'SalesOrder'=> 'Verkäufe',
 'LBL_QUOTE_NAME'=>'Angebotsname',
@@ -504,6 +508,7 @@ $app_strings = array(
 'LBL_SALES_ORDER_ID'=>'Verkaufsnummer',
 'LBL_PURCHASE_ORDER_ID'=>'Einkaufsnummer',
 'LBL_EXPORT_TO_PDF'=>'Export als PDF',
+'DeletedProducts' => 'This record has deleted product/service lines. Please edit and fix accordingly.',
 'LBL_HOME_KEY_METRICS'=>'benutzerdefinierte Listen',
 'LBL_HOME_METRICS'=>'Listenname',
 'LBL_HOME_COUNT'=>'Anzahl',
@@ -625,9 +630,9 @@ $app_strings = array(
 'LBL_RENAME_PROFILE'=>'Profil umbenennen',
 'LBL_PROFILE_NAME'=>'Profilname',
 'LBL_START_DATE'=>'Startdatum',
-'LBL_START_DATE_TIME'=>'Termin beginnt',
-'LBL_END_DATE'=>'Endedatum',
-'LBL_END_DATE_TIME'=>'Termin endet',
+'LBL_START_DATE_TIME'=>'Termin beginnt (System Date)',
+'LBL_END_DATE'=>'Endedatum (System Date)',
+'LBL_END_DATE_TIME'=>'Termin endet (System Date)',
 'LBL_CREATE_MERGE_TEMPLATE'=>'Textvorlage erstellen ',
 'LBL_IMG_FORMATS'=>'(Nur jpg, gif, bmp und png Bilder)',
 
@@ -820,7 +825,7 @@ $app_strings = array(
 'MSG_THANK_YOU'=>'Danke für Ihre Aufmerksamkeit',
 'MSG_HAS_BEEN_CREATED_FOR'=>'wurde erstellt für',
 'MSG_THANKS'=>'Danke,',
-'MSG_VTIGERTEAM'=>' vTiger Team',
+'MSG_VTIGERTEAM'=>' coreBOS Team',
 'MSG_IS_NOT_UPLOADED'=>'wurde nicht geladen. Zulässige Dateitypen - jpeg, png, jpg, pjpeg, x-png oder gif',
 'MSG_IMAGE_ERROR'=>'Das Bild wurde nicht gefunden.',
 
@@ -849,6 +854,8 @@ $app_strings = array(
 'SPECIAL_CHARS_NOT_ALLOWED' => 'Sonderzeichen sind hier nicht zulässig.',
 //Added for title for SignIn Image.
 'LBL_SIGN_IN'=>'Login',
+'StartSession' => 'Start Session',
+'CapsLockActive' => 'CapsLock is active',
 
 //Added for title of Root Image
 'LBL_ROOT'=>'Root',
@@ -870,8 +877,6 @@ $app_strings = array(
 'Quote No'=>'Angebotsnr.',
 'Yahoo Id'=>'Yahoo E-Mail',
 
-// Added/Updated for vtiger CRM 5.0.4
-'LBL_CHARSET' => 'UTF-8',
 'Lost Lead' => 'verlorener Lead',
 //Added for incoming mail server settings form js validation
 'ERR_INVALID_PAGE_COUNT' => "Seitenzahl ungültig",

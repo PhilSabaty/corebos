@@ -8,29 +8,12 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-include('adodb/adodb.inc.php');
+include('include/adodb/adodb.inc.php');
 
-if(version_compare(phpversion(), '5.0') < 0) {
+if(version_compare(phpversion(), '5.4') < 0) {
 	$serverPhpVersion = phpversion();
 	require_once('phpversionfail.php');
 	die();
-}
-
-/** Function to  return a string with backslashes stripped off
- * @param $value -- value:: Type string
- * @returns $value -- value:: Type string array
- */
-function stripslashes_checkstrings($value){
-	if(is_string($value)){
-		return stripslashes($value);
-	}
-	return $value;
-
-}
-if(get_magic_quotes_gpc() == 1){
-	$_REQUEST = array_map("stripslashes_checkstrings", $_REQUEST);
-	$_POST = array_map("stripslashes_checkstrings", $_POST);
-	$_GET = array_map("stripslashes_checkstrings", $_GET);
 }
 
 require_once('include/install/language/en_us.lang.php');

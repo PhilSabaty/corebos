@@ -11,14 +11,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset={$APP.LBL_CHARSET}">
+	<meta http-equiv="Content-Type" content="text/html; charset={$LBL_CHARSET}">
 	<title>{$USER} - {$MODULE_NAME|@getTranslatedString:$MODULE_NAME} - {$coreBOS_app_name}</title>
 	<link REL="SHORTCUT ICON" HREF="{$FAVICON}">
 	<style type="text/css">@import url("themes/{$THEME}/style.css");</style>
 	{if $Application_JSCalendar_Load neq 0}<link rel="stylesheet" type="text/css" media="all" href="jscalendar/calendar-win2k-cold-1.css">{/if}
 	<link rel="stylesheet" href="include/print.css" type="text/css" media="print" />
 	<link rel="stylesheet" href="include/LD/assets/styles/salesforce-lightning-design-system.css" type="text/css" />
+	<link rel="stylesheet" href="include/LD/assets/styles/slds-combobox.css" type="text/css" />
 	<link rel="stylesheet" href="include/LD/assets/styles/mainmenu.css" type="text/css" />
+	<link rel="stylesheet" href="include/LD/assets/styles/override_lds.css" type="text/css" />
 {* vtlib customization: Inclusion of custom javascript and css as registered *}
 {if $HEADERCSS}
 	<!-- Custom Header CSS -->
@@ -42,18 +44,17 @@
 	<!-- End -->
 </head>
 {include file='BrowserVariables.tpl'}
+{include file="Components.tpl"}
 <body leftmargin=0 topmargin=0 marginheight=0 marginwidth=0 class=small>
 	<a name="top"></a>
 	<!-- header -->
-	<!-- header-vtiger crm name & RSS -->
 	<script type="text/javascript" src="include/sw-precache/service-worker-registration.js"></script>
 	<script type="text/javascript" src="include/jquery/jquery.js"></script>
 	<script type="text/javascript" src="include/jquery/jquery-ui.js"></script>
 	<script type="text/javascript" src="include/js/meld.js"></script>
+	<script type="text/javascript" src="include/js/corebosjshooks.js"></script>
 	<script type="text/javascript" src="include/js/general.js"></script>
-	<!-- vtlib customization: Javascript hook -->
 	<script type="text/javascript" src="include/js/vtlib.js"></script>
-	<!-- END -->
 	<script type="text/javascript" id="_current_language_" src="include/js/{$LANGUAGE}.lang.js"></script>
 	<script type="text/javascript" src="include/js/QuickCreate.js"></script>
 	{if $CALCULATOR_DISPLAY eq 'true'}
@@ -76,8 +77,10 @@
 {/if}
 	<script type="text/javascript">
 	<!-- browser tab identification on ajax calls -->
-	jQuery(document).ajaxSend(function() {ldelim}
-		document.cookie = "corebos_browsertabID="+corebos_browsertabID;
+	jQuery(document).ready(function() {ldelim}
+		jQuery(document).ajaxSend(function() {ldelim}
+			document.cookie = "corebos_browsertabID="+corebos_browsertabID;
+		{rdelim});
 	{rdelim});
 	</script>
 
@@ -98,22 +101,37 @@
 		<td valign=top align=left><img src="test/logo/{$FRONTLOGO}" alt="{$COMPANY_DETAILS.name}" title="{$COMPANY_DETAILS.name}" border=0 style="width: 15em;height: 4.2em;"></td>
 		<td align="center" valign=bottom>
 			<div align ="center" width ="50%" border='3' style="padding:5px;" class="noprint">
+				{if $Application_Global_Search_Active || (isset($GS_AUTOCOMP) && isset($GS_AUTOCOMP['searchin']))}
 				<table border=0 cellspacing=0 cellpadding=0 id="search" align="center">
+				{else}
+				<table border=0 cellspacing=0 cellpadding=0 align="center">
+				{/if}
 					<tr>
+						{if $Application_Global_Search_Active}
 						<form name="UnifiedSearch" method="post" action="index.php" style="margin:0px" onsubmit="if (document.getElementById('query_string').value=='') return false; VtigerJS_DialogBox.block();">
+						{else}
+						<form name="UnifiedSearch" style="margin:0px" onsubmit="return false;">
+						{/if}
 							<td style="background-color:#ffffef;border:1px;border-color:black;vertical-align:middle;" nowrap>
+								{if $Application_Global_Search_Active || (isset($GS_AUTOCOMP) && isset($GS_AUTOCOMP['searchin']))}
 								<input type="hidden" name="action" value="UnifiedSearch" style="margin:0px">
 								<input type="hidden" name="module" value="Home" style="margin:0px">
 								<input type="hidden" name="parenttab" value="{$CATEGORY}" style="margin:0px">
 								<input type="hidden" name="search_onlyin" value="--USESELECTED--" style="margin:0px">
-								<input type="text" name="query_string" id="query_string" value="{$QUERY_STRING}" class="searchBox" onFocus="this.value=''" >
+								<input type="text" name="query_string" id="query_string" value="{$QUERY_STRING}" class="searchBox" onFocus="this.value=''" autocomplete="off" data-autocomp='{$GS_AUTOCOMP|@json_encode}'>
+									<div id="listbox-unique-id" role="listbox" class="">
+										<ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid relation-autocomplete__target" style="opacity: 0; width: 100%;left:45%;" role="presentation"></ul>
+									</div>
+								{/if}
 							</td>
+							{if $Application_Global_Search_Active}
 							<td align ="right" style="background-color:#FFFFEF; vertical-align:middle;padding:5px;" onclick="UnifiedSearch_SelectModuleForm(this);">
 								<a href='javascript:void(0);' ><img src="{'arrow_down_black.png'|@vtiger_imageurl:$THEME}" align='left' border=0></a>
 							</td>
 							<td style="background-color:#cccccc">
 								<input type="image" class="searchBtn" alt="{$APP.LBL_FIND}" title="{$APP.LBL_FIND}" width="70%" height="70%" src="{'searchicon.PNG'|@vtiger_imageurl:$THEME}" align='left' border=1>
 							</td>
+							{/if}
 						</form>
 					</tr>
 				</table>
@@ -269,24 +287,7 @@
 			</span>
 		</div>
 	</div>
-	<nav class="slds-context-bar__secondary" role="navigation">
-		<ul class="slds-grid" id="cbmenu">
-		</ul>
-		<div class="slds-context-bar__tertiary" style="float:left; margin-top:auto; margin-bottom:auto;">
-			<div class="slds-form-element">
-				<div class="slds-form-element__control">
-					<div class="slds-select_container">
-						<select id="qccombo" class="slds-select" onchange="QCreate(this);">
-							<option value="none">{$APP.LBL_QUICK_CREATE}...</option>
-							{foreach item=detail from=$QCMODULE}
-								<option value="{$detail.1}">{$APP.NEW}&nbsp;{$detail.0}</option>
-							{/foreach}
-						</select>
-					</div>
-				</div>
-			</div>
-		</div>
-	</nav>
+{call cbmenu menu=$MENU}
 </div>
 </div>
 </td>
@@ -298,45 +299,8 @@
 
 <!-- Unified Search module selection feature -->
 <div id="UnifiedSearch_moduleformwrapper" style="position:absolute;width:417px;z-index:100002;display:none;"></div>
-<script type='text/javascript'>
-{literal}
-	function QCreate(qcoptions){
-		var module = qcoptions.options[qcoptions.options.selectedIndex].value;
-		if(module != 'none'){
-			document.getElementById("status").style.display="inline";
-			if(module == 'Events'){
-				module = 'Calendar';
-				var urlstr = '&activity_mode=Events';
-			}else if(module == 'Calendar'){
-				module = 'Calendar';
-				var urlstr = '&activity_mode=Task';
-			}else{
-				var urlstr = '';
-			}
-			jQuery.ajax({
-				method:"POST",
-				url:'index.php?module='+module+'&action='+module+'Ajax&file=QuickCreate'+urlstr
-			}).done(function(response) {
-				document.getElementById("status").style.display="none";
-				document.getElementById("qcform").style.display="inline";
-				document.getElementById("qcform").innerHTML = response;
-				jQuery("#qcform").draggable();
-				// Evaluate all the script tags in the response text.
-				var scriptTags = document.getElementById("qcform").getElementsByTagName("script");
-				for(var i = 0; i< scriptTags.length; i++){
-					var scriptTag = scriptTags[i];
-					eval(scriptTag.innerHTML);
-				}
-				posLay(qcoptions, "qcform");
-			});
-		}else{
-			hide('qcform');
-		}
-	}
-{/literal}
-</script>
 
-<div id="status" style="position:absolute;display:none;left:850px;top:95px;height:27px;white-space:nowrap;"><img src="{'status.gif'|@vtiger_imageurl:$THEME}"></div>
+<div id="status" style="position:absolute;display:none;left:850px;top:{if $ANNOUNCEMENT}130{else}95{/if}px;height:27px;white-space:nowrap;"><img src="{'status.gif'|@vtiger_imageurl:$THEME}"></div>
 
 <div id="tracker" style="display:none;position:absolute;z-index:100000001;" class="layerPopup">
 	<table border="0" cellpadding="5" cellspacing="0" width="200">
@@ -373,7 +337,6 @@
 </div>
 <script type="text/javascript">
 	jQuery('#tracker').draggable({ldelim} handle: "#Track_Handle" {rdelim});
-	var evvtmenu={$MENU};
 </script>
 <script type="text/javascript" src="modules/evvtMenu/evvtMenu.js"></script>
 </div>

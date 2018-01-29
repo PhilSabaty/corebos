@@ -240,7 +240,8 @@ class GlobalVariable extends CRMEntity {
 				$in_module_list=$adb->query_result($query,$i,'in_module_list');
 				$modules_list=array_map('trim', explode('|##|',$adb->query_result($query,$i,'module_list')));
 				if ($in_module_list==1) {
-					for($j=0;$j<sizeof($modules_list);$j++) {
+					$nummods = count($modules_list);
+					for ($j=0; $j < $nummods; $j++) {
 						if ($isBusinessMapping) {
 							$value = $adb->query_result($query,$i,'bmapid');
 						} else {
@@ -254,7 +255,8 @@ class GlobalVariable extends CRMEntity {
 				} else {
 					$all_modules=vtws_getModuleNameList();
 					$other_modules=array_diff($all_modules,$modules_list);
-					for($l=0;$l<sizeof($other_modules);$l++){
+					$nummods = count($other_modules);
+					for ($l=0; $l < $nummods; $l++) {
 						if ($isBusinessMapping) {
 							$value = $adb->query_result($query,$i,'bmapid');
 						} else {
@@ -269,7 +271,7 @@ class GlobalVariable extends CRMEntity {
 			}
 		}
 		$gvvalidationinfo[] = "candidate list of modules to look for $module: ".print_r($list_of_modules,true);
-		if (sizeof($list_of_modules)>0) {
+		if (count($list_of_modules) > 0) {
 			if (array_key_exists($module,$list_of_modules)) {
 				return $list_of_modules[$module];
 			} else {
@@ -302,7 +304,7 @@ class GlobalVariable extends CRMEntity {
 		if (empty($gvuserid) and !empty($current_user)) $gvuserid = $current_user->id;
 		if (empty($gvuserid)) return $default;
 		if (empty($module)) $module = $currentModule;
-		$key = md5('gvcache'.$var.$module.$gvuserid);
+		$key = 'gvcache'.$var.$module.$gvuserid;
 		list($value,$found) = VTCacheUtils::lookupCachedInformation($key);
 		if ($found) {
 			$gvvalidationinfo[] = "variable found in cache";
@@ -310,10 +312,16 @@ class GlobalVariable extends CRMEntity {
 		}
 		$value='';
 		$list_of_modules=array();
-		$select = 'SELECT *
-		 FROM vtiger_globalvariable
-		 INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_globalvariable.globalvariableid ';
+		$join = ' FROM vtiger_globalvariable INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_globalvariable.globalvariableid ';
+		$select = 'select * '.$join;
 		$where = ' where vtiger_crmentity.deleted=0 and gvname=? ';
+
+		$sql = 'select 1 '.$join.$where.' limit 1';
+		$rs = $adb->pquery($sql, array($var));
+		if (!$rs or $adb->num_rows($rs)==0) {
+			$gvvalidationinfo[] = "no records for this variable exist, so default returned: $default";
+			return $default;
+		}
 
 		$mandatory=" and mandatory='1'";
 		$sql=$select.$where.$mandatory;

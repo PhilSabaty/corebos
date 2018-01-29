@@ -37,11 +37,10 @@ $Calendar_Settings = $Calendar4You->getSettings();
 <input type="hidden" name="action" value="updateCalendarSharing">
 <input type="hidden" name="user_view_type" value="<?php echo vtlib_purify($_REQUEST['user_view_type']) ?>">
 <input type="hidden" name="view" value="<?php echo vtlib_purify($_REQUEST['view']) ?>">
-<input type="hidden" name="hour" value="<?php echo vtlib_purify($_REQUEST['hour']) ?>">
-<input type="hidden" name="day" value="<?php echo vtlib_purify($_REQUEST['day']) ?>">
-<input type="hidden" name="month" value="<?php echo vtlib_purify($_REQUEST['month']) ?>">
-<input type="hidden" name="year" value="<?php echo vtlib_purify($_REQUEST['year']) ?>">
-<input type="hidden" name="parenttab" value="<?php echo vtlib_purify($_REQUEST['parenttab']) ?>">
+<input type="hidden" name="hour" value="<?php echo (isset($_REQUEST['hour']) ? vtlib_purify($_REQUEST['hour']) : ''); ?>">
+<input type="hidden" name="day" value="<?php echo (isset($_REQUEST['day']) ? vtlib_purify($_REQUEST['day']) : ''); ?>">
+<input type="hidden" name="month" value="<?php echo (isset($_REQUEST['month']) ? vtlib_purify($_REQUEST['month']) : ''); ?>">
+<input type="hidden" name="year" value="<?php echo (isset($_REQUEST['year']) ? vtlib_purify($_REQUEST['year']) : ''); ?>">
 <input type="hidden" name="current_userid" value="<?php echo $current_user->id ?>" >
 <input type="hidden" name="shar_userid" id="shar_userid" >
 
@@ -205,6 +204,7 @@ $Calendar_Settings = $Calendar4You->getSettings();
 			<td align="left"><b>
 			<?php echo $mod_strings["LBL_GOOGLE_SYNC_ACCESS_DATA"]; echo " &quot;".trim($current_user->first_name." ".$current_user->last_name)."&quot;"; ?>
 			</b>
+                        <br /><br /><div><?php echo $mod_strings['Gmail_ChangeAccount']; ?><input type="button" name="clear_tokens" class="crmbutton small save" value="<?php echo $app_strings['LBL_CLEAR_BUTTON_LABEL']; ?>" onclick="cleartokens(<?php echo $current_user->id ?>)"></div>
 			<br /><br /><div id="google_sync_verifying" style="display:none;"><img src="themes/images/vtbusy.gif" align="absmiddle"><? echo $mod_strings["LBL_GOOGLE_SYNC_CONTROL_ACCESS_DATA"]; ?></div><div id="google_sync_text">
 			<?php
 			$GoogleSync4You = new GoogleSync4You();
@@ -226,7 +226,10 @@ $Calendar_Settings = $Calendar4You->getSettings();
 			$google_clientid = $GoogleSync4You->getclientid();
 			$google_refresh = $GoogleSync4You->getrefreshtoken();
 			$googleinsert = $GoogleSync4You->getgoogleinsert();
-			if($googleinsert==1) $checked='checked';
+			if ($googleinsert==1)
+				$checked = 'checked';
+			else
+				$checked = '';
 			?>
 			</div><br>
 			<?php

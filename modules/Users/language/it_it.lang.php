@@ -42,19 +42,24 @@
   'Name' => 'Nome',
   'Tools' => 'Strumenti',
 
-
-
   'LBL_GROUP' => 'Gruppo',
   'LBL_CURRENCY_NAME' => 'Valuta',
 
   'LBL_NEW_USER_BUTTON_TITLE' => 'Nuovo Utente [Alt+N]',
   'LBL_NEW_USER_BUTTON_LABEL' => 'Nuovo Utente',
   'LBL_NEW_USER_BUTTON_KEY' => 'N',
+  'LBL_EXPORT_USER_BUTTON_TITLE' => 'Esporta utenti [Alt+E]',
+  'LBL_EXPORT_USER_BUTTON_LABEL' => 'Esporta utenti',
+  'LBL_EXPORT_USER_BUTTON_KEY' => 'E',
   'LBL_DATE_FORMAT' => 'Formato Data',
 
   'LBL_ERROR' => 'Errore:',
   'LBL_PASSWORD' => 'Password:',
   'LBL_USER_NAME' => 'Nome Utente',
+  'LBL_2FACODE' => 'Code',
+  'LBL_2FAGETCODE' => 'Get another code',
+  '2FA_NEWCODESENT' => 'New code has been sent.',
+  '2FA_ACCESSCODE' => 'Your access code is %s',
   'LBL_CRM_ID' => 'CRM ID',
   'LBL_FIRST_NAME' => 'Nome',
   'LBL_LAST_NAME' => 'Cognome',
@@ -109,6 +114,8 @@
   'ERR_ENTER_CONFIRMATION_PASSWORD' => 'Inserisci la Conferma della Password.',
   'ERR_REENTER_PASSWORDS' => 'Reinserisci la Password. I valori della  Nuova Password e  della Conferma della Password  non coincidono',
   'ERR_INVALID_PASSWORD' => 'Devi specificare un utente e una password validi.',
+  'ERR_INVALID_2FACODE' => 'You have introduced an invalid code, please try again.',
+  'ERR_INVALIDUSERID' => 'Invalid user ID given.',
   'ERR_INVALID_ADMINIPLOGIN' => 'Administrator users must login from authorized devices.',
   'ERR_INVALID_USERIPLOGIN' => 'Restricted access to authorized personnel only<br> You are connecting from an invalid IP',
   'ERR_PASSWORD_CHANGE_FAILED_1' => 'Impossibile modificare la password per',
@@ -636,7 +643,15 @@
   'LBL_3_MIN' => '3 minuti',
   'LBL_4_MIN' => '4 minuti',
   'LBL_5_MIN' => '5 minuti',
-  'LBL_EMAILS_PER_PAGE' => 'Email per pagina',
+	'None' => 'None',
+	'1 Minute' => '1 Minuto',
+	'5 Minutes' => '5 Minuti',
+	'15 Minutes' => '15 Minuti',
+	'30 Minutes' => '30 Minuti',
+	'45 Minutes' => '45 Minuti',
+	'1 Hour' => '1 Hour',
+	'1 Day' => '1 Day',
+	'LBL_EMAILS_PER_PAGE' => 'Email per pagina',
 
   'LBL_ENTER_PROFILE' => 'Inserisci il nome del profilo',
   'TITLE_USER_DOCUMENT' => 'Documento senza nome',
@@ -648,7 +663,7 @@
   'LBL_SSL' => 'SSL',
 
   'LBL_USERNAME_EXIST' => 'Nome utente gi&agrave; esistente!',
- 
+
  'LBL_UNAUTHORIZED_ACCESS' => 'Accesso non autorizzato all`amministrazione utenti',
 
   'LBL_TAGCLOUD_DISPLAY' => 'Tag Cloud Display',
@@ -668,10 +683,7 @@
 'Asterisk Extension' => 'Estensione Asterisk',
 'Receive Incoming Calls' => 'Ricevi chiamate in entrata',
 
-'LBL_USER_CUSTOMFIELDS_DESCRIPTION' => 'Crea campi personalizzati utente',
-'LBL_USER_CUSTOMFIELDS' => 'Campi Personalizzati Utente',
 'LBL_CURRENCY_CONFIGURATION'=> 'Configurazione Valuta',
-
 
 'Kwajalein' => '(UTC-12:00) International Date Line West',
 'Pacific/Midway' => '(UTC-11:00) Coordinated Universal Time-11',
@@ -793,6 +805,11 @@
 'Min. 1 number' => 'Minimo un numero',
 'Min. 1 special character' => 'Minimo un carattere speciale ! ? , ; - @ #',
 'Generate password' => 'Genera password',
+'ERR_USER_LOGGED_IN' => 'The User Name is currently in use on another computer. Terminate the session in use or enter a different User Name.',
+'ERR_USER_CAN_UNBLOCK' => 'An inactive session by the same User Name is blocking your login attempt(s).',
+'LBL_USERLOGGEDOUTOK' => 'The user has been logged out correctly.',
+'LBL_USERLOGGEDOUTNOK' => 'The user could not be logged out.',
+'LBL_UNBLOCK_USR' => 'Unblock the session to login?',
 // LDAP
 'LBL_QUERY' => 'Query',
 'LBL_FORE_LASTNAME' => 'Nome o Cognome',

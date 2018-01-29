@@ -16,6 +16,8 @@ include_once('vtlib/Vtiger/FieldBasic.php');
  */
 class Vtiger_Field extends Vtiger_FieldBasic {
 
+	var $webserviceField = false;
+
 	/**
 	 * Get unique picklist id to use
 	 * @access private
@@ -88,6 +90,34 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 			// Associate picklist values to all the role
 			$adb->pquery("INSERT INTO vtiger_role2picklist(roleid, picklistvalueid, picklistid, sortid) SELECT roleid,
 				$new_picklistvalueid, $new_picklistid, $sortid FROM vtiger_role", array());
+		}
+	}
+
+	/**
+	 * Delete values for picklist field (for all the roles)
+	 * @param Array List of values to delete. 'value_to_delete' => 'substitute_value'
+	 *
+	 * @internal Creates picklist base if it does not exists
+	 */
+	function delPicklistValues($values) {
+		global $adb,$default_charset;
+
+		foreach ($values as $gvar => $newval) {
+			$sql = 'select * from vtiger_'.$this->name.' where BINARY '.$this->name.'=?';
+			$result = $adb->pquery($sql, array($gvar));
+			if ($adb->num_rows($result)>0) {
+				$origPicklistID = $adb->query_result($result, 0, 'picklist_valueid');
+				$sql = 'delete from vtiger_'.$this->name.' where BINARY '.$this->name.'=?';
+				$adb->pquery($sql, array($gvar));
+				$sql = 'delete from vtiger_role2picklist where picklistvalueid=?';
+				$adb->pquery($sql, array($origPicklistID));
+				$sql = 'DELETE FROM vtiger_picklist_dependency WHERE sourcevalue=? AND sourcefield=? AND tabid=?';
+				$adb->pquery($sql, array($gvar, $this->name, $this->getModuleId()));
+				if(!empty($newval)){
+					$updsql = "UPDATE {$this->table} SET {$this->column}=? WHERE {$this->column}=?";
+					$adb->pquery($updsql,array($newval,$gvar));
+				}
+			}
 		}
 	}
 
@@ -270,5 +300,53 @@ class Vtiger_Field extends Vtiger_FieldBasic {
 		$adb->pquery("DELETE FROM vtiger_field WHERE tabid=?", Array($moduleInstance->id));
 		self::log("Deleting fields of the module ... DONE");
 	}
+
+	/**
+	 * Function to get list of modules the field refernced to
+	 * @return <Array> -  list of modules for which field is refered to
+	 */
+	public function getReferenceList($hideDisabledModules = true, $presenceZero = true) {
+		$webserviceField = $this->getWebserviceFieldObject();
+		$referenceList = $webserviceField->getReferenceList($hideDisabledModules);
+		if ($presenceZero && is_array($referenceList) && count($referenceList) > 0) {
+			foreach ($referenceList as $key => $referenceModule) {
+				$moduleModel = Vtiger_Module::getInstance($referenceModule);
+				if ($moduleModel && $moduleModel->presence != 0) {
+					unset($referenceList[$key]);
+				}
+			}
+		}
+		return $referenceList;
+	}
+
+	/**
+	 * Function to get the Webservice Field Object for the current Field Object
+	 * @return WebserviceField instance
+	 */
+	public function getWebserviceFieldObject() {
+		if ($this->webserviceField == false) {
+			$db = PearDatabase::getInstance();
+
+			$row = array();
+			$row['uitype'] = $this->uitype;
+			$row['block'] = $this->block->id;
+			$row['tablename'] = $this->table;
+			$row['columnname'] = $this->column;
+			$row['fieldname'] = $this->name;
+			$row['fieldlabel'] = $this->label;
+			$row['displaytype'] = $this->displaytype;
+			$row['masseditable'] = $this->masseditable;
+			$row['typeofdata'] = $this->typeofdata;
+			$row['presence'] = $this->presence;
+			$row['tabid'] = $this->getModuleId();
+			$row['fieldid'] = $this->id;
+			$row['readonly'] = !$this->readonly;
+			$row['defaultvalue'] = $this->defaultvalue;
+
+			$this->webserviceField = WebserviceField::fromArray($db, $row);
+		}
+		return $this->webserviceField;
+	}
+
 }
 ?>

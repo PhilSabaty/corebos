@@ -8,7 +8,6 @@
  * All Rights Reserved.
 ********************************************************************************/
 require_once('include/database/PearDatabase.php');
-require_once('config.php');
 require_once('include/utils/MergeUtils.php');
 global $app_strings, $default_charset;
 
@@ -189,7 +188,7 @@ else if($extension == "odt")
     foreach (glob("$wordtemplatedownloadpath/*.odt") as $delefile) {
         unlink($delefile);
     }
-    if (!is_array($mass_merge)) $mass_merge = array($mass_merge);
+    $mass_merge = (array)$mass_merge;
     foreach($mass_merge as $idx => $entityid) {
         $temp_dir=entpack($filename,$wordtemplatedownloadpath,$fileContent);
         $concontent=file_get_contents($wordtemplatedownloadpath.$temp_dir.'/content.xml');
@@ -213,7 +212,7 @@ else if($extension == "rtf")
     foreach (glob("$wordtemplatedownloadpath/*.rtf") as $delefile) {
         unlink($delefile);
     }
-    if (!is_array($mass_merge)) $mass_merge = array($mass_merge);
+    $mass_merge = (array)$mass_merge;
     $filecontent = base64_decode($fileContent);
     foreach($mass_merge as $idx => $entityid) {
         $handle = fopen($wordtemplatedownloadpath.$entityid.$filename,"wb");

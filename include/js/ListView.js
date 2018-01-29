@@ -615,10 +615,8 @@ function ChangeCustomViewStatus(viewid, now_status, changed_status, module, pare
 		if (responseVal.indexOf(':#:FAILURE') > -1) {
 			alert('Failed');
 		} else if (responseVal.indexOf(':#:SUCCESS') > -1) {
-			var values = responseVal.split(':#:');
-			var module_name = values[2];
 			var customview_ele = document.getElementById('viewname');
-			showDefaultCustomView(customview_ele, module_name, parenttab);
+			showDefaultCustomView(customview_ele, module, parenttab);
 		} else {
 			document.getElementById('ListViewContents').innerHTML = responseVal;
 		}
@@ -677,7 +675,7 @@ function getListViewCount(module,element,parentElement,url){
 		}
 		elementList = document.getElementsByName(module+'_listViewCountRefreshIcon');
 		if(module != 'Documents' && typeof parentElement != 'undefined' && elementList.length !=0){
-			for(i=0;i<=elementList.length;){
+			for(i=0;i<elementList.length;){
 				//No need to increment the count, as the element will be eliminated in the next step.
 				elementList[i].parentNode.innerHTML = response;
 			}
@@ -746,16 +744,25 @@ function loadCvList(type,id) {
 function emptyCvList(type,id) {
 	if (confirm(alert_arr.ARE_YOU_SURE_YOU_WANT_TO_DELETE)) {
 		document.getElementById("status").style.display="inline";
+		var relidsselected = get_cookie(type+"_all");
+		if (relidsselected == '' || document.getElementById('Campaigns_'+type+'_selectallActivate').value == 'true') {
+			var idlist = 'All';
+		} else {
+			var idlist = relidsselected;
+		}
 		jQuery.ajax({
-				method: 'POST',
-				url: 'index.php?module=Campaigns&action=CampaignsAjax&file=updateRelations&ajax=true&parentid='+id+'&destination_module='+type+'&mode=delete&idlist=All'
-			}).done(function (response) {
-					document.getElementById("status").style.display="none";
-					var element = document.getElementById('RLContents');
-					element.innerHTML = response;
-					vtlib_executeJavascriptInElement(element);
-				}
-		);
+			method: 'POST',
+			url: 'index.php?module=Campaigns&action=CampaignsAjax&file=updateRelations&ajax=true&parentid='+id+'&destination_module='+type+'&mode=delete',
+			data : {
+				"idlist" : idlist
+			}
+		}).done(function (response) {
+			document.getElementById("status").style.display="none";
+			var element = document.getElementById('RLContents');
+			element.innerHTML = response;
+			vtlib_executeJavascriptInElement(element);
+			set_cookie(type+"_all",'');
+		});
 	}
 }
 
@@ -834,48 +841,6 @@ function alphabetic(module, url, dataid)
 	jQuery.ajax({
 		method: 'POST',
 		url: 'index.php?module=' + module + '&action=' + module + 'Ajax&file=index&ajax=true&search=true&' + url
-	}).done(function (response) {
-		document.getElementById("status").style.display = "none";
-		result = response.split('&#&#&#');
-		document.getElementById("ListViewContents").innerHTML = result[2];
-		if (result[1] != '')
-			salert(result[1]);
-		document.getElementById('basicsearchcolumns').innerHTML = '';
-	}
-	);
-}
-function ajaxChangeStatus(statusname)
-{
-	document.getElementById("status").style.display = "inline";
-	var viewid = document.getElementById('viewname').options[document.getElementById('viewname').options.selectedIndex].value;
-	var idstring = document.getElementById('idlist').value;
-	var searchurl = document.getElementById('search_url').value;
-	var tplstart = '&';
-	if (gstart != '')
-	{
-		tplstart = tplstart + gstart;
-	}
-	if (statusname == 'status')
-	{
-		fninvsh('changestatus');
-		var url = '&leadval=' + document.getElementById('lead_status').options[document.getElementById('lead_status').options.selectedIndex].value;
-		var urlstring = "module=Users&action=updateLeadDBStatus&return_module=Leads" + tplstart + url + "&viewname=" + viewid + "&idlist=" + idstring + searchurl;
-	}
-	else if (statusname == 'owner')
-	{
-		if (document.getElementById("user_checkbox").checked) {
-			fninvsh('changeowner');
-			var url = '&owner_id=' + document.getElementById('lead_owner').options[document.getElementById('lead_owner').options.selectedIndex].value;
-			var urlstring = "module=Users&action=updateLeadDBStatus&return_module=" + gVTModule + tplstart + url + "&viewname=" + viewid + "&idlist=" + idstring + searchurl;
-		} else {
-			fninvsh('changeowner');
-			var url = '&owner_id=' + document.getElementById('lead_group_owner').options[document.getElementById('lead_group_owner').options.selectedIndex].value;
-			var urlstring = "module=Users&action=updateLeadDBStatus&return_module=" + gVTModule + tplstart + url + "&viewname=" + viewid + "&idlist=" + idstring + searchurl;
-		}
-	}
-	jQuery.ajax({
-		method: 'POST',
-		url: 'index.php?' + urlstring
 	}).done(function (response) {
 		document.getElementById("status").style.display = "none";
 		result = response.split('&#&#&#');

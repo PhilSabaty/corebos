@@ -77,7 +77,7 @@ if(!empty($_REQUEST['modechk']))
 }
 
 $smarty->assign("PARENTTAB", $parenttab);
-
+$smarty->assign('CHANGE_PW_BUTTON', '');
 if ((is_admin($current_user) || $_REQUEST['record'] == $current_user->id)
 		&& isset($default_user_name)
 		&& $default_user_name == $focus->user_name
@@ -85,8 +85,7 @@ if ((is_admin($current_user) || $_REQUEST['record'] == $current_user->id)
 		&& $lock_default_user_name == true) {
 	$buttons = "<input title='".$app_strings['LBL_EDIT_BUTTON_TITLE']."' accessKey='".$app_strings['LBL_EDIT_BUTTON_KEY']."' class='crmButton small edit' onclick=\"this.form.return_module.value='Users'; this.form.return_action.value='DetailView'; this.form.return_id.value='$focus->id'; this.form.action.value='EditView';\" type='submit' name='Edit' value='  ".$app_strings['LBL_EDIT_BUTTON_LABEL']."  '>";
 	$smarty->assign('EDIT_BUTTON',$buttons);
-}
-elseif (is_admin($current_user) || $_REQUEST['record'] == $current_user->id) {
+} elseif ((is_admin($current_user) && !in_array($focus->user_name, $cbodBlockedUsers)) || $_REQUEST['record'] == $current_user->id) {
 	$buttons = "<input title='".$app_strings['LBL_EDIT_BUTTON_TITLE']."' accessKey='".$app_strings['LBL_EDIT_BUTTON_KEY']."' class='crmButton small edit' onclick=\"this.form.return_module.value='Users'; this.form.return_action.value='DetailView'; this.form.return_id.value='$focus->id'; this.form.action.value='EditView';\" type='submit' name='Edit' value='  ".$app_strings['LBL_EDIT_BUTTON_LABEL']."  '>";
 	$smarty->assign('EDIT_BUTTON',$buttons);
 	$authType = GlobalVariable::getVariable('User_AuthenticationType', 'SQL');
@@ -104,24 +103,16 @@ elseif (is_admin($current_user) || $_REQUEST['record'] == $current_user->id) {
 	}
 	$smarty->assign('CHANGE_PW_BUTTON',$buttons);
 }
-if (is_admin($current_user))
-{
-	$buttons = "<input title='".$app_strings['LBL_DUPLICATE_BUTTON_TITLE']."' accessKey='".$app_strings['LBL_DUPLICATE_BUTTON_KEY']."' class='crmButton small cancel' onclick=\"this.form.return_module.value='Users'; this.form.return_action.value='DetailView'; this.form.isDuplicate.value=true; this.form.return_id.value='".vtlib_purify($_REQUEST['record'])."';this.form.action.value='EditView'\" type='submit' name='Duplicate' value=' ".$app_strings['LBL_DUPLICATE_BUTTON_LABEL']."'   >";
+if (is_admin($current_user) && !in_array($focus->user_name, $cbodBlockedUsers)) {
+	$buttons = "<input title='".$app_strings['LBL_DUPLICATE_BUTTON_TITLE']."' accessKey='".$app_strings['LBL_DUPLICATE_BUTTON_KEY']."' class='crmButton small create' onclick=\"this.form.return_module.value='Users'; this.form.return_action.value='DetailView'; this.form.isDuplicate.value=true; this.form.return_id.value='".vtlib_purify($_REQUEST['record'])."';this.form.action.value='EditView'\" type='submit' name='Duplicate' value=' ".$app_strings['LBL_DUPLICATE_BUTTON_LABEL']."'   >";
 	$smarty->assign('DUPLICATE_BUTTON',$buttons);
-	
+
 	//done so that only the admin user can see the customize tab button
 	if($_REQUEST['record'] != $current_user->id)
 	{
 		$buttons = "<input title='".$app_strings['LBL_DELETE_BUTTON_TITLE']."' accessKey='".$app_strings['LBL_DELETE_BUTTON_KEY']."' class='classBtn' onclick=\"deleteUser('$focus->id')\" type='button' name='Delete' value='  ".$app_strings['LBL_DELETE_BUTTON_LABEL']."  '>";
 		$smarty->assign('DELETE_BUTTON',$buttons);
 	}
-
-	if(isset($_SESSION['authenticated_user_roleid']) and $_SESSION['authenticated_user_roleid'] == 'administrator')
-	{
-		$buttons = "<input title='".$app_strings['LBL_LISTROLES_BUTTON_TITLE']."' accessKey='".$app_strings['LBL_LISTROLES_BUTTON_KEY']."' class='classBtn' onclick=\"this.form.return_module.value='Users'; this.form.return_action.value='TabCustomise'; this.form.action.value='listroles'; this.form.record.value= '". $current_user->id ."'\" type='submit' name='ListRoles' value=' ".$app_strings['LBL_LISTROLES_BUTTON_LABEL']." '>";
-		$smarty->assign('LISTROLES_BUTTON',$buttons);
-	}
-
 }
 
 if(is_admin($current_user))
@@ -140,12 +131,12 @@ $smarty->assign("VALIDATION_DATA_FIELDNAME",$data['fieldname']);
 $smarty->assign("VALIDATION_DATA_FIELDDATATYPE",$data['datatype']);
 $smarty->assign("VALIDATION_DATA_FIELDLABEL",$data['fieldlabel']);
 $smarty->assign("MODULE", 'Users');
+$smarty->assign('cbodUserBlocked', in_array($focus->user_name, $cbodBlockedUsers));
 $smarty->assign("CURRENT_USERID", $current_user->id);
 $HomeValues = $focus->getHomeStuffOrder($focus->id);
 $smarty->assign("TAGCLOUDVIEW",$HomeValues['Tag Cloud']);
 $smarty->assign('SHOWTAGAS',getTranslatedString($HomeValues['showtagas'],'Users'));
-unset($HomeValues['Tag Cloud']);
-unset($HomeValues['showtagas']);
+unset($HomeValues['Tag Cloud'],$HomeValues['showtagas']);
 $smarty->assign("HOMEORDER",$HomeValues);
 $smarty->assign("BLOCKS", getBlocks($currentModule,"detail_view",'',$focus->column_fields));
 $smarty->assign("USERNAME", getFullNameFromArray('Users', $focus->column_fields));
@@ -170,30 +161,7 @@ $smarty->display("UserDetailView.tpl");
 }
 else
 {
-	$output = '<table border="0" cellpadding="5" cellspacing="0" height="450" width="100%">
-		<tr><td align = "center">
-		<div style="border: 3px solid rgb(153, 153, 153); background-color: rgb(255, 255, 255); width: 55%; position: relative; z-index: 10000000;">
-			<table border="0" cellpadding="5" cellspacing="0" width="98%">
-			<tr>
-				<td rowspan="2" width="11%">
-				  	<img src="'. vtiger_imageurl('denied.gif', $theme).'">
-				</td>
-				<td style="border-bottom: 1px solid rgb(204, 204, 204);" nowrap="nowrap" width="70%">
-					<span class="genHeaderSmall">'.$app_strings["LBL_PERMISSION"].'
-					</span>
-				</td>
-			</tr>
-			<tr>
-				<td class="small" align="right" nowrap="nowrap">
-					<a href="javascript:window.history.back();">'.$app_strings["LBL_GO_BACK"].'</a>
-					<br>
-				</td>
-			</tr>
-			</table>
-		</div>
-		</td></tr>
-	</table>';
-	echo $output;
+	$smarty->display('modules/Vtiger/OperationNotPermitted.tpl');
 }
 
 ?>

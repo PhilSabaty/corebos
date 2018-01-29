@@ -53,9 +53,8 @@ function vtlib_getModuleNameById($tabid) {
 function vtlib_getModuleNameForSharing() {
 	global $adb;
 	$std_modules = array('Calendar','Leads','Accounts','Contacts','Potentials',
-			'HelpDesk','Campaigns','Quotes','PurchaseOrder','SalesOrder','Invoice','Events');
-	$modulesList = getSharingModuleList($std_modules);
-	return $modulesList;
+		'HelpDesk','Campaigns','Quotes','PurchaseOrder','SalesOrder','Invoice','Events');
+	return getSharingModuleList($std_modules);
 }
 
 /**
@@ -133,7 +132,7 @@ function vtlib_RecreateUserPrivilegeFiles() {
 function vtlib_moduleAlwaysActive() {
 	$modules = Array (
 		'CustomView', 'Settings', 'Users', 'Migration',
-		'Utilities', 'uploads', 'Import', 'com_vtiger_workflow', 'PickList',
+		'Utilities', 'Import', 'com_vtiger_workflow', 'PickList',
 	);
 	return $modules;
 }
@@ -177,7 +176,7 @@ function vtlib_getToggleModuleInfo() {
 
 	$modinfo = Array();
 
-	$sqlresult = $adb->query("SELECT name, presence, customized, isentitytype FROM vtiger_tab WHERE name NOT IN ('Users') AND presence IN (0,1) ORDER BY name");
+	$sqlresult = $adb->query("SELECT name, presence, customized, isentitytype FROM vtiger_tab WHERE name NOT IN ('Users','Calendar') AND presence IN (0,1) ORDER BY name");
 	$num_rows  = $adb->num_rows($sqlresult);
 	for($idx = 0; $idx < $num_rows; ++$idx) {
 		$module = $adb->query_result($sqlresult, $idx, 'name');
@@ -267,7 +266,7 @@ function __vtlib_get_modulevar_value($module, $varname) {
 }
 
 /**
- * Convert given text input to singular.
+ * @deprecated: use 'SINGLE_' or cbtranslation
  */
 function vtlib_tosingular($text) {
 	$lastpos = strripos($text, 's');
@@ -361,7 +360,7 @@ function vtlib_isCustomModule($moduleName) {
 }
 
 /**
- * Check for custom module by its name.
+ * Check for entity module by its name.
  */
 function vtlib_isEntityModule($moduleName) {
 	global $adb,$log;
@@ -442,14 +441,15 @@ function vtlib_purify($input, $ignore=false) {
 	if(!$ignore) {
 		// Initialize the instance if it has not yet done
 		if($__htmlpurifier_instance == false) {
-			if(empty($use_charset)) $use_charset = 'UTF-8';
-			if(empty($use_root_directory)) $use_root_directory = dirname(__FILE__) . '/../..';
+			if (empty($use_charset)) $use_charset = 'UTF-8';
+			if (empty($use_root_directory)) $use_root_directory = __DIR__ . '/../..';
 
 			include_once ('include/htmlpurifier/library/HTMLPurifier.auto.php');
 
 			$config = HTMLPurifier_Config::createDefault();
 			$config->set('Core.Encoding', $use_charset);
-			$config->set('Cache.SerializerPath', "$use_root_directory/test/vtlib");
+			$config->set('Cache.SerializerPath', "$use_root_directory/cache");
+			$config->set('Attr.AllowedFrameTargets', array('_blank', '_self', '_parent', '_top','_new','_newtc'));
 
 			$__htmlpurifier_instance = new HTMLPurifier($config);
 		}
@@ -526,6 +526,12 @@ function getvtlib_open_popup_window_function($popupmodule,$fldname,$basemodule) 
 		$mod = new $popupmodule();
 		if (method_exists($mod, 'getvtlib_open_popup_window_function')) {
 			return $mod->getvtlib_open_popup_window_function($fldname,$basemodule);
+		} elseif (file_exists('modules/'.$popupmodule.'/getvtlib_open_popup_window_function.php')) {
+			@include_once 'modules/'.$popupmodule.'/getvtlib_open_popup_window_function.php';
+			if (function_exists('__hook_getvtlib_open_popup_window_function')) {
+				$mod->registerMethod('__hook_getvtlib_open_popup_window_function');
+				return $mod->__hook_getvtlib_open_popup_window_function($fldname,$basemodule);
+			}
 		}
 	}
 	return 'vtlib_open_popup_window';

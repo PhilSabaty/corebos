@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ********************************************************************************/
-require_once("config.php");
+require_once('config.inc.php');
 require_once('include/logging.php');
 require_once('include/nusoap/nusoap.php');
 require_once('modules/HelpDesk/HelpDesk.php');
@@ -285,6 +285,12 @@ $server->register(
 	$NAMESPACE);
 
 $server->register(
+	'get_pdfmaker_pdf',
+	array('id'=>'xsd:string','block'=>'xsd:string','contactid'=>'xsd:string','sessionid'=>'xsd:string','language'=>'xsd:string'),
+	array('return'=>'tns:field_datalist_array'),
+	$NAMESPACE);
+
+$server->register(
 	'get_filecontent_detail',
 	array('id'=>'xsd:string','folderid'=>'xsd:string','block'=>'xsd:string','contactid'=>'xsd:string','sessionid'=>'xsd:string'),
 	array('return'=>'tns:get_ticket_attachments_array'),
@@ -355,7 +361,7 @@ class Vtiger_Soap_CustomerPortal {
 	/** Preference value caching */
 	static $_prefs_cache = array();
 	static function lookupPrefValue($key) {
-		if(self::$_prefs_cache[$key]) {
+		if (isset(self::$_prefs_cache[$key])) {
 			return self::$_prefs_cache[$key];
 		}
 		return false;
@@ -415,8 +421,7 @@ function get_ticket_comments($input_array)
 	}
 
 	$seed_ticket = new HelpDesk();
-	$response = $seed_ticket->get_ticket_comments_list($ticketid);
-	return $response;
+	return $seed_ticket->get_ticket_comments_list($ticketid);
 }
 
 /**	function used to get the combo values ie., picklist values of the HelpDesk module and also the list of products
@@ -497,8 +502,8 @@ function get_combo_values($input_array)
 											(SELECT contactid FROM vtiger_contactdetails WHERE accountid =
 													(SELECT accountid FROM vtiger_contactdetails WHERE contactid=?))
 							';
-			array_push($params, $id);
-			array_push($params, $id);
+			$params[] = $id;
+			$params[] = $id;
 		}
 		$serviceResult = $adb->pquery($servicequery,$params);
 
@@ -631,9 +636,8 @@ function save_faq_comment($input_array)
 	}
 
 	$params = Array('id'=>"$id", 'sessionid'=>"$sessionid");
-	$result = get_KBase_details($input_array);
 
-	return $result;
+	return get_KBase_details($input_array);
 }
 
 /** function to get a list of tickets and to search tickets
@@ -648,13 +652,16 @@ function save_faq_comment($input_array)
 
 
 function get_tickets_list($input_array) {
-
 	global $adb,$log, $current_user;
 	//To avoid SQL injection we are type casting as well as bound the id variable.
 	$id = (int) vtlib_purify($input_array['id']);
 
 	$only_mine = $input_array['onlymine'];
-	$where = $adb->sql_escape_string($input_array['where']);
+	if (empty($input_array['where'])) {
+		$where = '';
+	} else {
+		$where = $adb->sql_escape_string($input_array['where']);
+	}
 	$match = $input_array['match'];
 	$sessionid = $input_array['sessionid'];
 
@@ -688,7 +695,7 @@ function get_tickets_list($input_array) {
 	$entity_ids_list = array();
 	if($only_mine == 'true' || $show_all == 'false')
 	{
-		array_push($entity_ids_list,$id);
+		$entity_ids_list[] = $id;
 	}
 	else
 	{
@@ -734,11 +741,9 @@ function get_tickets_list($input_array) {
 	}
 	$params = array($entity_ids_list);
 
-
 	$TicketsfieldVisibilityByColumn = array();
 	foreach($fields_list as $fieldlabel=> $fieldname) {
-		$TicketsfieldVisibilityByColumn[$fieldname] =
-			getColumnVisibilityPermission($current_user->id,$fieldname,'HelpDesk');
+		$TicketsfieldVisibilityByColumn[$fieldname] = getColumnVisibilityPermission($current_user->id,$fieldname,'HelpDesk');
 	}
 
 	$res = $adb->pquery($query,$params);
@@ -1003,7 +1008,6 @@ function authenticate_user($username,$password,$version,$login = 'true')
 
 		$list[0]['sessionid'] = $sessionid;
 	}
-
 	return $list;
 }
 
@@ -1342,8 +1346,7 @@ function get_filecontent($input_array)
 	*/
 function add_ticket_attachment($input_array)
 {
-	global $adb,$log;
-	global $root_directory, $upload_badext;
+	global $adb, $log, $upload_badext;
 	$log->debug("Entering customer portal function add_ticket_attachment");
 	$adb->println("INPUT ARRAY for the function add_ticket_attachment");
 	$adb->println($input_array);
@@ -1592,7 +1595,7 @@ function get_list_values($id,$module,$sessionid,$only_mine='true')
 	$show_all=show_all($module);
 	if($only_mine == 'true' || $show_all == 'false')
 	{
-		array_push($entity_ids_list,$id);
+		$entity_ids_list[] = $id;
 	}
 	else
 	{
@@ -1956,7 +1959,7 @@ function get_pdf($id,$block,$customerid,$sessionid)
 	$_REQUEST['record']= $id;
 	$_REQUEST['savemode']= 'file';
 	$sequenceNo = getModuleSequenceNumber($block, $id);
-	$filenamewithpath='test/product/'.$id.'_'.getTranslatedString('SINGLE_'.$block,$block).'_'.$sequenceNo.'.pdf';
+	$filenamewithpath='cache/'.$id.'_'.getTranslatedString('SINGLE_'.$block,$block).'_'.$sequenceNo.'.pdf';
 	if (file_exists($filenamewithpath) && (filesize($filenamewithpath) != 0))
 	unlink($filenamewithpath);
 
@@ -1974,6 +1977,72 @@ function get_pdf($id,$block,$customerid,$sessionid)
 		$filecontents = "failure";
 	}
 	$log->debug("Exiting customer portal function get_pdf");
+	return $filecontents;
+}
+
+function get_pdfmaker_pdf($id,$block,$customerid,$sessionid,$language) {
+	if(!file_exists("modules/PDFMaker/checkGenerate.php"))
+		return array("failure");
+
+	global $adb, $vtiger_current_version, $site_URL, $current_user,$log,$default_language;
+	global $currentModule,$mod_strings,$app_strings,$app_list_strings;
+	$log->debug("Entering customer portal function get_pdfmaker_pdf");
+
+	if(!validateSession($customerid,$sessionid))
+		return array("failure");
+
+	require_once("config.inc.php");
+	$current_user = Users::getActiveAdminUser();
+
+	$currentModule = $block;
+	$current_language = $default_language;
+	$app_strings = return_application_language($current_language);
+	$app_list_strings = return_app_list_strings_language($current_language);
+	$mod_strings = return_module_language($current_language, $currentModule);
+
+	$sql = "SELECT a.templateid
+		FROM vtiger_pdfmaker AS a
+		INNER JOIN vtiger_pdfmaker_settings AS b USING(templateid)
+		WHERE a.module=? AND is_portal='1'";
+	$params = array($currentModule);
+	$result = $adb->pquery($sql, $params);
+	$templateid = $adb->query_result($result,0,"templateid");
+	if ($templateid == "")
+		return array("failure");
+
+	$_REQUEST['relmodule']= $block;
+	$_REQUEST['record']= $id;
+	$_REQUEST['commontemplateid']= $templateid;
+	$_REQUEST['is_portal']= 'true';
+
+	if (file_exists("modules/".$block."/language/".$language.".lang.php"))
+		$_REQUEST['language'] = $language;
+	else
+		$_REQUEST['language'] = "en_us";
+
+	include("modules/PDFMaker/checkGenerate.php");
+
+	if (isset($_SESSION["portal_pdf_name"])) {
+		$filenamewithpath = $_SESSION["portal_pdf_name"];
+		//expected format is cache/<timestamp>/filename.pdf
+		$tmpArr = explode("/", $filenamewithpath);
+		$timestamp = $tmpArr[1];
+		$filename = $tmpArr[2];
+		$filecontents[] = $filename;
+		unset($_SESSION["portal_pdf_name"]);
+
+		if (file_exists($filenamewithpath) && (filesize($filenamewithpath) > 0)) {
+			$filecontents[] = base64_encode(file_get_contents($filenamewithpath));
+			unlink($filenamewithpath);
+			rmdir("cache/".$timestamp); // cache is given as a string for purpose because we expect to have a pdf file in that folder
+		} else {
+			return array("failure");
+		}
+	} else {
+		return array("failure");
+	}
+
+	$log->debug("Exiting customer portal function get_pdfmaker_pdf");
 	return $filecontents;
 }
 
@@ -2125,7 +2194,7 @@ function get_product_list_values($id,$modulename,$sessionid,$only_mine='true')
 
 	if($only_mine == 'true' || $show_all == 'false')
 	{
-		array_push($entity_ids_list,$id);
+		$entity_ids_list[] = $id;
 	}
 	else
 	{
@@ -3048,7 +3117,7 @@ function get_service_list_values($id,$modulename,$sessionid,$only_mine='true')
 
 	if($only_mine == 'true' || $show_all == 'false')
 	{
-		array_push($entity_ids_list,$id);
+		$entity_ids_list[] = $id;
 	}
 	else
 	{
@@ -3312,8 +3381,7 @@ function getCurrencySymbol($result,$i,$column){
 	global $adb;
 	$currencyid = $adb->query_result($result,$i,$column);
 	$curr = getCurrencySymbolandCRate($currencyid);
-	$value = "(".$curr['symbol'].")";
-	return $value;
+	return '('.$curr['symbol'].')';
 
 }
 
